@@ -92,7 +92,7 @@ export class CategoryService {
   ): Promise<Response<SuccessResponseDto> | undefined> {
     try {
       const categories = await Category.find();
-      console.log(categories);
+     
       if (!categories) {
         throw new HttpException('Category does not exist or deleted', 404);
       }
@@ -110,7 +110,7 @@ export class CategoryService {
     categoryId: string,
     response: Response,
   ): Promise<Response<SuccessResponseDto> | undefined> {
-    console.log(categoryId);
+    
     try {
       // check if category exists
       const isCategory = await Category.findOne({ where: { id: categoryId } });
