@@ -41,6 +41,7 @@ export class CategoryService {
     response: Response,
   ): Promise<Response<SuccessResponseDto> | undefined> {
     try {
+      console.log(payload);
       await Category.createQueryBuilder()
         .update()
         .set({ name: payload.name, description: payload.description })
