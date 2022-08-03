@@ -22,7 +22,6 @@ export class CategoryController {
     @Body() payload: CreateCategoryDto,
     @Res() response: Response,
   ): Promise<Response<SuccessResponseDto> | undefined> {
-    console.log(payload instanceof CreateCategoryDto);
     return await this.categoryService.createCategory(payload, response);
   }
   @Put('update/:categoryId')
@@ -31,7 +30,6 @@ export class CategoryController {
     @Res() response: Response,
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
   ): Promise<Response<SuccessResponseDto> | undefined> {
-    console.log(body);
     return this.categoryService.updateCategory(body, categoryId, response);
   }
   @Get('/:categoryId')
