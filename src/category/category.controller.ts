@@ -7,46 +7,51 @@ import {
   Get,
   Delete,
   ParseUUIDPipe,
+  Res,
 } from '@nestjs/common';
-
-import {
-  createCategoryDto,
-  updateCategoryDto,
-  getCategoriesDto,
-  getCategoryDto,
-  updateCategoryResponseDto,
-  createCategoryResponseDto,
-  deleteCategoryResponseDto,
-} from '../dto/category.dto';
+import { SuccessResponseDto } from './common/success/dto/success.dto';
+import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
 import { CategoryService } from './category.service';
+import { Response } from 'express';
+
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
   @Post('create')
-  createCategory(@Body() body: createCategoryDto): createCategoryResponseDto {
-    return this.categoryService.createCategory(body);
+  private async createCategory(
+    @Body() payload: CreateCategoryDto,
+    @Res() response: Response,
+  ): Promise<Response<SuccessResponseDto> | undefined> {
+    console.log(payload instanceof CreateCategoryDto);
+    return await this.categoryService.createCategory(payload, response);
   }
   @Put('update/:categoryId')
-  updateCategory(
-    @Body() body: updateCategoryDto,
+  private async updateCategory(
+    @Body() body: UpdateCategoryDto,
+    @Res() response: Response,
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
-  ): updateCategoryResponseDto {
-    return this.categoryService.updateCategory(body, categoryId);
+  ): Promise<Response<SuccessResponseDto> | undefined> {
+    console.log(body);
+    return this.categoryService.updateCategory(body, categoryId, response);
   }
   @Get('/:categoryId')
-  getCategory(
+  private async getCategory(
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
-  ): getCategoryDto {
-    return this.categoryService.getCategory(categoryId);
+    @Res() response: Response,
+  ): Promise<Response<SuccessResponseDto> | undefined> {
+    return await this.categoryService.getCategory(categoryId, response);
   }
   @Delete('delete/:categoryId')
-  deleteCategory(
+  private async deleteCategory(
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
-  ): deleteCategoryResponseDto {
-    return this.categoryService.deleteCategory(categoryId);
+    @Res() response: Response,
+  ): Promise<Response<SuccessResponseDto> | undefined> {
+    return await this.categoryService.deleteCategory(categoryId, response);
   }
   @Get()
-  getCategories(): getCategoriesDto[] {
-    return [];
+  private async getCategories(
+    @Res() response: Response,
+  ): Promise<Response<SuccessResponseDto> | undefined> {
+    return await this.categoryService.getCategories(response);
   }
 }
