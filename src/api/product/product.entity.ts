@@ -1,32 +1,29 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
-  // CreateDateColumn,
-  // UpdateDateColumn,
+  BaseEntity,
+  CreateDateColumn,
+  UpdateDateColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity()
-export class Product {
-  @PrimaryGeneratedColumn()
-  id: number;
+export class Product extends BaseEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   name: string;
 
-  @Column()
+  @Column({ type: 'numeric' })
   price: number;
 
   @Column({ default: false })
   isPublished: boolean;
 
-  //   @CreateDateColumn({ type: 'timestamp without time zone', default: 'NOW()' })
-  //   createdAt: Date;
+  @CreateDateColumn()
+  createdAt: Date;
 
-  //   @UpdateDateColumn({
-  //     type: 'timestamp without time zone',
-  //     onUpdate: 'NOW()',
-  //     nullable: true,
-  //   })
-  //   updatedAt: Date;
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

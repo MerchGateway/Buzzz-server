@@ -1,7 +1,8 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
 import { Repository } from 'typeorm';
-import { CreateProductDto } from './product.dto';
+import { CreateProductDto, EditProductDto } from './product.dto';
 import { Product } from './product.entity';
 
 @Injectable()
@@ -17,47 +18,47 @@ export class ProductService {
     return this.productRepository.save(product);
   }
 
-  async handleEditProduct(body: CreateProductDto, id: number) {
+  async handleEditProduct(body: EditProductDto, id: string) {
     try {
       const product = await this.handleGetAProduct(id);
       if (product) {
-        return this.productRepository.update(
-          { id },
-          { name: body?.name, price: body?.price },
-        );
+        (product.name = body?.name || product.name),
+          (product.price = body?.price || product.price);
+        await product.save();
+        return product;
       }
     } catch (err) {
       throw err;
     }
   }
 
-  async handleSetVisibility(id: number) {
+  async handleSetVisibility(id: string) {
     try {
       const product = await this.handleGetAProduct(id);
       if (product) {
-        console.log(product);
         product.isPublished = !product.isPublished;
-        const visibility = await this.productRepository.update(
-          { id },
-          { isPublished: product.isPublished },
-        );
-        return visibility;
+        await product.save();
+        return product;
       }
     } catch (err) {
       throw err;
     }
   }
 
-  async handleGetAProduct(id: number) {
+  async handleGetAProduct(id: string) {
     try {
       const product = await this.productRepository.findOneByOrFail({ id });
       if (product) {
         return product;
-      } else {
-        throw new ForbiddenException('No product with this credentails found ');
       }
     } catch (err) {
-      throw err;
+      if (err instanceof EntityNotFoundError) {
+        throw new ForbiddenException(
+          'No product with this credentail(s) found',
+        );
+      } else {
+        throw err;
+      }
     }
   }
   async handleGetAllProducts() {
@@ -68,14 +69,21 @@ export class ProductService {
     }
   }
 
-  async handleDeleteAProduct(id: number) {
+  async handleQueryProducts(query: EditProductDto) {
+    console.log('query', query);
+    // const products = await this.productRepository.find();
+
+    // if (products) {
+    //   return products;
+    // }
+  }
+
+  async handleDeleteAProduct(id: string) {
     try {
       const product = await this.handleGetAProduct(id);
       if (product) {
         const deleteProd = await this.productRepository.remove(product);
         return deleteProd;
-      } else {
-        throw new ForbiddenException('No product with this credentails found ');
       }
     } catch (err) {
       throw err;

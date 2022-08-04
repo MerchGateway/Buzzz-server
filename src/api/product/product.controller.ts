@@ -9,9 +9,9 @@ import {
   UploadedFiles,
   Get,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { UpdateResult } from 'typeorm';
 import { CreateProductDto, EditProductDto } from './product.dto';
 import { Product } from './product.entity';
 import { ProductService } from './product.service';
@@ -44,20 +44,17 @@ export class ProductController {
   }
 
   @Put('set-visibility/:id')
-  public setVisibility(@Param() id: number): Promise<UpdateResult> {
+  public setVisibility(@Param('id') id: string) {
     return this.service.handleSetVisibility(id);
   }
 
   @Put('edit/:id')
-  public editProduct(
-    @Body() body: EditProductDto,
-    @Param('id') id: number,
-  ): Promise<UpdateResult> {
+  public editProduct(@Body() body: EditProductDto, @Param('id') id: string) {
     return this.service.handleEditProduct(body, id);
   }
 
   @Get(':id')
-  public getAProduct(@Body() id: number): Promise<Product | string> {
+  public getAProduct(@Param('id') id: string): Promise<Product | string> {
     return this.service.handleGetAProduct(id);
   }
 
@@ -66,8 +63,13 @@ export class ProductController {
     return this.service.handleGetAllProducts();
   }
 
+  @Get('search')
+  public queryProducts(@Query() query: EditProductDto) {
+    return this.service.handleQueryProducts(query);
+  }
+
   @Delete(':id')
-  public deleteAProduct(@Param('id') id: number): Promise<Product | string> {
+  public deleteAProduct(@Param('id') id: string): Promise<Product | string> {
     return this.service.handleDeleteAProduct(id);
   }
 }
