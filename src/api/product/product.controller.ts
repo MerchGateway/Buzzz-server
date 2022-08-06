@@ -63,8 +63,8 @@ export class ProductController {
     return this.service.handleGetAllProducts();
   }
 
-  @Get('search')
-  public queryProducts(@Query() query: EditProductDto) {
+  @Get('search/query')
+  public queryProducts(@Query() query: any) {
     return this.service.handleQueryProducts(query);
   }
 

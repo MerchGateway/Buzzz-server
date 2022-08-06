@@ -69,13 +69,19 @@ export class ProductService {
     }
   }
 
-  async handleQueryProducts(query: EditProductDto) {
-    console.log('query', query);
-    // const products = await this.productRepository.find();
+  async handleQueryProducts(query: any) {
+    const allProducts = await this.handleGetAllProducts();
+    const filters = query;
 
-    // if (products) {
-    //   return products;
-    // }
+    const filteredUsers = allProducts[0].filter((product) => {
+      let isValid = true;
+      for (const key in filters) {
+        console.log(key, product[key], filters[key]);
+        isValid = isValid && product[key] == filters[key];
+      }
+      return isValid;
+    });
+    return filteredUsers;
   }
 
   async handleDeleteAProduct(id: string) {
