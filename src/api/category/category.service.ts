@@ -1,7 +1,7 @@
 import { Injectable, HttpException } from '@nestjs/common';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
-import { Category } from '../entities/category.entity';
-import successResponse from 'src/category/common/success/success.response';
+import { Category } from '../../entities/category.entity';
+import successResponse from 'src/api/category/common/success/success.response';
 import { uuid } from 'uuidv4';
 import { Response } from 'express';
 import { SuccessResponseDto } from './common/success/dto/success.dto';
