@@ -2,6 +2,11 @@ import { Injectable, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
 import { Repository } from 'typeorm';
+import {
+  paginate,
+  Pagination,
+  IPaginationOptions,
+} from 'nestjs-typeorm-paginate';
 import { CreateProductDto, EditProductDto } from './product.dto';
 import { Product } from './product.entity';
 
@@ -21,12 +26,10 @@ export class ProductService {
   async handleEditProduct(body: EditProductDto, id: string) {
     try {
       const product = await this.handleGetAProduct(id);
-      if (product) {
-        (product.name = body?.name || product.name),
-          (product.price = body?.price || product.price);
-        await product.save();
-        return product;
-      }
+      (product.name = body?.name || product.name),
+        (product.price = body?.price || Number(product.price));
+      await product.save();
+      return product;
     } catch (err) {
       throw err;
     }
@@ -35,14 +38,25 @@ export class ProductService {
   async handleSetVisibility(id: string) {
     try {
       const product = await this.handleGetAProduct(id);
-      if (product) {
-        product.isPublished = !product.isPublished;
-        await product.save();
-        return product;
-      }
+      product.isPublished = !product.isPublished;
+      await product.save();
+      return product;
     } catch (err) {
       throw err;
     }
+  }
+  async handleQueryProducts(
+    { limit, page, route }: IPaginationOptions,
+    searchQuery: any,
+  ) {
+    const searchResult = this.productRepository
+      .createQueryBuilder('product')
+      .where('product.name = :name OR product.price = :price', {
+        name: searchQuery?.name,
+        price: searchQuery?.price,
+      });
+
+    return paginate<Product>(searchResult, { limit, page, route });
   }
 
   async handleGetAProduct(id: string) {
@@ -61,27 +75,14 @@ export class ProductService {
       }
     }
   }
-  async handleGetAllProducts() {
-    const products = await this.productRepository.findAndCount();
 
-    if (products) {
-      return products;
-    }
-  }
+  async handleGetAllProducts(
+    options: IPaginationOptions,
+  ): Promise<Pagination<Product>> {
+    const fetch = this.productRepository.createQueryBuilder('p');
+    fetch.orderBy('p.createdAt', 'ASC');
 
-  async handleQueryProducts(query: any) {
-    const allProducts = await this.handleGetAllProducts();
-    const filters = query;
-
-    const filteredUsers = allProducts[0].filter((product) => {
-      let isValid = true;
-      for (const key in filters) {
-        console.log(key, product[key], filters[key]);
-        isValid = isValid && product[key] == filters[key];
-      }
-      return isValid;
-    });
-    return filteredUsers;
+    return paginate<Product>(fetch, options);
   }
 
   async handleDeleteAProduct(id: string) {

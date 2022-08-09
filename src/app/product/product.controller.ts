@@ -10,8 +10,11 @@ import {
   Get,
   Delete,
   Query,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { Pagination } from 'nestjs-typeorm-paginate';
 import { CreateProductDto, EditProductDto } from './product.dto';
 import { Product } from './product.entity';
 import { ProductService } from './product.service';
@@ -53,19 +56,40 @@ export class ProductController {
     return this.service.handleEditProduct(body, id);
   }
 
+  //seach or filter product by price || name || or any other field that would be added
+  @Get('search')
+  public queryProducts(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
+    @Query() searchQuery: any,
+  ) {
+    return this.service.handleQueryProducts(
+      {
+        limit,
+        page,
+        route: 'http://localhost:5000/product/search',
+      },
+      searchQuery,
+    );
+  }
+
   @Get(':id')
   public getAProduct(@Param('id') id: string): Promise<Product | string> {
     return this.service.handleGetAProduct(id);
   }
 
   @Get()
-  public getAllProducts(): Promise<[Product[], number]> {
-    return this.service.handleGetAllProducts();
-  }
+  public getAllProducts(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
+  ): Promise<Pagination<Product>> {
+    limit = limit > 100 ? 100 : limit;
 
-  @Get('search/query')
-  public queryProducts(@Query() query: any) {
-    return this.service.handleQueryProducts(query);
+    return this.service.handleGetAllProducts({
+      page,
+      limit,
+      route: 'http://localhost:5000/product',
+    });
   }
 
   @Delete(':id')
