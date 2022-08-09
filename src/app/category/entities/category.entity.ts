@@ -4,12 +4,12 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity('categories')
 export class Category extends BaseEntity {
-  @PrimaryColumn({ type: 'uuid' })
+  @PrimaryGeneratedColumn('uuid')
   id: string;
   @Column({
     type: 'varchar',

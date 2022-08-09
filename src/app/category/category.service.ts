@@ -1,10 +1,7 @@
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
-import { Category } from '../../entities/category.entity';
-import successResponse from 'src/api/category/common/success/success.response';
-import { uuid } from 'uuidv4';
-import { Response } from 'express';
-import { SuccessResponseDto } from './common/success/dto/success.dto';
+
+import { Category } from './entities/category.entity';
 
 @Injectable()
 export class CategoryService {
@@ -12,25 +9,18 @@ export class CategoryService {
 
   public async createCategory(
     payload: CreateCategoryDto,
-    response: Response,
-  ): Promise<Response<SuccessResponseDto> | undefined> {
+  ): Promise<Category | undefined> {
     try {
       const category = Category.create({
-        id: uuid(),
         name: payload.name,
         description: payload.description,
       });
-      await category.save();
+      await Category.save(category);
       // fetch fresh copy of the just created category
       const cleanCategory = await Category.findOne({
         where: { id: category.id },
       });
-      return successResponse(
-        response,
-        cleanCategory,
-        201,
-        'Category created successfully',
-      );
+      return cleanCategory;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
@@ -38,8 +28,7 @@ export class CategoryService {
   public async updateCategory(
     payload: UpdateCategoryDto,
     categoryId: string,
-    response: Response,
-  ): Promise<Response<SuccessResponseDto> | undefined> {
+  ): Promise<Category | undefined> {
     try {
       console.log(payload);
       await Category.createQueryBuilder()
@@ -52,65 +41,53 @@ export class CategoryService {
         where: { id: categoryId },
       });
       if (!updatedCategory) {
-        throw new HttpException('Category does not exist', 404);
+        throw new HttpException(
+          'Category does not exist',
+          HttpStatus.NOT_FOUND,
+        );
       }
 
-      return successResponse(
-        response,
-        updatedCategory,
-        200,
-        'Category updated successfully',
-      );
+      return updatedCategory;
     } catch (err: any) {
       console.log(err);
       throw new HttpException(err.message, err.status);
     }
   }
-  public async getCategory(
-    categoryId: string,
-    response: Response,
-  ): Promise<Response<SuccessResponseDto> | undefined> {
+  public async getCategory(categoryId: string): Promise<Category | undefined> {
     console.log(categoryId);
 
     try {
       const category = await Category.findOne({ where: { id: categoryId } });
       console.log(category);
       if (!category) {
-        throw new HttpException('Category does not exist or deleted', 404);
+        throw new HttpException(
+          'Category does not exist or deleted',
+          HttpStatus.NOT_FOUND,
+        );
       }
-      return successResponse(
-        response,
-        category,
-        200,
-        'Category fetched successfully',
-      );
+      return category;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
   }
-  public async getCategories(
-    response: Response,
-  ): Promise<Response<SuccessResponseDto> | undefined> {
+  public async getCategories(): Promise<Category[] | undefined> {
     try {
       const categories = await Category.find();
 
       if (!categories) {
-        throw new HttpException('Category does not exist or deleted', 404);
+        throw new HttpException(
+          'Category(s) does not exist or deleted',
+          HttpStatus.NOT_FOUND,
+        );
       }
-      return successResponse(
-        response,
-        categories,
-        200,
-        'Categories fetched successfully',
-      );
+      return categories;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
   }
   public async deleteCategory(
     categoryId: string,
-    response: Response,
-  ): Promise<Response<SuccessResponseDto> | undefined> {
+  ): Promise<Category | undefined> {
     try {
       // check if category exists
       const isCategory = await Category.findOne({ where: { id: categoryId } });
@@ -119,12 +96,7 @@ export class CategoryService {
         throw new HttpException('Category does not exist', 404);
       }
       await Category.delete(categoryId);
-      return successResponse(
-        response,
-        { id: categoryId },
-        200,
-        'Category deleted successfully',
-      );
+      return;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
