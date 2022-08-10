@@ -38,7 +38,7 @@ export class CategoryController {
   ): Promise<Category | undefined> {
     return await this.categoryService.getCategory(categoryId);
   }
-  @Delete('/delete:categoryId')
+  @Delete('/delete/:categoryId')
   private async deleteCategory(
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
   ): Promise<Category | undefined> {
