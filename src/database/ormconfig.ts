@@ -6,7 +6,6 @@ import { config as envConfig } from 'dotenv';
 envConfig();
 
 const config = configuration();
-
 export const AppDataSource: DataSource = new DataSource({
   type: config.database.connection as MysqlConnectionOptions['type'],
   host: config.database.host,
