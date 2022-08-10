@@ -20,36 +20,36 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
   @Post('create')
   @HttpCode(HttpStatus.CREATED)
-  private async createCategory(
+  private createCategory(
     @Body() payload: CreateCategoryDto,
   ): Promise<Category | undefined> {
-    return await this.categoryService.createCategory(payload);
+    return this.categoryService.createCategory(payload);
   }
 
   @Put('update/:categoryId')
-  private async updateCategory(
+  private updateCategory(
     @Body() body: UpdateCategoryDto,
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
   ): Promise<Category | undefined> {
-    return await this.categoryService.updateCategory(body, categoryId);
+    return this.categoryService.updateCategory(body, categoryId);
   }
 
   @Get('/:categoryId')
-  private async getCategory(
+  private getCategory(
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
   ): Promise<Category | undefined> {
-    return await this.categoryService.getCategory(categoryId);
+    return this.categoryService.getCategory(categoryId);
   }
 
   @Delete('/delete/:categoryId')
-  private async deleteCategory(
+  private deleteCategory(
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
   ): Promise<Category | undefined> {
-    return await this.categoryService.deleteCategory(categoryId);
+    return this.categoryService.deleteCategory(categoryId);
   }
 
   @Get()
-  private async getCategories(): Promise<Category[] | undefined> {
-    return await this.categoryService.getCategories();
+  private getCategories(): Promise<Category[] | undefined> {
+    return this.categoryService.getCategories();
   }
 }
