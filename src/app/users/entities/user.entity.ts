@@ -17,7 +17,11 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'identity_provider', nullable: true, select: false })
+  @Column({
+    name: 'identity_provider',
+    nullable: true,
+    select: false,
+  })
   identityProvider: IdentityProvider | null;
 
   @Column({

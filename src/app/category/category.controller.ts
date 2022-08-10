@@ -25,6 +25,7 @@ export class CategoryController {
   ): Promise<Category | undefined> {
     return await this.categoryService.createCategory(payload);
   }
+
   @Put('update/:categoryId')
   private async updateCategory(
     @Body() body: UpdateCategoryDto,
@@ -32,12 +33,14 @@ export class CategoryController {
   ): Promise<Category | undefined> {
     return this.categoryService.updateCategory(body, categoryId);
   }
+
   @Get('/:categoryId')
   private async getCategory(
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
   ): Promise<Category | undefined> {
     return await this.categoryService.getCategory(categoryId);
   }
+
   @Delete('/delete/:categoryId')
   private async deleteCategory(
     @Param('categoryId', ParseUUIDPipe) categoryId: string,

@@ -23,6 +23,7 @@ export class CategoryService {
       throw new HttpException(err.message, err.status);
     }
   }
+
   public async updateCategory(
     payload: UpdateCategoryDto,
     categoryId: string,
@@ -48,6 +49,7 @@ export class CategoryService {
       throw new HttpException(err.message, err.status);
     }
   }
+
   public async getCategory(categoryId: string): Promise<Category | undefined> {
     console.log(categoryId);
 
@@ -62,6 +64,7 @@ export class CategoryService {
       throw new HttpException(err.message, err.status);
     }
   }
+
   public async getCategories(): Promise<Category[] | undefined> {
     try {
       const categories = await Category.find();
@@ -74,6 +77,7 @@ export class CategoryService {
       throw new HttpException(err.message, err.status);
     }
   }
+
   public async deleteCategory(categoryId: string): Promise<any | undefined> {
     try {
       // check if category exists
