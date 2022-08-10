@@ -15,7 +15,6 @@ export interface DatabaseConfig {
 }
 
 export default () => ({
-  appUrl: process.env.APP_URL,
   port: parseInt(process.env.PORT, 10) || 5000,
   database: {
     connection: process.env.TYPEORM_CONNECTION,
@@ -30,17 +29,4 @@ export default () => ({
     migrations: process.env.TYPEORM_MIGRATIONS,
     migrationsDir: process.env.TYPEORM_MIGRATIONS_DIR,
   },
-  jwt: {
-    secret: process.env.JWT_SECRET,
-    expiresIn: process.env.JWT_EXPIRE,
-    cookieExpire: process.env.JWT_COOKIE_EXPIRE,
-  },
-  oauth: {
-    googleClientId: process.env.OAUTH_GOOGLE_ID,
-    googleClientSecret: process.env.OAUTH_GOOGLE_SECRET,
-    twitterConsumerKey: process.env.OAUTH_TWITTER_CONSUMER_KEY,
-    twitterConsumerSecret: process.env.OAUTH_TWITTER_CONSUMER_SECRET,
-  },
-  sendgridApiKey: process.env.SENDGRID_API_KEY,
-  fromEmail: process.env.FROM_EMAIL,
 });
