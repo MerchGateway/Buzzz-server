@@ -15,21 +15,8 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
     DatabaseModule,
-    AuthModule,
-    UsersModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    WinstonLoggerService,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: RequestLoggingInterceptor,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-  ],
+  providers: [AppService],
 })
 export class AppModule {}
