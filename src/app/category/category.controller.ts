@@ -31,7 +31,7 @@ export class CategoryController {
     @Body() body: UpdateCategoryDto,
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
   ): Promise<Category | undefined> {
-    return this.categoryService.updateCategory(body, categoryId);
+    return await this.categoryService.updateCategory(body, categoryId);
   }
 
   @Get('/:categoryId')
