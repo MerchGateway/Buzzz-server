@@ -10,6 +10,7 @@ import { WinstonLoggerService } from '../logger/winston-logger/winston-logger.se
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { RequestLoggingInterceptor } from '../request-logging.interceptor';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
 
 @Module({
@@ -18,7 +19,8 @@ import { ProductModule } from './product/product.module';
     DatabaseModule,
     AuthModule,
     UsersModule,
-    ProductModule
+    CategoryModule,
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [

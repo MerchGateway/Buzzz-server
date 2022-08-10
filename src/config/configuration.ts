@@ -24,7 +24,7 @@ export default () => ({
     name: process.env.TYPEORM_DATABASE,
     username: process.env.TYPEORM_USERNAME,
     password: process.env.TYPEORM_PASSWORD,
-    synchronize: process.env.TYPEORM_SYNCHRONIZE === 'true',
+    synchronize: process.env.TYPEORM_SYNCHRONIZE,
     entities: process.env.TYPEORM_ENTITIES,
     migrations: process.env.TYPEORM_MIGRATIONS,
     migrationsDir: process.env.TYPEORM_MIGRATIONS_DIR,
