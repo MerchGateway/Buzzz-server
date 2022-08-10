@@ -1,21 +1,27 @@
 import { Injectable, HttpException, NotFoundException } from '@nestjs/common';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
-
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Category } from './entities/category.entity';
 
 @Injectable()
 export class CategoryService {
+  constructor(
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
+  ) {}
+
   public async createCategory(
     payload: CreateCategoryDto,
   ): Promise<Category | undefined> {
     try {
-      const category = Category.create({
+      const category = this.categoryRepository.create({
         name: payload.name,
         description: payload.description,
       });
-      await Category.save(category);
+      await this.categoryRepository.save(category);
       // fetch fresh copy of the just created category
-      const cleanCategory = await Category.findOne({
+      const cleanCategory = await this.categoryRepository.findOne({
         where: { id: category.id },
       });
       return cleanCategory;
@@ -30,17 +36,20 @@ export class CategoryService {
   ): Promise<Category | undefined> {
     try {
       console.log(payload);
-      await Category.createQueryBuilder()
+      await this.categoryRepository
+        .createQueryBuilder()
         .update()
         .set({ name: payload.name, description: payload.description })
         .where('id= :id', { id: categoryId })
         .execute();
       // fetch updated category
-      const updatedCategory = await Category.findOne({
+      const updatedCategory = await this.categoryRepository.findOne({
         where: { id: categoryId },
       });
       if (!updatedCategory) {
-        throw new NotFoundException('Category does not exist');
+        throw new NotFoundException(
+          `Category with id ${categoryId} does not exist`,
+        );
       }
 
       return updatedCategory;
@@ -54,10 +63,14 @@ export class CategoryService {
     console.log(categoryId);
 
     try {
-      const category = await Category.findOne({ where: { id: categoryId } });
+      const category = await this.categoryRepository.findOne({
+        where: { id: categoryId },
+      });
       console.log(category);
       if (!category) {
-        throw new NotFoundException('Category not found');
+        throw new NotFoundException(
+          `Category with id ${categoryId} does not exist`,
+        );
       }
       return category;
     } catch (err: any) {
@@ -67,25 +80,28 @@ export class CategoryService {
 
   public async getCategories(): Promise<Category[] | undefined> {
     try {
-      const categories = await Category.find();
-
-      if (!categories) {
-        throw new NotFoundException('Category not found');
-      }
+      const categories = await this.categoryRepository.find();
       return categories;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
   }
 
-  public async deleteCategory(categoryId: string): Promise<any | undefined> {
+  public async deleteCategory(
+    categoryId: string,
+  ): Promise<Category | undefined> {
     try {
       // check if category exists
-      const isCategory = await Category.findOne({ where: { id: categoryId } });
+      const isCategory = await this.categoryRepository.findOne({
+        where: { id: categoryId },
+      });
       if (!isCategory) {
-        throw new NotFoundException('Category not found');
+        throw new NotFoundException(
+          `Category with id ${categoryId} does not exist`,
+        );
       }
-      return await Category.delete(categoryId);
+      await this.categoryRepository.delete(categoryId);
+      return isCategory;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
