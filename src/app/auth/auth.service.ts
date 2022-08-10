@@ -7,18 +7,18 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/users/entities/user.entity';
+import { User } from 'src/app/users/entities/user.entity';
 import { MoreThanOrEqual, Repository } from 'typeorm';
 import { SignupUserDto } from './dto/signup-user.dto';
 import { SuccessResponse } from '../../utils/response';
 import { JwtPayload } from './guards/jwt.strategy';
-import { IdentityProvider } from 'src/types/user';
+import { IdentityProvider } from '../../types/user';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import SendgridService from 'src/utils/sendgrid';
 import { WinstonLoggerService } from 'src/logger/winston-logger/winston-logger.service';
-import { EmailTemplate } from 'src/types/email';
+import { EmailTemplate } from '../../types/email';
 import { PasswordReset } from './entities/password-reset.entity';
-import { PASSWORD_RESET_TOKEN_EXPIRY } from 'src/constant';
+import { PASSWORD_RESET_TOKEN_EXPIRY } from '../../constant';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()

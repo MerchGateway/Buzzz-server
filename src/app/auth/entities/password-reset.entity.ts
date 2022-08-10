@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcrypt';
-import { User } from 'src/users/entities/user.entity';
+import { User } from 'src/app/users/entities/user.entity';
 import {
   BeforeInsert,
   Column,

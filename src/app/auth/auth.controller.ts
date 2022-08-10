@@ -6,9 +6,9 @@ import {
   HttpCode,
   Get,
 } from '@nestjs/common';
-import { Public } from 'src/decorators/public.decorator';
-import { CurrentUser } from 'src/decorators/user.decorator';
-import { User } from 'src/users/entities/user.entity';
+import { Public } from '../../decorators/public.decorator';
+import { CurrentUser } from '../../decorators/user.decorator';
+import { User } from 'src/app/users/entities/user.entity';
 import { AuthService } from './auth.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LocalSigninDto } from './dto/local-signin.dto';

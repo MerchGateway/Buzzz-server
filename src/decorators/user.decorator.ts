@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { User } from 'src/users/entities/user.entity';
+import { User } from 'src/app/users/entities/user.entity';
 
 // Decorator to access the payload from a validated access token.
 // It should be used only in the arguments for methods in your presentation layer.
