@@ -14,9 +14,9 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LocalSigninDto } from './dto/local-signin.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
-import { GoogleOauthGuard } from './google-oauth.guard';
-import { LocalAuthGuard } from './local-auth.guard';
-import { TwitterOauthGuard } from './twitter-oauth.guard';
+import { GoogleOauthGuard } from './guards/google-oauth.guard';
+import { LocalAuthGuard } from './guards/local-auth.guard';
+import { TwitterOauthGuard } from './guards/twitter-oauth.guard';
 
 @Controller('auth')
 export class AuthController {

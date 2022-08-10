@@ -1,6 +1,6 @@
 import { JwtAuthGuard } from './jwt-auth.guard';
-import { ROLES_KEY } from './../decorators/roles.decorator';
-import { Role } from './../types/general';
+import { ROLES_KEY } from '../../../decorators/roles.decorator';
+import { Role } from '../../../types/general';
 import { Injectable, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 

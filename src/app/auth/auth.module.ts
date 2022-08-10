@@ -5,12 +5,12 @@ import { UsersModule } from 'src/users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { PassportModule } from '@nestjs/passport';
-import { LocalStrategy } from './local.strategy';
+import { LocalStrategy } from './guards/local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import configuration from 'src/config/configuration';
-import { JwtStrategy } from './jwt.strategy';
-import { GoogleOauthStrategy } from './google-oauth.strategy';
-import { TwitterOauthStrategy } from './twitter-oauth.strategy';
+import { JwtStrategy } from './guards/jwt.strategy';
+import { GoogleOauthStrategy } from './guards/google-oauth.strategy';
+import { TwitterOauthStrategy } from './guards/twitter-oauth.strategy';
 import { LoggerModule } from 'src/logger/logger.module';
 import { PasswordReset } from './entities/password-reset.entity';
 
