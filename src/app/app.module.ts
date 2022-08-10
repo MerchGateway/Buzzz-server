@@ -18,7 +18,7 @@ import { CategoryModule } from './category/category.module';
     DatabaseModule,
     AuthModule,
     UsersModule,
-    CategoryModule
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [
