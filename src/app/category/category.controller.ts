@@ -19,16 +19,15 @@ import { Category } from './entities/category.entity';
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
   @Post('create')
+  @HttpCode(HttpStatus.CREATED)
   private async createCategory(
     @Body() payload: CreateCategoryDto,
   ): Promise<Category | undefined> {
     return await this.categoryService.createCategory(payload);
   }
   @Put('update/:categoryId')
-  @HttpCode(HttpStatus.CREATED)
   private async updateCategory(
     @Body() body: UpdateCategoryDto,
-
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
   ): Promise<Category | undefined> {
     return this.categoryService.updateCategory(body, categoryId);
@@ -39,13 +38,13 @@ export class CategoryController {
   ): Promise<Category | undefined> {
     return await this.categoryService.getCategory(categoryId);
   }
-
-  @Delete('delete/:categoryId')
+  @Delete('/delete:categoryId')
   private async deleteCategory(
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
   ): Promise<Category | undefined> {
     return await this.categoryService.deleteCategory(categoryId);
   }
+
   @Get()
   private async getCategories(): Promise<Category[] | undefined> {
     return await this.categoryService.getCategories();

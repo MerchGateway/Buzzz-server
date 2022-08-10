@@ -1,12 +1,10 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, NotFoundException } from '@nestjs/common';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
 
 import { Category } from './entities/category.entity';
 
 @Injectable()
 export class CategoryService {
-  // eslint-disable-next-line prettier/prettier
-
   public async createCategory(
     payload: CreateCategoryDto,
   ): Promise<Category | undefined> {
@@ -41,10 +39,7 @@ export class CategoryService {
         where: { id: categoryId },
       });
       if (!updatedCategory) {
-        throw new HttpException(
-          'Category does not exist',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new NotFoundException('Category does not exist');
       }
 
       return updatedCategory;
@@ -60,10 +55,7 @@ export class CategoryService {
       const category = await Category.findOne({ where: { id: categoryId } });
       console.log(category);
       if (!category) {
-        throw new HttpException(
-          'Category does not exist or deleted',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new NotFoundException('Category not found');
       }
       return category;
     } catch (err: any) {
@@ -75,28 +67,21 @@ export class CategoryService {
       const categories = await Category.find();
 
       if (!categories) {
-        throw new HttpException(
-          'Category(s) does not exist or deleted',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new NotFoundException('Category not found');
       }
       return categories;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
   }
-  public async deleteCategory(
-    categoryId: string,
-  ): Promise<Category | undefined> {
+  public async deleteCategory(categoryId: string): Promise<any | undefined> {
     try {
       // check if category exists
       const isCategory = await Category.findOne({ where: { id: categoryId } });
-
       if (!isCategory) {
-        throw new HttpException('Category does not exist', 404);
+        throw new NotFoundException('Category not found');
       }
-      await Category.delete(categoryId);
-      return;
+      return await Category.delete(categoryId);
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
