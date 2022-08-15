@@ -34,6 +34,7 @@ import { ProductModule } from './product/product.module';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
+    ,
   ],
 })
 export class AppModule {}
