@@ -10,7 +10,10 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { Order } from '../../order/entities/order.entity';
+import { Cart } from '../../cart/entities/cart.entity';
 
 @Entity()
 export class User {
@@ -43,6 +46,22 @@ export class User {
 
   @Column({ type: 'enum', enum: Role, default: Role.USER })
   role: Role;
+
+  @OneToMany(
+    () => Order,
+    (order) => {
+      order.owner;
+    },
+  )
+  orders: Order[];
+
+  @OneToMany(
+    () => Cart,
+    (cart) => {
+      cart.owner;
+    },
+  )
+  cart: Cart[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

@@ -3,39 +3,29 @@ import {
   Entity,
   CreateDateColumn,
   UpdateDateColumn,
-  Column,
   PrimaryGeneratedColumn,
   ManyToOne,
   JoinColumn,
+  Column,
 } from 'typeorm';
 
-import { Status } from '../../../types/order';
-import { Cart } from '../../cart/entities/cart.entity';
 import { User } from '../../users/entities/user.entity';
-@Entity('order')
-export class Order extends BaseEntity {
+@Entity('cart')
+export class Cart extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @ManyToOne(
     () => User,
     (user) => {
-      user.orders;
+      user.cart;
     },
   )
   @JoinColumn({ name: 'client_id' })
   owner: User;
 
-  // @ManyToMany(
-  //   (type) => Cart,
-  //   (cart) => {
-  //     cart.item;
-  //   },
-  // )
-  // @JoinTable()
-  // commodities: Cart[];
-  @Column({ type: 'enum', enum: Status, default: Status.PENDING })
-  status: string;
+  @Column({type:'int'})
+  quantity:number;
 
   @CreateDateColumn()
   created_at: Date;

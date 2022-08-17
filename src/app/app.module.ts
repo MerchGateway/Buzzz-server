@@ -13,6 +13,9 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
+import { CartController } from './cart/cart.controller';
+import { CartService } from './cart/cart.service';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -23,8 +26,9 @@ import { OrderModule } from './order/order.module';
     CategoryModule,
     ProductModule,
     OrderModule,
+    CartModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, CartController],
   providers: [
     AppService,
     WinstonLoggerService,
@@ -36,6 +40,7 @@ import { OrderModule } from './order/order.module';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
+    CartService,
   ],
 })
 export class AppModule {}
