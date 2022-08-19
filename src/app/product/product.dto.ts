@@ -17,7 +17,7 @@ export class CreateProductDto {
 
   @IsUUID()
   @IsNotEmpty()
-  public category_id: string;
+  public categoryId: string;
 }
 
 export class EditProductDto {
@@ -31,5 +31,5 @@ export class EditProductDto {
 
   @IsUUID()
   @IsOptional()
-  public category_id: string;
+  public categoryId: string;
 }

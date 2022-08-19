@@ -12,6 +12,8 @@ import { RequestLoggingInterceptor } from '../request-logging.interceptor';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
+import { PaymentModule } from './payment/payment.module';
+import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
 
 @Module({
   imports: [
@@ -21,6 +23,7 @@ import { ProductModule } from './product/product.module';
     UsersModule,
     CategoryModule,
     ProductModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [
@@ -34,7 +37,10 @@ import { ProductModule } from './product/product.module';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
-    ,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ErrorsInterceptor,
+    },
   ],
 })
 export class AppModule {}

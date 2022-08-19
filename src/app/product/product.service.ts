@@ -1,6 +1,5 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
 import { Repository } from 'typeorm';
 import {
   paginate,
@@ -17,11 +16,11 @@ export class ProductService {
     private readonly productRepository: Repository<Product>,
   ) {}
 
-  public createProduct(body: CreateProductDto) {
+  public createProduct(body: CreateProductDto): Promise<Product> {
     const product: Product = new Product();
     product.name = body.name;
     product.price = body.price;
-    product.category_id = body.category_id;
+    product.categoryId = body.categoryId;
 
     return this.productRepository.save(product);
   }
@@ -36,13 +35,26 @@ export class ProductService {
         .set({
           name: body.name,
           price: body.price,
-          category_id: body.category_id,
+          categoryId: body.categoryId,
         })
         .execute();
       return await this.handleGetAProduct(id);
     } catch (err) {
       throw err;
     }
+  }
+
+  async handleUpdatePaymentRecord(receiptId: string, id: string) {
+    await this.productRepository
+      .createQueryBuilder('addPayrecord')
+      .update()
+      .where('id= :id', { id: id })
+      .set({
+        receiptId,
+        purchased: true,
+      })
+      .execute();
+    return await this.handleGetAProduct(id);
   }
 
   async handleSetVisibility(id: string) {
@@ -71,18 +83,19 @@ export class ProductService {
 
   async handleGetAProduct(id: string) {
     try {
-      const product = await this.productRepository.findOneByOrFail({ id });
-      if (product) {
-        return product;
+      const product = await this.productRepository.findOne({
+        where: { id },
+        relations: {
+          category: true,
+          receipt: true,
+        },
+      });
+      if (!product) {
+        throw new NotFoundException('No product with this credentail(s) found');
       }
+      return product;
     } catch (err) {
-      if (err instanceof EntityNotFoundError) {
-        throw new ForbiddenException(
-          'No product with this credentail(s) found',
-        );
-      } else {
-        throw err;
-      }
+      throw err;
     }
   }
 
