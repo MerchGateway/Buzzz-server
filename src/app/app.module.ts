@@ -24,11 +24,12 @@ import { CartModule } from './cart/cart.module';
     AuthModule,
     UsersModule,
     CategoryModule,
+    CartModule,
     ProductModule,
     OrderModule,
-    CartModule,
+
   ],
-  controllers: [AppController, CartController],
+  controllers: [AppController],
   providers: [
     AppService,
     WinstonLoggerService,
@@ -40,7 +41,6 @@ import { CartModule } from './cart/cart.module';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
-    CartService,
   ],
 })
 export class AppModule {}

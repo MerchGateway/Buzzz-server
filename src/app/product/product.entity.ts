@@ -5,8 +5,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   PrimaryGeneratedColumn,
+  OneToMany
 } from 'typeorm';
 
+import {Cart} from "../cart/entities/cart.entity"
 @Entity()
 export class Product extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -21,6 +23,7 @@ export class Product extends BaseEntity {
   @Column({ default: false })
   isPublished: boolean;
 
+ 
   @CreateDateColumn()
   createdAt: Date;
 

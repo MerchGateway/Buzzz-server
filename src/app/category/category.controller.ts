@@ -11,6 +11,8 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 
+import { Public } from 'src/decorators/public.decorator';
+
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
 import { CategoryService } from './category.service';
 import { Category } from './entities/category.entity';
@@ -34,6 +36,7 @@ export class CategoryController {
     return this.categoryService.updateCategory(body, categoryId);
   }
 
+  @Public()
   @Get('/:categoryId')
   private getCategory(
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
@@ -47,7 +50,8 @@ export class CategoryController {
   ): Promise<Category | undefined> {
     return this.categoryService.deleteCategory(categoryId);
   }
-
+  
+  @Public()
   @Get()
   private getCategories(): Promise<Category[] | undefined> {
     return this.categoryService.getCategories();

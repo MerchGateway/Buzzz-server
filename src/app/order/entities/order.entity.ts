@@ -6,7 +6,9 @@ import {
   Column,
   PrimaryGeneratedColumn,
   ManyToOne,
+  OneToMany,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
 
 import { Status } from '../../../types/order';
@@ -19,21 +21,21 @@ export class Order extends BaseEntity {
 
   @ManyToOne(
     () => User,
-    (user) => {
-      user.orders;
-    },
   )
   @JoinColumn({ name: 'client_id' })
-  owner: User;
+  user: User;
 
-  // @ManyToMany(
-  //   (type) => Cart,
-  //   (cart) => {
-  //     cart.item;
-  //   },
-  // )
-  // @JoinTable()
-  // commodities: Cart[];
+  @OneToOne(
+    () => Cart,
+   
+  )
+  @JoinColumn({ name: 'cart_item_id' })
+  cart:Cart;
+
+
+  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true })
+  shipping_fee: number;
+
   @Column({ type: 'enum', enum: Status, default: Status.PENDING })
   status: string;
 
