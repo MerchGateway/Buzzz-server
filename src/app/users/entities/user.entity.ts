@@ -10,7 +10,7 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  OneToMany,
+  
 } from 'typeorm';
 import { Order } from '../../order/entities/order.entity';
 import { Cart } from '../../cart/entities/cart.entity';

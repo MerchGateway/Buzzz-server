@@ -1,3 +1,4 @@
+import { Transaction } from 'src/app/transaction/entities/transaction.entity';
 import {
   BaseEntity,
   Entity,
@@ -23,6 +24,10 @@ export class Order extends BaseEntity {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'client_id' })
   user: User;
+
+  @ManyToOne(() => Transaction, (transaction) => transaction.orders)
+  @JoinColumn({ name: 'transaction_id' })
+  transaction: Transaction;
 
   @OneToOne(() => Cart)
   @JoinColumn({ name: 'cart_item_id' })
