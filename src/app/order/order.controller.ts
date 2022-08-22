@@ -26,7 +26,7 @@ export class OrderController {
   private createOrder(
     @Body() payload: CreateOrderDto,
     @CurrentUser() user: User,
-  ): Promise<Order | undefined> {
+  ): Promise<Order[] | undefined> {
     return this.orderService.createOrder(payload, user);
   }
 
@@ -49,7 +49,7 @@ export class OrderController {
     @Param('orderId', ParseUUIDPipe) orderId: string,
     @CurrentUser() user: User,
   ): Promise<Order | undefined> {
-    return this.orderService.deleteOrder(orderId,user);
+    return this.orderService.deleteOrder(orderId, user);
   }
 
   @Get('/:orderId')
@@ -57,7 +57,7 @@ export class OrderController {
     @Param('orderId', ParseUUIDPipe) orderId: string,
     @CurrentUser() user: User,
   ): Promise<Order | undefined> {
-    return this.orderService.getOrder(orderId,user);
+    return this.orderService.getOrder(orderId, user);
   }
   @Get('')
   private getOrders(@CurrentUser() user: User): Promise<Order[] | undefined> {

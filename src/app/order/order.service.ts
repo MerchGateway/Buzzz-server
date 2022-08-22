@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import {  Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Injectable, HttpException } from '@nestjs/common';
 import { CreateOrderDto } from './dto/order.dto';
 import { NotFoundException } from '@nestjs/common';
@@ -20,19 +20,29 @@ export class OrderService {
   public async createOrder(
     payload: CreateOrderDto,
     user: User,
-  ): Promise<Order | undefined> {
+  ): Promise<Order[] | undefined> {
     try {
-      const cart = await this.cartService.getCartItems(user);
-
       console.log(payload);
+      const userCartItems = await this.cartService.getCartItems(user);
 
-      const newOrder = this.orderRepository.create({
-        shipping_fee: payload.shipping_fee,
-        status: payload.status,
-        user,
-        cart,
-      });
-      return this.orderRepository.save(newOrder);
+      var newRecords: Order[] = [];
+
+      const createOrder = () => {
+        // loop through the cart items and create individual order records
+        userCartItems.forEach((cart) => {
+          const newOrder = this.orderRepository.create({
+            shipping_details: payload.shipping_details,
+            user,
+            cart,
+          });
+          // save cart items
+          this.orderRepository.save(newOrder);
+          newRecords.push(newOrder);
+        });
+        return newRecords;
+      };
+
+      return createOrder();
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
@@ -57,7 +67,7 @@ export class OrderService {
   ): Promise<Order | undefined> {
     try {
       console.log(orderId);
-      // check if category exists
+      // check if order exists
       const isOrder = await this.orderRepository.findOne({
         where: { id: orderId },
         relations: { user: true },

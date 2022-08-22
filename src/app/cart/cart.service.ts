@@ -11,7 +11,7 @@ export class CartService {
     private readonly cartRepository: Repository<Cart>,
   ) {}
 
-  public async getCartItems(user:User): Promise<Cart | undefined> {
+  public async getCartItems(user:User): Promise<Cart[] | undefined> {
     try {
       return;
     } catch (err: any) {

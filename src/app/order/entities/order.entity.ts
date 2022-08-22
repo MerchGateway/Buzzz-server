@@ -6,7 +6,8 @@ import {
   Column,
   PrimaryGeneratedColumn,
   ManyToOne,
-  OneToMany,
+  BeforeInsert,
+  BeforeUpdate,
   JoinColumn,
   OneToOne,
 } from 'typeorm';
@@ -19,26 +20,36 @@ export class Order extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(
-    () => User,
-  )
+  @ManyToOne(() => User)
   @JoinColumn({ name: 'client_id' })
   user: User;
 
-  @OneToOne(
-    () => Cart,
-   
-  )
+  @OneToOne(() => Cart)
   @JoinColumn({ name: 'cart_item_id' })
-  cart:Cart;
+  cart: Cart;
 
+  @Column({ type: 'simple-json' })
+  shipping_details: { shipping_fee: number; shipping_address: string };
 
-  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true })
-  shipping_fee: number;
+  @Column({ nullable: true, default: 0, type: 'decimal', precision: 10 })
+  delivery_fee: number;
+
+  @Column({ type: 'varchar', nullable: true })
+  coupon: string;
 
   @Column({ type: 'enum', enum: Status, default: Status.PENDING })
   status: string;
 
+  @BeforeInsert()
+  @BeforeUpdate()
+  private async setDeliveryFee() {}
+
+  public async setCoupon(value: string) {
+    this.coupon = value;
+  }
+  public async updateStatus(value: string) {
+    this.status = value;
+  }
   @CreateDateColumn()
   created_at: Date;
 

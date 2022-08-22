@@ -6,14 +6,9 @@ import { Cart } from './entities/cart.entity';
 
 @Controller('cart')
 export class CartController {
-  constructor(private  readonly cartService: CartService) {
-
-  
-  }
+  constructor(private readonly cartService: CartService) {}
   @Get('')
-  private getCartItems(
-      @CurrentUser() user: User
-  ): Promise<Cart | undefined> {
+  private getCartItems(@CurrentUser() user: User): Promise<Cart[] | undefined> {
     return this.cartService.getCartItems(user);
   }
 }
