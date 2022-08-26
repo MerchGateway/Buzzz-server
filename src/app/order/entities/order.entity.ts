@@ -21,15 +21,19 @@ export class Order extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, {
+    cascade: true,
+  })
   @JoinColumn({ name: 'client_id' })
   user: User;
 
-  @ManyToOne(() => Transaction, (transaction) => transaction.orders)
+  @ManyToOne(() => Transaction, (transaction) => transaction.orders, {
+    cascade: true,
+  })
   @JoinColumn({ name: 'transaction_id' })
   transaction: Transaction;
 
-  @OneToOne(() => Cart)
+  @OneToOne(() => Cart, { cascade: true })
   @JoinColumn({ name: 'cart_item_id' })
   cart: Cart;
 

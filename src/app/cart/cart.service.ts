@@ -11,9 +11,13 @@ export class CartService {
     private readonly cartRepository: Repository<Cart>,
   ) {}
 
-  public async getCartItems(user:User): Promise<Cart[] | undefined> {
+  public async getCartItems(user: User): Promise<Cart[] | undefined> {
     try {
-      return;
+      const cartItems = await this.cartRepository.find({
+        where: { owner: { id: user.id } },
+        relations: { owner: true },
+      });
+      return cartItems;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }

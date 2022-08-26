@@ -25,7 +25,9 @@ export class Transaction extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, {
+    cascade: true,
+  })
   @JoinColumn({ name: 'client_id' })
   user: User;
   @Column({ type: 'varchar' })
