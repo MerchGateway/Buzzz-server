@@ -20,7 +20,7 @@ import { Category } from './entities/category.entity';
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
-  @Post('create')
+  @Post()
   @HttpCode(HttpStatus.CREATED)
   private createCategory(
     @Body() payload: CreateCategoryDto,
@@ -28,7 +28,7 @@ export class CategoryController {
     return this.categoryService.createCategory(payload);
   }
 
-  @Put('update/:categoryId')
+  @Put('/:categoryId')
   private updateCategory(
     @Body() body: UpdateCategoryDto,
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
@@ -44,7 +44,7 @@ export class CategoryController {
     return this.categoryService.getCategory(categoryId);
   }
 
-  @Delete('/delete/:categoryId')
+  @Delete('/:categoryId')
   private deleteCategory(
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
   ): Promise<Category | undefined> {
