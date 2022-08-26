@@ -20,9 +20,10 @@ import { Category } from './entities/category.entity';
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
+
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  private createCategory(
+private createCategory(
     @Body() payload: CreateCategoryDto,
   ): Promise<Category | undefined> {
     return this.categoryService.createCategory(payload);

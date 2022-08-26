@@ -5,7 +5,6 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   PrimaryGeneratedColumn,
-  OneToMany
 } from 'typeorm';
 
 import {Cart} from "../cart/entities/cart.entity"
