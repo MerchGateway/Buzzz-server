@@ -12,13 +12,16 @@ import { Product } from './product.entity';
 
 @Injectable()
 export class ProductService {
-  @InjectRepository(Product)
-  private readonly productRepository: Repository<Product>;
+  constructor(
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
+  ) {}
 
   public createProduct(body: CreateProductDto) {
     const product: Product = new Product();
     product.name = body.name;
     product.price = body.price;
+    product.category_id = body.category_id;
 
     return this.productRepository.save(product);
   }
@@ -26,10 +29,17 @@ export class ProductService {
   async handleEditProduct(body: EditProductDto, id: string) {
     try {
       const product = await this.handleGetAProduct(id);
-      (product.name = body?.name || product.name),
-        (product.price = body?.price || Number(product.price));
-      await product.save();
-      return product;
+      await this.productRepository
+        .createQueryBuilder('updateP')
+        .update()
+        .where('id= :id', { id: product.id })
+        .set({
+          name: body.name,
+          price: body.price,
+          category_id: body.category_id,
+        })
+        .execute();
+      return await this.handleGetAProduct(id);
     } catch (err) {
       throw err;
     }

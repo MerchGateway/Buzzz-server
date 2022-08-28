@@ -18,15 +18,26 @@ import { Pagination } from 'nestjs-typeorm-paginate';
 import { CreateProductDto, EditProductDto } from './product.dto';
 import { Product } from './product.entity';
 import { ProductService } from './product.service';
+import { CategoryService } from '../category/category.service';
 
 @Controller('product')
 export class ProductController {
-  @Inject(ProductService)
-  private readonly service: ProductService;
+  constructor(
+    @Inject(CategoryService)
+    private readonly categoryService: CategoryService,
+
+    @Inject(ProductService)
+    private readonly service: ProductService,
+  ) {}
 
   @Post('create-new')
-  public createProduct(@Body() body: CreateProductDto): Promise<Product> {
-    return this.service.createProduct(body);
+  public async createProduct(@Body() body: CreateProductDto): Promise<Product> {
+    const isCategoryExisting = await this.categoryService.getCategory(
+      body.category_id,
+    );
+    if (isCategoryExisting) {
+      return this.service.createProduct(body);
+    }
   }
 
   @Post('upload')
@@ -52,7 +63,13 @@ export class ProductController {
   }
 
   @Put('edit/:id')
-  public editProduct(@Body() body: EditProductDto, @Param('id') id: string) {
+  public async editProduct(
+    @Body() body: EditProductDto,
+    @Param('id') id: string,
+  ) {
+    if (body.category_id) {
+      await this.categoryService.getCategory(body.category_id);
+    }
     return this.service.handleEditProduct(body, id);
   }
 

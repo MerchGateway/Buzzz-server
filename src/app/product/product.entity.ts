@@ -5,7 +5,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+  PrimaryColumn,
 } from 'typeorm';
+import { Category } from '../category/entities/category.entity';
 
 @Entity()
 export class Product extends BaseEntity {
@@ -21,9 +25,16 @@ export class Product extends BaseEntity {
   @Column({ default: false })
   isPublished: boolean;
 
-  @CreateDateColumn()
+  @PrimaryColumn()
+  category_id: string;
+
+  @ManyToOne(() => Category, (category) => category.products)
+  @JoinColumn({ name: 'category_id' })
+  category: Category;
+
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }
