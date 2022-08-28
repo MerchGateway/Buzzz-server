@@ -20,6 +20,7 @@ import { EmailTemplate } from '../../types/email';
 import { PasswordReset } from './entities/password-reset.entity';
 import { PASSWORD_RESET_TOKEN_EXPIRY } from '../../constant';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -173,5 +174,10 @@ export class AuthService {
     });
 
     return this.passwordResetRepository.save(newPasswordReset);
+  }
+
+  async updatePassword(user: User, updatePasswordDto: UpdatePasswordDto) {
+    user.password = updatePasswordDto.password;
+    await this.userRepository.save(user);
   }
 }

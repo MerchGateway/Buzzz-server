@@ -10,7 +10,7 @@ export class CategoryService {
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
   ) {}
-
+  // TODO: just return what was created instead of fetching it again after being created
   public async createCategory(
     payload: CreateCategoryDto,
   ): Promise<Category | undefined> {
@@ -35,7 +35,6 @@ export class CategoryService {
     categoryId: string,
   ): Promise<Category | undefined> {
     try {
-      console.log(payload);
       await this.categoryRepository
         .createQueryBuilder()
         .update()
@@ -54,19 +53,16 @@ export class CategoryService {
 
       return updatedCategory;
     } catch (err: any) {
-      console.log(err);
       throw new HttpException(err.message, err.status);
     }
   }
 
   public async getCategory(categoryId: string): Promise<Category | undefined> {
-    console.log(categoryId);
-
     try {
       const category = await this.categoryRepository.findOne({
         where: { id: categoryId },
+        relations: { products: true },
       });
-      console.log(category);
       if (!category) {
         throw new NotFoundException(
           `Category with id ${categoryId} does not exist`,
@@ -80,7 +76,9 @@ export class CategoryService {
 
   public async getCategories(): Promise<Category[] | undefined> {
     try {
-      const categories = await this.categoryRepository.find();
+      const categories = await this.categoryRepository.find({
+        relations: { products: true },
+      });
       return categories;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);

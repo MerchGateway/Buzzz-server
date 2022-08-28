@@ -12,9 +12,7 @@ import { RequestLoggingInterceptor } from '../request-logging.interceptor';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
-import { OrderModule } from './order/order.module';
-import { CartController } from './cart/cart.controller';
-import { CartService } from './cart/cart.service';
+import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
 import { CartModule } from './cart/cart.module';
 
 @Module({
@@ -26,8 +24,6 @@ import { CartModule } from './cart/cart.module';
     CategoryModule,
     CartModule,
     ProductModule,
-    OrderModule,
-
   ],
   controllers: [AppController],
   providers: [
@@ -40,6 +36,10 @@ import { CartModule } from './cart/cart.module';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ErrorsInterceptor,
     },
   ],
 })
