@@ -13,6 +13,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
+import { TransactionModule } from './transaction/transaction.module';
 import { CartModule } from './cart/cart.module';
 
 import { PaymentModule } from './payment/payment.module';
