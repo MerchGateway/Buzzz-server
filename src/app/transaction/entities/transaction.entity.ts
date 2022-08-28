@@ -62,7 +62,7 @@ export class Transaction extends BaseEntity {
 
   @BeforeInsert()
   private async verifyTransaction() {
-    fetch(`${this.configService.get('paystack.verifyUrl')}/${this.reference}`, {
+    fetch(`https://api.paystack.co/transaction/verify/${this.reference}`, {
       method: 'GET',
       headers: new Headers({
         Authorization: `Bearer ${this.configService.get('paystack.secret')}`,
