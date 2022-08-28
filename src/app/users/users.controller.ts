@@ -11,6 +11,8 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Public } from 'src/decorators/public.decorator';
+import { CurrentUser } from '../../decorators/user.decorator';
+import { User } from './entities/user.entity';
 
 @Controller('users')
 export class UsersController {
@@ -33,8 +35,8 @@ export class UsersController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  update(@CurrentUser() user: User, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(user, updateUserDto);
   }
 
   @Delete(':id')
