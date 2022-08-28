@@ -12,8 +12,12 @@ import { RequestLoggingInterceptor } from '../request-logging.interceptor';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
-import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
+import { OrderModule } from './order/order.module';
+import { CartController } from './cart/cart.controller';
+import { CartService } from './cart/cart.service';
 import { CartModule } from './cart/cart.module';
+import { PaymentModule } from './payment/payment.module';
+import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
 
 @Module({
   imports: [

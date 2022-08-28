@@ -63,14 +63,13 @@ export class OrderService {
 
   public async deleteOrder(
     orderId: string,
-    user: User,
   ): Promise<Order | undefined> {
     try {
       console.log(orderId);
       // check if order exists
       const isOrder = await this.orderRepository.findOne({
         where: { id: orderId },
-        relations: { user: true },
+        relations:{cart:true}
       });
 
       if (!isOrder) {
@@ -86,7 +85,6 @@ export class OrderService {
 
   public async getOrder(
     orderId: string,
-    user: User,
   ): Promise<Order | undefined> {
     try {
       const order = await this.orderRepository.findOne({
@@ -108,7 +106,7 @@ export class OrderService {
   public async getOrders(user: User): Promise<Order[] | undefined> {
     try {
       const Orders = await this.orderRepository.find({
-        relations: { user: true },
+        where: { user: { id: user.id } }
       });
       return Orders;
     } catch (err: any) {

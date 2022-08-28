@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 
 import { OrderService } from './order.service';
-import { CreateOrderDto, UpdateOrderDto } from './dto/order.dto';
+import { CreateOrderDto } from './dto/order.dto';
 import { Order } from './entities/order.entity';
 import { CurrentUser } from 'src/decorators/user.decorator';
 import { User } from '../users/entities/user.entity';
@@ -49,7 +49,7 @@ export class OrderController {
     @Param('orderId', ParseUUIDPipe) orderId: string,
     @CurrentUser() user: User,
   ): Promise<Order | undefined> {
-    return this.orderService.deleteOrder(orderId, user);
+    return this.orderService.deleteOrder(orderId);
   }
 
   @Get('/:orderId')
@@ -57,7 +57,7 @@ export class OrderController {
     @Param('orderId', ParseUUIDPipe) orderId: string,
     @CurrentUser() user: User,
   ): Promise<Order | undefined> {
-    return this.orderService.getOrder(orderId, user);
+    return this.orderService.getOrder(orderId);
   }
   @Get('')
   private getOrders(@CurrentUser() user: User): Promise<Order[] | undefined> {
