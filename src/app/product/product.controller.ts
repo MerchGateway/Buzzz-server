@@ -32,12 +32,8 @@ export class ProductController {
 
   @Post('create-new')
   public async createProduct(@Body() body: CreateProductDto): Promise<Product> {
-    const isCategoryExisting = await this.categoryService.getCategory(
-      body.category_id,
-    );
-    if (isCategoryExisting) {
-      return this.service.createProduct(body);
-    }
+    await this.categoryService.getCategory(body.categoryId);
+    return this.service.createProduct(body);
   }
 
   @Post('upload')
@@ -67,8 +63,8 @@ export class ProductController {
     @Body() body: EditProductDto,
     @Param('id') id: string,
   ) {
-    if (body.category_id) {
-      await this.categoryService.getCategory(body.category_id);
+    if (body.categoryId) {
+      await this.categoryService.getCategory(body.categoryId);
     }
     return this.service.handleEditProduct(body, id);
   }
