@@ -27,8 +27,10 @@ import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
     CategoryModule,
     CartModule,
     ProductModule,
+
     OrderModule,
     PaymentModule,
+
   ],
   controllers: [AppController],
   providers: [

@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   PrimaryGeneratedColumn,
+  OneToMany,
   ManyToOne,
   JoinColumn,
   PrimaryColumn,
@@ -12,12 +13,9 @@ import {
 import { Category } from '../category/entities/category.entity';
 import { PaymentReceipt } from '../payment/entities/payment.entity';
 
-<<<<<<< HEAD
-import {Cart} from "../cart/entities/cart.entity"
+import { Cart } from '../cart/entities/cart.entity';
 @Entity()
-=======
 @Entity({ name: 'product', schema: 'public' })
->>>>>>> origin/staging
 export class Product extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -34,10 +32,7 @@ export class Product extends BaseEntity {
   @Column({ default: false })
   isPublished: boolean;
 
-<<<<<<< HEAD
- 
   @CreateDateColumn()
-=======
   @PrimaryColumn()
   categoryId: string;
 
@@ -56,7 +51,6 @@ export class Product extends BaseEntity {
   receipt: PaymentReceipt;
 
   @CreateDateColumn({ name: 'created_at' })
->>>>>>> origin/staging
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })

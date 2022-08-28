@@ -10,7 +10,6 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  
 } from 'typeorm';
 import { Order } from '../../order/entities/order.entity';
 import { Cart } from '../../cart/entities/cart.entity';
@@ -48,7 +47,10 @@ export class User {
   role: Role;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 9cd741f1d9deb279e2c382b2f18620b3384dcf27
   @Column({ nullable: true })
   bio: string;
 
@@ -75,7 +77,10 @@ export class User {
 
   @Column({ nullable: true })
   reddit: string;
+<<<<<<< HEAD
 >>>>>>> origin/staging
+=======
+>>>>>>> 9cd741f1d9deb279e2c382b2f18620b3384dcf27
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
