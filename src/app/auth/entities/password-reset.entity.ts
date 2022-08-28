@@ -18,7 +18,7 @@ export class PasswordReset {
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: User
 
   @Column()
   token: string;
