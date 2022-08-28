@@ -13,9 +13,8 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
-import { CartController } from './cart/cart.controller';
-import { CartService } from './cart/cart.service';
 import { CartModule } from './cart/cart.module';
+
 import { PaymentModule } from './payment/payment.module';
 import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
 
@@ -28,6 +27,10 @@ import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
     CategoryModule,
     CartModule,
     ProductModule,
+
+    OrderModule,
+    PaymentModule,
+
   ],
   controllers: [AppController],
   providers: [

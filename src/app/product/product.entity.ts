@@ -12,8 +12,9 @@ import {
 } from 'typeorm';
 import { Category } from '../category/entities/category.entity';
 import { PaymentReceipt } from '../payment/entities/payment.entity';
-import { Cart } from '../cart/entities/cart.entity';
 
+import { Cart } from '../cart/entities/cart.entity';
+@Entity()
 @Entity({ name: 'product', schema: 'public' })
 export class Product extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -31,6 +32,7 @@ export class Product extends BaseEntity {
   @Column({ default: false })
   isPublished: boolean;
 
+  @CreateDateColumn()
   @PrimaryColumn()
   categoryId: string;
 
