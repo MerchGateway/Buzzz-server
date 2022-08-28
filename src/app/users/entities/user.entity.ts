@@ -44,6 +44,33 @@ export class User {
   @Column({ type: 'enum', enum: Role, default: Role.USER })
   role: Role;
 
+  @Column({ nullable: true })
+  bio: string;
+
+  @Column({ nullable: true })
+  phoneNumber: string;
+
+  @Column({ nullable: true })
+  address: string;
+
+  @Column({ name: 'is_public', default: true })
+  isPublic: boolean;
+
+  @Column({ name: 'show_email', default: true })
+  showEmail: boolean;
+
+  @Column({ nullable: true })
+  instagram: string;
+
+  @Column({ nullable: true })
+  facebook: string;
+
+  @Column({ nullable: true })
+  twitter: string;
+
+  @Column({ nullable: true })
+  reddit: string;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
