@@ -16,6 +16,8 @@ import { OrderModule } from './order/order.module';
 import { CartController } from './cart/cart.controller';
 import { CartService } from './cart/cart.service';
 import { CartModule } from './cart/cart.module';
+import { PaymentModule } from './payment/payment.module';
+import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
 
 @Module({
   imports: [
@@ -26,8 +28,6 @@ import { CartModule } from './cart/cart.module';
     CategoryModule,
     CartModule,
     ProductModule,
-    OrderModule,
-
   ],
   controllers: [AppController],
   providers: [
@@ -40,6 +40,10 @@ import { CartModule } from './cart/cart.module';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ErrorsInterceptor,
     },
   ],
 })

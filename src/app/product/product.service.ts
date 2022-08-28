@@ -1,6 +1,5 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
 import { Repository } from 'typeorm';
 import {
   paginate,
@@ -12,13 +11,16 @@ import { Product } from './product.entity';
 
 @Injectable()
 export class ProductService {
-  @InjectRepository(Product)
-  private readonly productRepository: Repository<Product>;
+  constructor(
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
+  ) {}
 
-  public createProduct(body: CreateProductDto) {
+  public createProduct(body: CreateProductDto): Promise<Product> {
     const product: Product = new Product();
     product.name = body.name;
     product.price = body.price;
+    product.categoryId = body.categoryId;
 
     return this.productRepository.save(product);
   }
@@ -26,13 +28,33 @@ export class ProductService {
   async handleEditProduct(body: EditProductDto, id: string) {
     try {
       const product = await this.handleGetAProduct(id);
-      (product.name = body?.name || product.name),
-        (product.price = body?.price || Number(product.price));
-      await product.save();
-      return product;
+      await this.productRepository
+        .createQueryBuilder('updateP')
+        .update()
+        .where('id= :id', { id: product.id })
+        .set({
+          name: body.name,
+          price: body.price,
+          categoryId: body.categoryId,
+        })
+        .execute();
+      return await this.handleGetAProduct(id);
     } catch (err) {
       throw err;
     }
+  }
+
+  async handleUpdatePaymentRecord(receiptId: string, id: string) {
+    await this.productRepository
+      .createQueryBuilder('addPayrecord')
+      .update()
+      .where('id= :id', { id: id })
+      .set({
+        receiptId,
+        purchased: true,
+      })
+      .execute();
+    return await this.handleGetAProduct(id);
   }
 
   async handleSetVisibility(id: string) {
@@ -61,18 +83,19 @@ export class ProductService {
 
   async handleGetAProduct(id: string) {
     try {
-      const product = await this.productRepository.findOneByOrFail({ id });
-      if (product) {
-        return product;
+      const product = await this.productRepository.findOne({
+        where: { id },
+        relations: {
+          category: true,
+          receipt: true,
+        },
+      });
+      if (!product) {
+        throw new NotFoundException('No product with this credentail(s) found');
       }
+      return product;
     } catch (err) {
-      if (err instanceof EntityNotFoundError) {
-        throw new ForbiddenException(
-          'No product with this credentail(s) found',
-        );
-      } else {
-        throw err;
-      }
+      throw err;
     }
   }
 
