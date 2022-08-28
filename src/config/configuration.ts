@@ -40,6 +40,12 @@ export default () => ({
     twitterConsumerKey: process.env.OAUTH_TWITTER_CONSUMER_KEY,
     twitterConsumerSecret: process.env.OAUTH_TWITTER_CONSUMER_SECRET,
   },
+  paystack: {
+    secret: process.env.PAYSTACK_SECRET_KEY,
+  },
   sendgridApiKey: process.env.SENDGRID_API_KEY,
   fromEmail: process.env.FROM_EMAIL,
+  broker: {
+    paystackSecretKey: process.env.PAYSTACK_SECRET_KEY,
+  },
 });

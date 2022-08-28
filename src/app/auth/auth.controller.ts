@@ -5,6 +5,7 @@ import {
   UseGuards,
   HttpCode,
   Get,
+  Patch,
 } from '@nestjs/common';
 import { Public } from '../../decorators/public.decorator';
 import { CurrentUser } from '../../decorators/user.decorator';
@@ -17,6 +18,7 @@ import { SignupUserDto } from './dto/signup-user.dto';
 import { GoogleOauthGuard } from './guards/google-oauth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { TwitterOauthGuard } from './guards/twitter-oauth.guard';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -70,5 +72,13 @@ export class AuthController {
   @Post('reset-password')
   resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(resetPasswordDto);
+  }
+
+  @Patch('update-password')
+  updatePassword(
+    @CurrentUser() user: User,
+    @Body() updatePasswordDto: UpdatePasswordDto,
+  ) {
+    return this.authService.updatePassword(user, updatePasswordDto);
   }
 }

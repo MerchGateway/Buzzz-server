@@ -1,3 +1,4 @@
+import { Product } from 'src/app/product/product.entity';
 import {
   BaseEntity,
   Entity,
@@ -5,9 +6,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   PrimaryGeneratedColumn,
+  OneToMany,
 } from 'typeorm';
 
-@Entity('categories')
+@Entity('category')
 export class Category extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -22,6 +24,10 @@ export class Category extends BaseEntity {
     transformer: { to: (value) => value.trim(), from: (value) => value },
   })
   description: string;
+
+  @OneToMany(() => Product, (products) => products.category)
+  products: Product[];
+
   @CreateDateColumn()
   created_at: Date;
   @UpdateDateColumn()

@@ -11,6 +11,8 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 
+import { Public } from 'src/decorators/public.decorator';
+
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
 import { CategoryService } from './category.service';
 import { Category } from './entities/category.entity';
@@ -18,35 +20,41 @@ import { Category } from './entities/category.entity';
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
-  @Post('create')
+
+  @Post()
   @HttpCode(HttpStatus.CREATED)
-  private async createCategory(
+private createCategory(
     @Body() payload: CreateCategoryDto,
   ): Promise<Category | undefined> {
-    return await this.categoryService.createCategory(payload);
+    return this.categoryService.createCategory(payload);
   }
-  @Put('update/:categoryId')
-  private async updateCategory(
+
+  @Put('/:categoryId')
+  private updateCategory(
     @Body() body: UpdateCategoryDto,
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
   ): Promise<Category | undefined> {
     return this.categoryService.updateCategory(body, categoryId);
   }
+
+  @Public()
   @Get('/:categoryId')
-  private async getCategory(
+  private getCategory(
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
   ): Promise<Category | undefined> {
-    return await this.categoryService.getCategory(categoryId);
-  }
-  @Delete('/delete:categoryId')
-  private async deleteCategory(
-    @Param('categoryId', ParseUUIDPipe) categoryId: string,
-  ): Promise<Category | undefined> {
-    return await this.categoryService.deleteCategory(categoryId);
+    return this.categoryService.getCategory(categoryId);
   }
 
+  @Delete('/:categoryId')
+  private deleteCategory(
+    @Param('categoryId', ParseUUIDPipe) categoryId: string,
+  ): Promise<Category | undefined> {
+    return this.categoryService.deleteCategory(categoryId);
+  }
+  
+  @Public()
   @Get()
-  private async getCategories(): Promise<Category[] | undefined> {
-    return await this.categoryService.getCategories();
+  private getCategories(): Promise<Category[] | undefined> {
+    return this.categoryService.getCategories();
   }
 }

@@ -11,13 +11,19 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Order } from '../../order/entities/order.entity';
+import { Cart } from '../../cart/entities/cart.entity';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'identity_provider', nullable: true, select: false })
+  @Column({
+    name: 'identity_provider',
+    nullable: true,
+    select: false,
+  })
   identityProvider: IdentityProvider | null;
 
   @Column({
@@ -39,6 +45,42 @@ export class User {
 
   @Column({ type: 'enum', enum: Role, default: Role.USER })
   role: Role;
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> 9cd741f1d9deb279e2c382b2f18620b3384dcf27
+  @Column({ nullable: true })
+  bio: string;
+
+  @Column({ nullable: true })
+  phoneNumber: string;
+
+  @Column({ nullable: true })
+  address: string;
+
+  @Column({ name: 'is_public', default: true })
+  isPublic: boolean;
+
+  @Column({ name: 'show_email', default: true })
+  showEmail: boolean;
+
+  @Column({ nullable: true })
+  instagram: string;
+
+  @Column({ nullable: true })
+  facebook: string;
+
+  @Column({ nullable: true })
+  twitter: string;
+
+  @Column({ nullable: true })
+  reddit: string;
+<<<<<<< HEAD
+>>>>>>> origin/staging
+=======
+>>>>>>> 9cd741f1d9deb279e2c382b2f18620b3384dcf27
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
