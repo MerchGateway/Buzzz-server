@@ -21,7 +21,7 @@ import { User } from '../users/entities/user.entity';
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  @Post('create')
+  @Post('')
   @HttpCode(HttpStatus.CREATED)
   private createOrder(
     @Body() payload: CreateOrderDto,

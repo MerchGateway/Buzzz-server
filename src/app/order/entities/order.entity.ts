@@ -28,17 +28,37 @@ export class Order extends BaseEntity {
   user: User;
 
   @ManyToOne(() => Transaction, (transaction) => transaction.orders, {
-    cascade: true,
+    onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'transaction_id' })
   transaction: Transaction;
 
-  @OneToOne(() => Cart, { cascade: true })
+  @OneToOne(() => Cart, (cart) => cart.order, {
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'cart_item_id' })
   cart: Cart;
 
+  @Column({ type: 'simple-json', nullable: true })
+  product: any;
+
+  @Column({ type: 'numeric', nullable: true })
+  quantity: number;
+
+  @Column({ type: 'numeric', nullable: true })
+  total: number;
+
   @Column({ type: 'simple-json' })
-  shipping_details: { shipping_fee: number; shipping_address: string };
+  shipping_details: {
+    shipping_fee: number;
+    shipping_address: {
+      street_number: number;
+      state: string;
+      LGA: string;
+      street: string;
+      Nearest_bustop: string;
+    };
+  };
 
   @Column({ nullable: true, default: 0, type: 'decimal', precision: 10 })
   delivery_fee: number;
@@ -51,11 +71,28 @@ export class Order extends BaseEntity {
 
   @BeforeInsert()
   @BeforeUpdate()
-  private async setDeliveryFee() {}
+  private async setDeliveryFee() {
+    // todo shipping fee logic
+  }
+  // delete already ordered cart item
 
-  public async setCoupon(value: string) {
+  @BeforeInsert()
+  private async updateProductDetails() {
+    this.product = this.cart.product;
+    this.quantity = this.cart.quantity;
+    this.total = this.cart.total;
+    Cart.remove(this.cart);
+    // delete this.cart;
+  }
+
+  @BeforeInsert()
+  private async shippingFee() {
+    //todo shipping fee logic
+  }
+  public async addCoupon(value: string) {
     this.coupon = value;
   }
+
   public async updateStatus(value: string) {
     this.status = value;
   }
