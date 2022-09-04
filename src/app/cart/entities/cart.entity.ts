@@ -9,6 +9,7 @@ import {
   Column,
   OneToOne,
   BeforeInsert,
+  AfterUpdate,
   BeforeUpdate,
 } from 'typeorm';
 
@@ -31,16 +32,16 @@ export class Cart extends BaseEntity {
   @ManyToOne(() => Product, {
     cascade: true,
   })
-  @JoinColumn({ name: 'product_id' })
+  @JoinColumn()
   product: Product;
 
-  @OneToOne(() => Order, {
-    cascade: true,
-  })
-  @JoinColumn({ name: 'order_id' })
+  @OneToOne(() => Order, (order) => order.cart)
   order: Order;
 
-  @Column({ type: 'integer' })
+  @Column({
+    type: 'integer',
+    transformer: { to: (value) => Math.abs(value), from: (value) => value },
+  })
   quantity: number;
 
   @Column({ type: 'integer' })
@@ -48,8 +49,9 @@ export class Cart extends BaseEntity {
 
   @BeforeInsert()
   @BeforeUpdate()
-  private async calculateTotal() {
-    this.total = this.product.price * this.quantity;
+  private async calculateTotal(): Promise<void> {
+    console.log('this calculate total ran after');
+    this.total = this.product.price * Math.abs(this.quantity);
   }
 
   @CreateDateColumn()

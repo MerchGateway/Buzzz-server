@@ -1,6 +1,12 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Injectable, HttpException } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  Inject,
+  forwardRef,
+  BadRequestException,
+} from '@nestjs/common';
 import { CreateOrderDto } from './dto/order.dto';
 import { NotFoundException } from '@nestjs/common';
 
@@ -13,7 +19,7 @@ export class OrderService {
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
-
+    @Inject(forwardRef(() => CartService))
     private readonly cartService: CartService,
   ) {}
 
@@ -25,24 +31,31 @@ export class OrderService {
       console.log(payload);
       const userCartItems = await this.cartService.getCartItems(user);
 
-      var newRecords: Order[] = [];
+      // throw exception if there isnt any item in cart
+      if (!userCartItems[0]) {
+        throw new BadRequestException(
+          'Item{s} to create order for doesnt exist ',
+        );
+      }
 
-      const createOrder = () => {
-        // loop through the cart items and create individual order records
-        userCartItems.forEach((cart) => {
+      const result: Order[] = await Promise.all(
+        userCartItems.map(async (cart) => {
           const newOrder = this.orderRepository.create({
-            shipping_details: payload.shipping_details,
             user,
             cart,
+            shipping_details: {
+              shipping_address: payload.shipping_address,
+            },
           });
           // save cart items
-          this.orderRepository.save(newOrder);
-          newRecords.push(newOrder);
-        });
-        return newRecords;
-      };
+          await this.orderRepository.save(newOrder);
 
-      return createOrder();
+          // fetch fresh copy of order
+          return await this.getOrder(newOrder.id);
+        }),
+      );
+
+      return result;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
@@ -61,15 +74,12 @@ export class OrderService {
   //   }
   // }
 
-  public async deleteOrder(
-    orderId: string,
-  ): Promise<Order | undefined> {
+  public async deleteOrder(orderId: string): Promise<Order | undefined> {
     try {
-      console.log(orderId);
+    
       // check if order exists
       const isOrder = await this.orderRepository.findOne({
         where: { id: orderId },
-        relations:{cart:true}
       });
 
       if (!isOrder) {
@@ -83,14 +93,9 @@ export class OrderService {
     }
   }
 
-  public async getOrder(
-    orderId: string,
-  ): Promise<Order | undefined> {
+  public async getOrder(orderId: string): Promise<Order | undefined> {
     try {
-      const order = await this.orderRepository.findOne({
-        where: { id: orderId },
-        relations: { user: true },
-      });
+      const order = await this.orderRepository.findOneBy({ id: orderId });
 
       if (!order) {
         throw new NotFoundException(
@@ -105,8 +110,8 @@ export class OrderService {
 
   public async getOrders(user: User): Promise<Order[] | undefined> {
     try {
-      const Orders = await this.orderRepository.find({
-        where: { user: { id: user.id } }
+      const Orders = await this.orderRepository.findBy({
+        user: { id: user.id },
       });
       return Orders;
     } catch (err: any) {
@@ -117,6 +122,7 @@ export class OrderService {
   public async completeOrder(orderId: string): Promise<Order | undefined> {
     try {
       console.log(orderId);
+      // complete order logic eg when a users order is delievered
       return;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);

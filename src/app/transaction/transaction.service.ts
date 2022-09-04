@@ -25,14 +25,50 @@ export class TransactionService {
       const Transaction = this.transactionRepository.create({
         reference: payload.reference,
         user,
-        orders
+        orders,
       });
+      console.log(orders);
       await this.transactionRepository.save(Transaction);
       // fetch fresh copy of the just created transaction
       const cleanTransaction = await this.transactionRepository.findOne({
         where: { id: Transaction.id },
+        relations: { orders: true },
       });
       return cleanTransaction;
+    } catch (err: any) {
+      throw new HttpException(err.message, err.status);
+    }
+  }
+
+  public async getTransactionsForAuthUser(
+    user: User,
+  ): Promise<Transaction[] | undefined> {
+    try {
+      const transactions = await this.transactionRepository.find({where:{
+        user: { id: user.id }},
+        relations: { orders: true },
+      });
+      return transactions;
+    } catch (err: any) {
+      throw new HttpException(err.message, err.status);
+    }
+  }
+  public async deleteTransaction(
+    reference: string,
+  ): Promise<Transaction | undefined> {
+    try {
+      const isTransaction = await this.transactionRepository.findOneBy({
+        reference,
+      });
+
+      if (!isTransaction) {
+        throw new NotFoundException(
+          `Transaction with reference ${reference} does not exist`,
+        );
+      }
+
+      await this.transactionRepository.delete({ reference });
+      return isTransaction;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
