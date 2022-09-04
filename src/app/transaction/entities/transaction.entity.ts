@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 
 import { User } from '../../users/entities/user.entity';
+import { Status as orderStatus } from '../../../types/order';
 import connection from 'src/app/payment/paystack/utils/connection';
 import { Status } from 'src/types/transaction';
 import { Order } from 'src/app/order/entities/order.entity';
@@ -77,6 +78,12 @@ export class Transaction extends BaseEntity {
           this.channel = res.data.channel;
           this.amount = res.data.amount;
           this.status = Status.SUCCESS;
+
+          // set the status of order to paid on successful payment verification
+          this.orders.forEach(async (order) => {
+            await order.updateStatus(orderStatus.PAID);
+          });
+          
         } else {
           this.fee = res.data.fees;
           this.currency = res.data.currency;

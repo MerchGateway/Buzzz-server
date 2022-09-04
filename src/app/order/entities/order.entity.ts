@@ -11,8 +11,6 @@ import {
   BeforeUpdate,
   JoinColumn,
   OneToOne,
-  Repository,
-  AfterInsert,
 } from 'typeorm';
 
 import { Status } from '../../../types/order';
