@@ -12,6 +12,7 @@ import { PaystackBrokerService } from './paystack.service';
 import { ProductService } from 'src/app/product/product.service';
 import { PaymentReceipt } from '../entities/payment.entity';
 
+//TODO: link payment with transactionentity
 @Controller('payment/paystack')
 export class PaystackBrokerController {
   constructor(
