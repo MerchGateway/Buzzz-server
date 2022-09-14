@@ -16,9 +16,14 @@ import { Status as orderStatus } from '../../../types/order';
 import connection from 'src/app/payment/paystack/utils/connection';
 import { Status } from 'src/types/transaction';
 import { Order } from 'src/app/order/entities/order.entity';
+import { AxiosInstance } from 'axios';
 
 @Entity('transaction')
 export class Transaction extends BaseEntity {
+  axiosConnection: AxiosInstance;
+  construnctor() {
+    this.axiosConnection = connection();
+  }
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -46,7 +51,7 @@ export class Transaction extends BaseEntity {
   orders: Order[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_At: Date;
 
   @Column({
     type: 'enum',
@@ -55,16 +60,16 @@ export class Transaction extends BaseEntity {
   channel: string;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_At: Date;
 
   @BeforeInsert()
   private async verifyTransaction() {
     console.log('transaction method started');
     // create connection instance of axios
-    const axiosConnection = connection();
+    this.axiosConnection = connection();
 
     // create conection route and fire route
-    await axiosConnection
+    await this.axiosConnection
       .get(`/verify/${this.reference}`)
       .then((res: any) => {
         console.log('na response be this o', res);
@@ -83,17 +88,22 @@ export class Transaction extends BaseEntity {
           this.orders.forEach(async (order) => {
             await order.updateStatus(orderStatus.PAID);
           });
-          
         } else {
           this.fee = res.data.fees;
           this.currency = res.data.currency;
           this.channel = res.data.channel;
           this.amount = res.data.amount;
           this.status = Status.FAILED;
+          this.orders.forEach(async (order) => {
+            await order.updateStatus(orderStatus.CANCELLED);
+          });
         }
       })
       .catch((err: any) => {
         this.status = Status.FAILED;
+        this.orders.forEach(async (order) => {
+          await order.updateStatus(orderStatus.CANCELLED);
+        });
       });
   }
 }
