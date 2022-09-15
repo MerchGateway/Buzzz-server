@@ -76,7 +76,6 @@ export class OrderService {
 
   public async deleteOrder(orderId: string): Promise<Order | undefined> {
     try {
-    
       // check if order exists
       const isOrder = await this.orderRepository.findOne({
         where: { id: orderId },

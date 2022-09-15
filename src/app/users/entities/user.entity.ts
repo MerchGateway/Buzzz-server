@@ -55,6 +55,15 @@ export class User {
   @Column({ nullable: true })
   address: string;
 
+  @Column({ nullable: true, type: 'simple-json' })
+  shipping_address: {
+    street_number: number;
+    state: string;
+    LGA: string;
+    Nearest_bustop: string;
+    street: string;
+  };
+
   @Column({ name: 'is_public', default: true })
   isPublic: boolean;
 

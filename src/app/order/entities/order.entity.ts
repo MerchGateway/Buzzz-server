@@ -77,11 +77,14 @@ export class Order extends BaseEntity {
   // delete already ordered cart item
 
   @BeforeInsert()
+  @BeforeUpdate()
   private async updateProductDetails() {
     this.product = this.cart.product;
     this.quantity = this.cart.quantity;
     this.total = this.cart.total;
-    Cart.remove(this.cart);
+    if ((this.status = Status.PAID)) {
+      Cart.remove(this.cart);
+    }
     // delete this.cart;
   }
 
