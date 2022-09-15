@@ -37,8 +37,9 @@ export class TransactionController {
 
   @Delete(':reference')
   private deleteTransaction(
+    @CurrentUser() user: User,
     @Param('reference') reference: string,
   ): Promise<Transaction | undefined> {
-    return this.transactionService.deleteTransaction(reference);
+    return this.transactionService.deleteTransaction(reference,user);
   }
 }

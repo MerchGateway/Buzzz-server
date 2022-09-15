@@ -18,7 +18,7 @@ export class TransactionService {
     private readonly cartService: CartService,
   ) {}
 
-  public async verifyTransaction(
+  public async createTransaction(
     reference: string,
     user: User,
   ): Promise<Transaction | undefined> {
@@ -62,12 +62,39 @@ export class TransactionService {
       throw new HttpException(err.message, err.status);
     }
   }
-  public async deleteTransaction(
+
+  public async verifyTransaction(
     reference: string,
+    user: User,
   ): Promise<Transaction | undefined> {
     try {
       const isTransaction = await this.transactionRepository.findOneBy({
         reference,
+        user: { id: user.id },
+      });
+
+      if (!isTransaction) {
+        throw new NotFoundException(
+          `Transaction with reference ${reference} does not exist`,
+        );
+      }
+
+      await isTransaction.verifyTransaction();
+     return await this.transactionRepository.save(isTransaction)
+     
+    } catch (err: any) {
+      throw new HttpException(err.message, err.status);
+    }
+  }
+
+  public async deleteTransaction(
+    reference: string,
+    user:User
+  ): Promise<Transaction | undefined> {
+    try {
+      const isTransaction = await this.transactionRepository.findOneBy({
+        reference,
+        user:{id:user.id}
       });
 
       if (!isTransaction) {

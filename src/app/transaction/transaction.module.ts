@@ -10,5 +10,6 @@ import { CartModule } from '../cart/cart.module';
   imports: [TypeOrmModule.forFeature([Transaction]), OrderModule, CartModule],
   controllers: [TransactionController],
   providers: [TransactionService],
+  exports: [TransactionService],
 })
 export class TransactionModule {}

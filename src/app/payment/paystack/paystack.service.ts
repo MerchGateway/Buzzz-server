@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  HttpException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -13,6 +14,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import connection from 'src/app/payment/paystack/utils/connection';
 import { CartService } from 'src/app/cart/cart.service';
+import { TransactionService } from 'src/app/transaction/transaction.service';
 import { Cart } from 'src/app/cart/entities/cart.entity';
 import { UsersService } from 'src/app/users/users.service';
 import { UpdateUserDto } from 'src/app/users/dto/update-user.dto';
@@ -28,6 +30,7 @@ export class PaystackBrokerService {
     private readonly paymentRepository: Repository<PaymentReceipt>,
     private readonly cartService: CartService,
     private readonly userService: UsersService,
+    private readonly transactionService: TransactionService,
   ) {
     const config = configuration();
     // create connection instance of axios
@@ -43,7 +46,7 @@ export class PaystackBrokerService {
   }
   // Create payment Ref (initialize transaction)
   public async createPayRef(
-    body:UpdateUserDto,
+    body: UpdateUserDto,
     user: User,
   ): Promise<{
     authorization_url: string;
@@ -68,22 +71,49 @@ export class PaystackBrokerService {
       }),
     );
 
-    console.log(payload.amount);
-    // initialize payment
-    const init: {
-      status: boolean;
-      message: string;
-      data: {
-        authorization_url: string;
-        access_code: string;
-        reference: string;
-      };
-    } = await this.axiosConnection.post('/transaction/initialize', payload);
+    // setting shipping details to profile
+    const updateinfo = await this.userService.update(user, body);
+    console.log('na updated data be this', updateinfo);
 
-    // setting shipping details to info obj
-    await this.userService.update(user, body);
+    // initialize transaction
+    return await this.axiosConnection
+      .post('/transaction/initialize', payload)
+      .then(async (res) => {
+        console.log(res);
+        // return res.data= {
+        //   data: {
+        //     authorization_url: string;
+        //     access_code: string;
+        //     reference: string;
+        //   }}
+
+        // create transaction on payment initalize
+        await this.transactionService.createTransaction(res.data?.reference,user)
+        return res.data;
+      })
+      .catch((err) => {
+        console.log(err.message);
+        throw new HttpException(
+          err.message === 'timeout of 2000ms exceeded'
+            ? 'Unable to connect with paystack'
+            : err.message,
+          err.statusCode || 500,
+        );
+      });
+    // initialize payment
+    // const init: {
+    //   status: boolean;
+    //   message: string;
+    //   data: {
+    //     authorization_url: string;
+    //     access_code: string;
+    //     reference: string;
+    //   };
+    // } = await this.axiosConnection.post('/transaction/initialize', payload);
+
+    // console.log('na init be this o', init);
+
     // return authorization data for users to complete their transactions
-    return init?.data;
   }
 
   // public async verifyPayment(ref: string) {

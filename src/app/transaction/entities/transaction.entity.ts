@@ -44,6 +44,9 @@ export class Transaction extends BaseEntity {
   @Column({ type: 'varchar', nullable: true })
   currency: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  message: string;
+
   @Column({ type: 'enum', enum: Status, default: Status.PENDING })
   status: string;
 
@@ -51,7 +54,7 @@ export class Transaction extends BaseEntity {
   orders: Order[];
 
   @CreateDateColumn()
-  created_At: Date;
+  created_at: Date;
 
   @Column({
     type: 'enum',
@@ -60,10 +63,9 @@ export class Transaction extends BaseEntity {
   channel: string;
 
   @UpdateDateColumn()
-  updated_At: Date;
+  updated_at: Date;
 
-  @BeforeInsert()
-  private async verifyTransaction() {
+  public async verifyTransaction() {
     console.log('transaction method started');
     // create connection instance of axios
     this.axiosConnection = connection();
@@ -82,11 +84,13 @@ export class Transaction extends BaseEntity {
           this.currency = res.data.currency;
           this.channel = res.data.channel;
           this.amount = res.data.amount;
+          this.message = 'Transaction successful';
           this.status = Status.SUCCESS;
 
           // set the status of order to paid on successful payment verification
           this.orders.forEach(async (order) => {
             await order.updateStatus(orderStatus.PAID);
+            await order.save();
           });
         } else {
           this.fee = res.data.fees;
@@ -94,15 +98,19 @@ export class Transaction extends BaseEntity {
           this.channel = res.data.channel;
           this.amount = res.data.amount;
           this.status = Status.FAILED;
+          this.message = 'Transaction could not be verified';
           this.orders.forEach(async (order) => {
             await order.updateStatus(orderStatus.CANCELLED);
+            await order.save();
           });
         }
       })
       .catch((err: any) => {
         this.status = Status.FAILED;
+        this.message = err.message;
         this.orders.forEach(async (order) => {
           await order.updateStatus(orderStatus.CANCELLED);
+          await order.save();
         });
       });
   }
