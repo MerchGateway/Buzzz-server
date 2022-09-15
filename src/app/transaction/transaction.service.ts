@@ -80,8 +80,7 @@ export class TransactionService {
       }
 
       await isTransaction.verifyTransaction();
-     return await this.transactionRepository.save(isTransaction)
-     
+      return await this.transactionRepository.save(isTransaction);
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
@@ -89,12 +88,10 @@ export class TransactionService {
 
   public async deleteTransaction(
     reference: string,
-    user:User
   ): Promise<Transaction | undefined> {
     try {
       const isTransaction = await this.transactionRepository.findOneBy({
         reference,
-        user:{id:user.id}
       });
 
       if (!isTransaction) {

@@ -11,6 +11,8 @@ import {
 
 import { TransactionService } from './transaction.service';
 import { Transaction } from './entities/transaction.entity';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/types/general';
 // import { CreateTransactionDto } from './dto/transaction.dto';
 import { User } from '../users/entities/user.entity';
 
@@ -35,11 +37,11 @@ export class TransactionController {
     return this.transactionService.getTransactionsForAuthUser(user);
   }
 
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Delete(':reference')
   private deleteTransaction(
-    @CurrentUser() user: User,
     @Param('reference') reference: string,
   ): Promise<Transaction | undefined> {
-    return this.transactionService.deleteTransaction(reference,user);
+    return this.transactionService.deleteTransaction(reference);
   }
 }
