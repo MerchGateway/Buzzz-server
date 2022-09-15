@@ -46,7 +46,7 @@ export class PaystackBrokerService {
   }
   // Create payment Ref (initialize transaction)
   public async createPayRef(
-    body: UpdateUserDto,
+    
     user: User,
   ): Promise<{
     authorization_url: string;
@@ -71,9 +71,6 @@ export class PaystackBrokerService {
       }),
     );
 
-    // setting shipping details to profile
-    const updateinfo = await this.userService.update(user, body);
-    console.log('na updated data be this', updateinfo);
 
     // initialize transaction
     return await this.axiosConnection
