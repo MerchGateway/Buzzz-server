@@ -21,6 +21,7 @@ export class TransactionService {
   public async createTransaction(
     reference: string,
     user: User,
+    message: string,
   ): Promise<Transaction | undefined> {
     try {
       //create order
@@ -29,16 +30,14 @@ export class TransactionService {
         user,
       );
 
-      const Transaction = this.transactionRepository.create(
-        {
-          reference,
-          user,
-          orders,
-        },
-        
-    );
-      
-       await this.transactionRepository.save(Transaction);
+      const Transaction = this.transactionRepository.create({
+        reference,
+        user,
+        message,
+        orders,
+      });
+
+      await this.transactionRepository.save(Transaction);
       // fetch fresh copy of the just created transaction
       const cleanTransaction = await this.transactionRepository.findOne({
         where: { id: Transaction.id },
@@ -72,8 +71,7 @@ export class TransactionService {
   ): Promise<Transaction | undefined> {
     try {
       const isTransaction = await this.transactionRepository.findOneBy({
-        reference,
-        user: { id: user.id },
+        reference
       });
 
       if (!isTransaction) {

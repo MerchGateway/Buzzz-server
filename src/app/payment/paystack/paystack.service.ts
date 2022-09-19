@@ -73,8 +73,8 @@ export class PaystackBrokerService {
     return await this.axiosConnection
       .post('/transaction/initialize', payload)
       .then(async (res) => {
-        console.log(res.data);
-        // return res.data= {
+        
+        // return res.data.data= {
         //   data: {
         //     authorization_url: string;
         //     access_code: string;
@@ -83,17 +83,16 @@ export class PaystackBrokerService {
 
         // create transaction on payment initalize
         await this.transactionService.createTransaction(
-          res.data?.reference,
+          res.data?.data.reference,
           user,
+          res.data?.message
         );
-        return res.data;
+        return res.data.data;
       })
       .catch((err) => {
-        console.log(err);
+      
         throw new HttpException(
-          err.message === 'timeout of 2000ms exceeded'
-            ? 'Unable to connect with paystack'
-            : err.message,
+          err.message.includes('timeout') ? 'Unable to connect with paystack' : err.message,
           err.statusCode || 500,
         );
       });
