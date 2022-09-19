@@ -67,13 +67,11 @@ export class PaystackBrokerService {
         payload.amount += item.total;
       }),
     );
-    
 
     // initialize transaction
     return await this.axiosConnection
       .post('/transaction/initialize', payload)
       .then(async (res) => {
-        
         // return res.data.data= {
         //   data: {
         //     authorization_url: string;
@@ -85,16 +83,12 @@ export class PaystackBrokerService {
         await this.transactionService.createTransaction(
           res.data?.data.reference,
           user,
-          res.data?.message
+          res.data?.message,
         );
         return res.data.data;
       })
       .catch((err) => {
-      
-        throw new HttpException(
-          err.message.includes('timeout') ? 'Unable to connect with paystack' : err.message,
-          err.statusCode || 500,
-        );
+        throw new HttpException(err.message, err.statusCode || 500);
       });
     // initialize payment
     // const init: {

@@ -5,8 +5,6 @@ import { Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { User } from '../users/entities/user.entity';
 import { OrderService } from '../order/order.service';
-import { CartService } from '../cart/cart.service';
-import { Cart } from '../cart/entities/cart.entity';
 import { Order } from '../order/entities/order.entity';
 
 @Injectable()
@@ -14,8 +12,7 @@ export class TransactionService {
   constructor(
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
-    private readonly orderService: OrderService,
-    private readonly cartService: CartService,
+    private readonly orderService: OrderService
   ) {}
 
   public async createTransaction(
@@ -56,8 +53,7 @@ export class TransactionService {
       const transactions = await this.transactionRepository.find({
         where: {
           user: { id: user.id },
-        },
-        relations: { orders: true },
+        }
       });
       return transactions;
     } catch (err: any) {
@@ -66,8 +62,7 @@ export class TransactionService {
   }
 
   public async verifyTransaction(
-    reference: string,
-    user: User,
+    reference: string
   ): Promise<Transaction | undefined> {
     try {
       const isTransaction = await this.transactionRepository.findOneBy({

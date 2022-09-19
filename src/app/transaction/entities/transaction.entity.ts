@@ -9,6 +9,7 @@ import {
   PrimaryGeneratedColumn,
   BeforeInsert,
   OneToMany,
+  TableColumn,
 } from 'typeorm';
 
 import { User } from '../../users/entities/user.entity';
@@ -50,7 +51,7 @@ export class Transaction extends BaseEntity {
   @Column({ type: 'enum', enum: Status, default: Status.PENDING })
   status: string;
 
-  @OneToMany(() => Order, (order) => order.transaction)
+  @OneToMany(() => Order, (order) => order.transaction, { eager: true })
   orders: Order[];
 
   @CreateDateColumn()
@@ -66,15 +67,14 @@ export class Transaction extends BaseEntity {
   updated_at: Date;
 
   public async verifyTransaction() {
-    console.log('transaction method started');
     // create connection instance of axios
     this.axiosConnection = connection();
 
     // create conection route and fire route
     await this.axiosConnection
-      .get(`/verify/${this.reference}`)
-      .then((res: any) => {
-        console.log('na response be this o', res);
+      .get(`/transaction/verify/${this.reference}`)
+      .then(async (res: any) => {
+       
         if (
           res.data &&
           res.data.status === 'success' &&
@@ -86,12 +86,16 @@ export class Transaction extends BaseEntity {
           this.amount = res.data.amount;
           this.message = 'Transaction successful';
           this.status = Status.SUCCESS;
+          // save authorization code to enable reusing a card
+          this.user.authorization_code = res.data.authorization_code;
 
           // set the status of order to paid on successful payment verification
-          this.orders.forEach(async (order) => {
-            await order.updateStatus(orderStatus.PAID);
-            await order.save();
-          });
+          await Promise.all(
+            this.orders.map(async (order) => {
+              await order.updateStatus(orderStatus.PAID);
+              await order.save();
+            }),
+          );
         } else {
           this.fee = res.data.fees;
           this.currency = res.data.currency;
@@ -99,19 +103,23 @@ export class Transaction extends BaseEntity {
           this.amount = res.data.amount;
           this.status = Status.FAILED;
           this.message = 'Transaction could not be verified';
-          this.orders.forEach(async (order) => {
-            await order.updateStatus(orderStatus.CANCELLED);
-            await order.save();
-          });
+          await Promise.all(
+            this.orders.map(async (order) => {
+              await order.updateStatus(orderStatus.CANCELLED);
+              await order.save();
+            }),
+          );
         }
       })
-      .catch((err: any) => {
+      .catch(async (err: any) => {
         this.status = Status.FAILED;
         this.message = err.message;
-        this.orders.forEach(async (order) => {
-          await order.updateStatus(orderStatus.CANCELLED);
-          await order.save();
-        });
+        await Promise.all(
+          this.orders.map(async (order) => {
+            await order.updateStatus(orderStatus.CANCELLED);
+            return await order.save();
+          }),
+        );
       });
   }
 }

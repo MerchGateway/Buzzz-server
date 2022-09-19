@@ -79,17 +79,19 @@ export class Order extends BaseEntity {
   @BeforeInsert()
   @BeforeUpdate()
   private async updateProductDetails() {
-    this.product = this.cart.product;
-    this.quantity = this.cart.quantity;
-    this.total = this.cart.total;
-    if ((this.status === Status.PAID)) {
+    if (this.cart) {
+      this.product = this.cart.product;
+      this.quantity = this.cart.quantity;
+      this.total = this.cart.total;
+    }
+    if (this.status === Status.PAID) {
       // delete this.cart;
       Cart.remove(this.cart);
     }
-    
   }
 
   @BeforeInsert()
+  @BeforeUpdate()
   private async shippingFee() {
     //todo shipping fee logic
   }
@@ -98,7 +100,9 @@ export class Order extends BaseEntity {
   }
 
   public async updateStatus(value: string) {
+    console.log('reached');
     this.status = value;
+    console.log(this.status);
   }
   @CreateDateColumn()
   created_at: Date;
