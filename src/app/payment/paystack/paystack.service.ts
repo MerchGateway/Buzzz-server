@@ -68,6 +68,8 @@ export class PaystackBrokerService {
       }),
     );
 
+    // set payload to the smallest decimal
+    payload.ammont=
     // initialize transaction
     return await this.axiosConnection
       .post('/transaction/initialize', payload)
