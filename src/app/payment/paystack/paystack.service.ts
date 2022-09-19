@@ -67,9 +67,8 @@ export class PaystackBrokerService {
         payload.amount += item.total;
       }),
     );
-
-    // set payload to the smallest decimal
-    payload.ammont=
+    // set payload amount to the smallest decimal
+    payload.amount = payload.amount * 100;
     // initialize transaction
     return await this.axiosConnection
       .post('/transaction/initialize', payload)
