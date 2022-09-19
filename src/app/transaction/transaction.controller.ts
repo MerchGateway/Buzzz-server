@@ -7,12 +7,14 @@ import {
   Get,
   Param,
   Delete,
+  UseGuards
 } from '@nestjs/common';
 
 import { TransactionService } from './transaction.service';
 import { Transaction } from './entities/transaction.entity';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/types/general';
+import { RolesGuard } from '../auth/guards/roles.guard';
 // import { CreateTransactionDto } from './dto/transaction.dto';
 import { User } from '../users/entities/user.entity';
 
@@ -38,6 +40,7 @@ export class TransactionController {
   }
 
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @UseGuards(RolesGuard)
   @Delete(':reference')
   private deleteTransaction(
     @Param('reference') reference: string,

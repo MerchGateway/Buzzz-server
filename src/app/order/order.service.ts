@@ -13,6 +13,7 @@ import { NotFoundException } from '@nestjs/common';
 import { Order } from './entities/order.entity';
 import { User } from '../users/entities/user.entity';
 import { CartService } from '../cart/cart.service';
+import { Status } from 'src/types/order';
 
 @Injectable()
 export class OrderService {
@@ -122,6 +123,7 @@ export class OrderService {
     try {
       console.log(orderId);
       // complete order logic eg when a users order is delievered
+      await (await this.getOrder(orderId)).updateStatus(Status.COMPLETED);
       return;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
