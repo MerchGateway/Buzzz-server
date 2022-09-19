@@ -82,10 +82,11 @@ export class Order extends BaseEntity {
     this.product = this.cart.product;
     this.quantity = this.cart.quantity;
     this.total = this.cart.total;
-    if ((this.status = Status.PAID)) {
+    if ((this.status === Status.PAID)) {
+      // delete this.cart;
       Cart.remove(this.cart);
     }
-    // delete this.cart;
+    
   }
 
   @BeforeInsert()

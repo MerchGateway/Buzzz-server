@@ -29,13 +29,16 @@ export class TransactionService {
         user,
       );
 
-      const Transaction = this.transactionRepository.create({
-        reference,
-        user,
-        orders,
-      });
-      console.log(orders);
-      await this.transactionRepository.save(Transaction);
+      const Transaction = this.transactionRepository.create(
+        {
+          reference,
+          user,
+          orders,
+        },
+        
+    );
+      
+       await this.transactionRepository.save(Transaction);
       // fetch fresh copy of the just created transaction
       const cleanTransaction = await this.transactionRepository.findOne({
         where: { id: Transaction.id },

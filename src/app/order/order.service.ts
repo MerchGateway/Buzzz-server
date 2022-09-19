@@ -29,7 +29,7 @@ export class OrderService {
     user: User,
   ): Promise<Order[] | undefined> {
     try {
-      console.log(payload);
+      
       const userCartItems = await this.cartService.getCartItems(user);
 
       // throw exception if there isnt any item in cart
@@ -49,10 +49,9 @@ export class OrderService {
             },
           });
           // save cart items
-          await this.orderRepository.save(newOrder);
+        return  await this.orderRepository.save(newOrder);
 
-          // fetch fresh copy of order
-          return await this.getOrder(newOrder.id);
+         
         }),
       );
 
