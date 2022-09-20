@@ -5,10 +5,19 @@ import { PaystackBrokerController } from './paystack.controller';
 import { PaymentReceipt } from '../entities/payment.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductModule } from 'src/app/product/product.module';
+import { CartModule } from 'src/app/cart/cart.module';
+import { UsersModule } from 'src/app/users/users.module';
+import { TransactionModule } from 'src/app/transaction/transaction.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PaymentReceipt]), ProductModule],
+  imports: [
+    TypeOrmModule.forFeature([PaymentReceipt]),
+    ProductModule,
+    CartModule,
+    UsersModule,
+    TransactionModule,
+  ],
   controllers: [PaystackBrokerController],
-  providers: [PaystackBrokerService, ProductModule],
+  providers: [PaystackBrokerService],
 })
 export class PaystackBrokerModule {}

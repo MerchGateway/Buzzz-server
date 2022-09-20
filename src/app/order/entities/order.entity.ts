@@ -28,17 +28,38 @@ export class Order extends BaseEntity {
   user: User;
 
   @ManyToOne(() => Transaction, (transaction) => transaction.orders, {
-    cascade: true,
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'transaction_id' })
   transaction: Transaction;
 
-  @OneToOne(() => Cart, { cascade: true })
+  @ManyToOne(() => Cart, (cart) => cart.orders, {
+    onDelete: 'SET NULL',
+    eager: true,
+  })
   @JoinColumn({ name: 'cart_item_id' })
   cart: Cart;
 
+  @Column({ type: 'simple-json', nullable: true })
+  product: any;
+
+  @Column({ type: 'numeric', nullable: true })
+  quantity: number;
+
+  @Column({ type: 'numeric', nullable: true })
+  total: number;
+
   @Column({ type: 'simple-json' })
-  shipping_details: { shipping_fee: number; shipping_address: string };
+  shipping_details: {
+    shipping_fee: number;
+    shipping_address: {
+      street_number: number;
+      state: string;
+      LGA: string;
+      street: string;
+      Nearest_bustop: string;
+    };
+  };
 
   @Column({ nullable: true, default: 0, type: 'decimal', precision: 10 })
   delivery_fee: number;
@@ -51,13 +72,38 @@ export class Order extends BaseEntity {
 
   @BeforeInsert()
   @BeforeUpdate()
-  private async setDeliveryFee() {}
+  private async setDeliveryFee() {
+    // todo shipping fee logic
+  }
+  // delete already ordered cart item
 
-  public async setCoupon(value: string) {
+  @BeforeInsert()
+  @BeforeUpdate()
+  private async updateProductDetails() {
+    if (this.cart) {
+      this.product = this.cart.product;
+      this.quantity = this.cart.quantity;
+      this.total = this.cart.total;
+    }
+  }
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  private async shippingFee() {
+    //todo shipping fee logic
+  }
+  public async addCoupon(value: string) {
     this.coupon = value;
   }
+
   public async updateStatus(value: string) {
     this.status = value;
+    
+    if (this.status === Status.PAID) {
+     
+      // delete this.cart;
+      Cart.remove(this.cart);
+    }
   }
   @CreateDateColumn()
   created_at: Date;
