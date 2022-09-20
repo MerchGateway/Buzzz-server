@@ -33,7 +33,7 @@ export class Order extends BaseEntity {
   @JoinColumn({ name: 'transaction_id' })
   transaction: Transaction;
 
-  @OneToOne(() => Cart, (cart) => cart.order, {
+  @ManyToOne(() => Cart, {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'cart_item_id' })
@@ -100,9 +100,9 @@ export class Order extends BaseEntity {
   }
 
   public async updateStatus(value: string) {
-    console.log('reached');
+   
     this.status = value;
-    console.log(this.status);
+   
   }
   @CreateDateColumn()
   created_at: Date;

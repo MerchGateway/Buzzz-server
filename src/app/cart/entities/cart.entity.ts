@@ -35,8 +35,8 @@ export class Cart extends BaseEntity {
   @JoinColumn()
   product: Product;
 
-  @OneToOne(() => Order, (order) => order.cart)
-  order: Order;
+  // @OneToOne(() => Order, (order) => order.cart)
+  // order: Order;
 
   @Column({
     type: 'integer',
