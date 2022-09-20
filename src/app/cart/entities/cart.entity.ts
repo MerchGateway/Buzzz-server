@@ -36,7 +36,7 @@ export class Cart extends BaseEntity {
   product: Product;
 
   @OneToMany(() => Order, (order) => order.cart)
-  order: Order;
+  orders: Order[];
 
   @Column({
     type: 'integer',
