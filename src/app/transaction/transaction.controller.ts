@@ -8,6 +8,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query
 } from '@nestjs/common';
 
 import { TransactionService } from './transaction.service';
@@ -26,12 +27,13 @@ export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
   @Public()
-  @Get('verify/:reference')
+  @Get('verify/')
   @HttpCode(HttpStatus.CREATED)
   private verifyTransaction(
-    @Param('reference') reference: string,
+    @Query('reference') reference: string,
   ): Promise<Transaction | undefined> {
-    return this.transactionService.verifyTransaction(reference);
+    
+     return this.transactionService.verifyTransaction(reference);
   }
   @Get('')
   private getTransactions(

@@ -34,13 +34,6 @@ export class User {
   })
   identityProviderId: string | null;
 
-  // authorization code to enable reusing card details for a user
-  @Column({
-    nullable: true,
-    select: false,
-  })
-  authorization_code: string;
-
   @Column({ unique: true })
   email: string;
 

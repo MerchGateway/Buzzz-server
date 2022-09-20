@@ -74,20 +74,20 @@ export class Transaction extends BaseEntity {
     await this.axiosConnection
       .get(`/transaction/verify/${this.reference}`)
       .then(async (res: any) => {
-       
+        console.log(res);
         if (
           res.data &&
-          res.data.status === 'success' &&
-          res.message === 'Verification successful'
+          res.data.data.status === 'success' &&
+          res.data.message === 'Verification successful'
         ) {
-          this.fee = res.data.fees;
-          this.currency = res.data.currency;
-          this.channel = res.data.channel;
-          this.amount = res.data.amount;
+          this.fee = res.data.data.fees;
+          this.currency = res.data.data.currency;
+          this.channel = res.data.data.channel;
+          this.amount = res.data.data.amount;
           this.message = 'Transaction successful';
           this.status = Status.SUCCESS;
           // save authorization code to enable reusing a card
-          this.user.authorization_code = res.data.authorization_code;
+    
 
           // set the status of order to paid on successful payment verification
           await Promise.all(
@@ -97,10 +97,10 @@ export class Transaction extends BaseEntity {
             }),
           );
         } else {
-          this.fee = res.data.fees;
-          this.currency = res.data.currency;
-          this.channel = res.data.channel;
-          this.amount = res.data.amount;
+          this.fee = res.data.data.fees;
+          this.currency = res.data.data.currency;
+          this.channel = res.data.data.channel;
+          this.amount = res.data.data.amount;
           this.status = Status.FAILED;
           this.message = 'Transaction could not be verified';
           await Promise.all(
