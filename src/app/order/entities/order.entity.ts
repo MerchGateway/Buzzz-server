@@ -33,7 +33,10 @@ export class Order extends BaseEntity {
   @JoinColumn({ name: 'transaction_id' })
   transaction: Transaction;
 
-  @ManyToOne(() => Cart, (cart) => cart.orders, { onDelete: 'SET NULL' })
+  @ManyToOne(() => Cart, (cart) => cart.orders, {
+    onDelete: 'SET NULL',
+    eager: true,
+  })
   @JoinColumn({ name: 'cart_item_id' })
   cart: Cart;
 
@@ -95,9 +98,9 @@ export class Order extends BaseEntity {
 
   public async updateStatus(value: string) {
     this.status = value;
-    console.log(this.status);
+    
     if (this.status === Status.PAID) {
-      console.log('yessss', this.cart);
+     
       // delete this.cart;
       Cart.remove(this.cart);
     }
