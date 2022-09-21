@@ -18,7 +18,7 @@ import { User } from '../../users/entities/user.entity';
 import { Order } from '../../order/entities/order.entity';
 import { Product } from '../../product/product.entity';
 
-@Entity('cart-item')
+@Entity('cart_item')
 export class Cart extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
