@@ -7,9 +7,9 @@ import {
   ManyToOne,
   JoinColumn,
   Column,
-  OneToOne,
+  OneToMany,
   BeforeInsert,
-  AfterUpdate,
+  
   BeforeUpdate,
 } from 'typeorm';
 
@@ -35,8 +35,8 @@ export class Cart extends BaseEntity {
   @JoinColumn()
   product: Product;
 
-  @OneToOne(() => Order, (order) => order.cart)
-  order: Order;
+  @OneToMany(() => Order, (order) => order.cart)
+  orders: Order[];
 
   @Column({
     type: 'integer',

@@ -10,7 +10,7 @@ export class CategoryService {
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
   ) {}
-  // TODO: just return what was created instead of fetching it again after being created
+  
   public async createCategory(
     payload: CreateCategoryDto,
   ): Promise<Category | undefined> {
@@ -19,12 +19,8 @@ export class CategoryService {
         name: payload.name,
         description: payload.description,
       });
-      await this.categoryRepository.save(category);
-      // fetch fresh copy of the just created category
-      const cleanCategory = await this.categoryRepository.findOne({
-        where: { id: category.id },
-      });
-      return cleanCategory;
+     return  await this.categoryRepository.save(category);
+      
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }

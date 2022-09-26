@@ -5,6 +5,7 @@ import {
   BadGatewayException,
   CallHandler,
   BadRequestException,
+  RequestTimeoutException,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { Observable, throwError } from 'rxjs';
@@ -16,7 +17,10 @@ export class ErrorsInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       catchError((err) => {
-        if (err.message === 'getaddrinfo ENOTFOUND api.paystack.co') {
+        if (
+          err.message === 'getaddrinfo ENOTFOUND api.paystack.co' ||
+          err.message === 'getaddrinfo EAI_AGAIN api.paystack.co'
+        ) {
           return throwError(
             () =>
               new ServiceUnavailableException(
@@ -26,6 +30,10 @@ export class ErrorsInterceptor implements NestInterceptor {
         } else if (err instanceof AxiosError) {
           return throwError(
             () => new BadRequestException(err.response?.data.message),
+          );
+        } else if (err.message.includes('timeout')) {
+          return throwError(
+            () => new RequestTimeoutException('Request timed out'),
           );
         } else if (err instanceof BadRequestException) {
           return throwError(() => new BadRequestException(err));
