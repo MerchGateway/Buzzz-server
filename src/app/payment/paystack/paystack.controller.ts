@@ -7,13 +7,13 @@ import {
   Inject,
   Delete,
 } from '@nestjs/common';
-import { CreatePayRefDto, PaymentReceiptDto } from '../dto/create-pay-ref-dto';
+// import { CreatePayRefDto, PaymentReceiptDto } from '../dto/create-pay-ref-dto';
 import { PaystackBrokerService } from './paystack.service';
 import { ProductService } from 'src/app/product/product.service';
-import { PaymentReceipt } from '../entities/payment.entity';
+// import { PaymentReceipt } from '../entities/payment.entity';
 import { CurrentUser } from 'src/decorators/user.decorator';
 import { User } from 'src/app/users/entities/user.entity';
-import { UpdateUserDto } from 'src/app/users/dto/update-user.dto';
+// import { UpdateUserDto } from 'src/app/users/dto/update-user.dto';
 
 //TODO: link payment with transactionentity
 @Controller('payment/paystack')
