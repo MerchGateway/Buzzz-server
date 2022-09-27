@@ -18,10 +18,10 @@ import { CartModule } from './cart/cart.module';
 
 import { PaymentModule } from './payment/payment.module';
 import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
-import { Category } from './category/entities/category.entity';
-import { CategoryService } from './category/category.service';
-import * as fs from 'fs';
-import * as path from 'path';
+// import { Category } from './category/entities/category.entity';
+// import { CategoryService } from './category/category.service';
+// import * as fs from 'fs';
+// import * as path from 'path';
 
 @Module({
   imports: [
