@@ -7,26 +7,33 @@ import {
   Get,
   Param,
   Delete,
+  UseGuards,
+  Query
 } from '@nestjs/common';
 
 import { TransactionService } from './transaction.service';
 import { Transaction } from './entities/transaction.entity';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/types/general';
+import { RolesGuard } from '../auth/guards/roles.guard';
 // import { CreateTransactionDto } from './dto/transaction.dto';
 import { User } from '../users/entities/user.entity';
 
 import { CurrentUser } from 'src/decorators/user.decorator';
+import { Public } from 'src/decorators/public.decorator';
 
 @Controller('transaction')
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
-  @Get('verify/:reference')
+  @Public()
+  @Get('verify/')
   @HttpCode(HttpStatus.CREATED)
   private verifyTransaction(
-    @CurrentUser() user: User,
-    @Param('reference') reference: string,
+    @Query('reference') reference: string,
   ): Promise<Transaction | undefined> {
-    return this.transactionService.verifyTransaction(reference, user);
+    
+     return this.transactionService.verifyTransaction(reference);
   }
   @Get('')
   private getTransactions(
@@ -35,11 +42,12 @@ export class TransactionController {
     return this.transactionService.getTransactionsForAuthUser(user);
   }
 
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @UseGuards(RolesGuard)
   @Delete(':reference')
   private deleteTransaction(
-    @CurrentUser() user: User,
     @Param('reference') reference: string,
   ): Promise<Transaction | undefined> {
-    return this.transactionService.deleteTransaction(reference,user);
+    return this.transactionService.deleteTransaction(reference);
   }
 }

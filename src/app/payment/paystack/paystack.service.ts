@@ -45,10 +45,7 @@ export class PaystackBrokerService {
     // });
   }
   // Create payment Ref (initialize transaction)
-  public async createPayRef(
-    body: UpdateUserDto,
-    user: User,
-  ): Promise<{
+  public async createPayRef(user: User): Promise<{
     authorization_url: string;
     access_code: string;
     reference: string;
@@ -70,17 +67,13 @@ export class PaystackBrokerService {
         payload.amount += item.total;
       }),
     );
-
-    // setting shipping details to profile
-    const updateinfo = await this.userService.update(user, body);
-    console.log('na updated data be this', updateinfo);
-
+    // set payload amount to the smallest decimal
+    payload.amount = payload.amount * 100;
     // initialize transaction
     return await this.axiosConnection
       .post('/transaction/initialize', payload)
       .then(async (res) => {
-        console.log(res);
-        // return res.data= {
+        // return res.data.data= {
         //   data: {
         //     authorization_url: string;
         //     access_code: string;
@@ -88,17 +81,15 @@ export class PaystackBrokerService {
         //   }}
 
         // create transaction on payment initalize
-        await this.transactionService.createTransaction(res.data?.reference,user)
-        return res.data;
+        await this.transactionService.createTransaction(
+          res.data?.data.reference,
+          user,
+          res.data?.message,
+        );
+        return res.data.data;
       })
       .catch((err) => {
-        console.log(err.message);
-        throw new HttpException(
-          err.message === 'timeout of 2000ms exceeded'
-            ? 'Unable to connect with paystack'
-            : err.message,
-          err.statusCode || 500,
-        );
+        throw new HttpException(err.message, err.statusCode || 500);
       });
     // initialize payment
     // const init: {

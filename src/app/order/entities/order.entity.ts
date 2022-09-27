@@ -28,13 +28,14 @@ export class Order extends BaseEntity {
   user: User;
 
   @ManyToOne(() => Transaction, (transaction) => transaction.orders, {
-    onDelete: 'SET NULL',
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'transaction_id' })
   transaction: Transaction;
 
-  @OneToOne(() => Cart, (cart) => cart.order, {
+  @ManyToOne(() => Cart, (cart) => cart.orders, {
     onDelete: 'SET NULL',
+    eager: true,
   })
   @JoinColumn({ name: 'cart_item_id' })
   cart: Cart;
@@ -79,16 +80,15 @@ export class Order extends BaseEntity {
   @BeforeInsert()
   @BeforeUpdate()
   private async updateProductDetails() {
-    this.product = this.cart.product;
-    this.quantity = this.cart.quantity;
-    this.total = this.cart.total;
-    if ((this.status = Status.PAID)) {
-      Cart.remove(this.cart);
+    if (this.cart) {
+      this.product = this.cart.product;
+      this.quantity = this.cart.quantity;
+      this.total = this.cart.total;
     }
-    // delete this.cart;
   }
 
   @BeforeInsert()
+  @BeforeUpdate()
   private async shippingFee() {
     //todo shipping fee logic
   }
@@ -98,6 +98,12 @@ export class Order extends BaseEntity {
 
   public async updateStatus(value: string) {
     this.status = value;
+    
+    if (this.status === Status.PAID) {
+     
+      // delete this.cart;
+      Cart.remove(this.cart);
+    }
   }
   @CreateDateColumn()
   created_at: Date;

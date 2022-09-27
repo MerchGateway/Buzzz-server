@@ -26,9 +26,9 @@ export class PaystackBrokerController {
     private readonly productService: ProductService,
   ) {}
 
-  @Post('create-payment-ref')
-  public createPayRef(@Body() body: UpdateUserDto, @CurrentUser() user: User) {
-    return this.paystackService.createPayRef(body, user);
+  @Get('create-payment-ref')
+  public createPayRef(@CurrentUser() user: User) {
+    return this.paystackService.createPayRef(user);
   }
   // @Get('verify-payment/:reference')
   // public verifyPayment(@Param('reference') reference: string) {
