@@ -51,7 +51,6 @@ export class OrderController {
     return this.orderService.completeOrder(orderId);
   }
 
-
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @UseGuards(RolesGuard)
   @Delete('/:orderId')
@@ -69,8 +68,18 @@ export class OrderController {
   ): Promise<Order | undefined> {
     return this.orderService.getOrder(orderId);
   }
+
   @Get('')
   private getOrders(@CurrentUser() user: User): Promise<Order[] | undefined> {
     return this.orderService.getOrders(user);
+  }
+
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @UseGuards(RolesGuard)
+  @Get('/:userId/active')
+  private getActiveOrders(
+    @Param('userId', ParseUUIDPipe) id: string,
+  ): Promise<Order[] | undefined> {
+    return this.orderService.getActiveOrders(id);
   }
 }

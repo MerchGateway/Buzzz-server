@@ -29,7 +29,6 @@ export class OrderService {
     user: User,
   ): Promise<Order[] | undefined> {
     try {
-      
       const userCartItems = await this.cartService.getCartItems(user);
 
       // throw exception if there isnt any item in cart
@@ -49,9 +48,7 @@ export class OrderService {
             },
           });
           // save cart items
-        return  await this.orderRepository.save(newOrder);
-
-         
+          return await this.orderRepository.save(newOrder);
         }),
       );
 
@@ -111,6 +108,20 @@ export class OrderService {
     try {
       const Orders = await this.orderRepository.findBy({
         user: { id: user.id },
+      });
+      return Orders;
+    } catch (err: any) {
+      throw new HttpException(err.message, err.status);
+    }
+  }
+
+  public async getActiveOrders(id:string): Promise<Order[] | undefined> {
+    try {
+      const Orders = await this.orderRepository.find({
+        where: {
+          user: { id },
+          status: Status.PAID,
+        },
       });
       return Orders;
     } catch (err: any) {
