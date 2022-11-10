@@ -86,8 +86,8 @@ export class Transaction extends BaseEntity {
           this.amount = res.data.data.amount;
           this.message = 'Transaction successful';
           this.status = Status.SUCCESS;
+        
           // save authorization code to enable reusing a card
-    
 
           // set the status of order to paid on successful payment verification
           await Promise.all(

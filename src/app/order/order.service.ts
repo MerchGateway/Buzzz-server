@@ -40,15 +40,26 @@ export class OrderService {
 
       const result: Order[] = await Promise.all(
         userCartItems.map(async (cart) => {
-          const newOrder = this.orderRepository.create({
-            user,
-            cart,
-            shipping_details: {
-              shipping_address: payload.shipping_address,
-            },
-          });
-          // save cart items
-          return await this.orderRepository.save(newOrder);
+          const order = new Order();
+          order.user = user;
+          order.cart = cart;
+          if (payload.shipping_address !== null) {
+            order.shipping_details.shipping_address = {
+              ...payload.shipping_address,
+            };
+          }
+
+          // const newOrder = this.orderRepository.create({
+          //   user,
+          //   cart,
+          //   shipping_details: {
+          //     shipping_address: payload.shipping_address,
+          //   },
+          // });
+          // // // save cart items
+
+          return await this.orderRepository.save(order);
+          // return await connection.manager.save(order);
         }),
       );
 
@@ -115,7 +126,7 @@ export class OrderService {
     }
   }
 
-  public async getActiveOrders(id:string): Promise<Order[] | undefined> {
+  public async getActiveOrders(id: string): Promise<Order[] | undefined> {
     try {
       const Orders = await this.orderRepository.find({
         where: {
