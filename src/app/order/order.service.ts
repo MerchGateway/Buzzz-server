@@ -44,8 +44,9 @@ export class OrderService {
           order.user = user;
           order.cart = cart;
           if (payload.shipping_address !== null) {
-            order.shipping_details.shipping_address = {
-              ...payload.shipping_address,
+            order.shipping_details = {
+              shipping_fee:0,
+              shipping_address: payload.shipping_address,
             };
           }
 

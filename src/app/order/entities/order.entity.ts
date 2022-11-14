@@ -49,8 +49,8 @@ export class Order extends BaseEntity {
   @Column({ type: 'numeric', nullable: true })
   total: number;
 
-  @Column({ type: 'simple-json', nullable: true })
-  shipping_details: {
+  @Column({ type: 'simple-json', default: null, nullable: true })
+  shipping_details!: {
     shipping_fee: number;
     shipping_address: {
       street_number: number;
@@ -64,7 +64,7 @@ export class Order extends BaseEntity {
   @Column({ nullable: true, default: 0, type: 'decimal', precision: 10 })
   delivery_fee: number;
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: 'varchar',default:"", nullable: true })
   coupon: string;
 
   @Column({ type: 'enum', enum: Status, default: Status.PENDING })
