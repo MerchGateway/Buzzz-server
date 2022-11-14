@@ -64,7 +64,7 @@ export class Order extends BaseEntity {
   @Column({ nullable: true, default: 0, type: 'decimal', precision: 10 })
   delivery_fee: number;
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: 'varchar',default:"", nullable: true })
   coupon: string;
 
   @Column({ type: 'enum', enum: Status, default: Status.PENDING })
