@@ -49,8 +49,8 @@ export class Order extends BaseEntity {
   @Column({ type: 'numeric', nullable: true })
   total: number;
 
-  @Column({ type: 'simple-json', nullable: true })
-  shipping_details: {
+  @Column({ type: 'simple-json', default: null, nullable: true })
+  shipping_details!: {
     shipping_fee: number;
     shipping_address: {
       street_number: number;
@@ -59,7 +59,7 @@ export class Order extends BaseEntity {
       street: string;
       Nearest_bustop: string;
     };
-  };
+  } | null;
 
   @Column({ nullable: true, default: 0, type: 'decimal', precision: 10 })
   delivery_fee: number;

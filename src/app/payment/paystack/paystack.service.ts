@@ -112,10 +112,7 @@ export class PaystackBrokerService {
     // return authorization data for users to complete their transactions
   }
 
-  // public async verifyPayment(ref: string) {
-  //   const verify = await this.axiosConnection.get(`/transaction/verify/${ref}`);
-  //   return { data: verify.data };
-  // }
+ 
 
   public async createRefund(transaction: string) {
     // console.log(transaction);
@@ -123,19 +120,6 @@ export class PaystackBrokerService {
     return { data: refund.data };
   }
 
-  // public async addPayRecord(body: PaymentReceiptDto) {
-  //   await this.verifyPayment(body.reference);
-  //   await this.checkIfPayRefExists(body.reference);
-  //   const record: PaymentReceipt = new PaymentReceipt();
-
-  //   record.user_id = body.user_id;
-  //   record.currency = body.currency;
-  //   record.reference = body.reference;
-  //   record.broker = body.broker;
-  //   record.payment_status = body.payment_status;
-
-  //   return this.paymentRepository.save(record);
-  // }
 
   private async handleGetPayRecord(id: string) {
     const record = await this.paymentRepository.findOne({ where: { id } });
