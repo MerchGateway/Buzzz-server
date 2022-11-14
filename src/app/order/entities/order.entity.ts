@@ -59,7 +59,7 @@ export class Order extends BaseEntity {
       street: string;
       Nearest_bustop: string;
     };
-  } | null;
+  };
 
   @Column({ nullable: true, default: 0, type: 'decimal', precision: 10 })
   delivery_fee: number;
