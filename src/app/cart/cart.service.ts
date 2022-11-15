@@ -33,21 +33,27 @@ export class CartService {
           `Product  with id ${cartDto.product} does not exist`,
         );
       }
-
-      const cartItem = this.cartRepository.create({
-        owner: user,
-        quantity: cartDto.quantity,
-        product: productItem,
-      });
-
-      await this.cartRepository.save(cartItem);
-      //  fetch new instance of the just created cart item
-      return await this.cartRepository.findOne({
+      // search if cart item exists already and update if it does
+      //  fetch new instance of the just updated cart item
+      const isCart = await this.cartRepository.findOne({
         where: {
-          id: cartItem.id,
+          product: { id: cartDto.product },
         },
         relations: { product: true },
       });
+
+      if (isCart) {
+        isCart.quantity += cartDto.quantity;
+        return await this.cartRepository.save(isCart);
+      } else {
+        const cartItem = this.cartRepository.create({
+          owner: user,
+          quantity: cartDto.quantity,
+          product: productItem,
+        });
+
+        return await this.cartRepository.save(cartItem);
+      }
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
@@ -62,15 +68,7 @@ export class CartService {
       const cartItem = await this.getSingleCartItem(cartId);
       // update quantity if it exists
       cartItem.quantity = cartDto.quantity;
-      await this.cartRepository.save(cartItem);
-
-      //  fetch new instance of the just updated cart item
-      return await this.cartRepository.findOne({
-        where: {
-          id: cartId,
-        },
-        relations: {  product: true },
-      });
+      return await this.cartRepository.save(cartItem);
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
@@ -79,7 +77,7 @@ export class CartService {
     try {
       const cartItems = await this.cartRepository.find({
         where: { owner: { id: user.id } },
-        relations: {  product: true, },
+        relations: { product: true },
       });
       return cartItems;
     } catch (err: any) {
@@ -110,7 +108,7 @@ export class CartService {
     try {
       const cartItem = await this.cartRepository.findOne({
         where: { id: cartId },
-        relations: {  product: true },
+        relations: { product: true },
       });
 
       if (!cartItem) {

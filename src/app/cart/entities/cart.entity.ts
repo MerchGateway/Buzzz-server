@@ -8,8 +8,8 @@ import {
   JoinColumn,
   Column,
   OneToMany,
+  OneToOne,
   BeforeInsert,
-  
   BeforeUpdate,
 } from 'typeorm';
 
@@ -29,14 +29,14 @@ export class Cart extends BaseEntity {
   @JoinColumn({ name: 'client_id' })
   owner: User;
 
-  @ManyToOne(() => Product, {
+  @OneToOne(() => Product, {
     cascade: true,
+    eager: true,
   })
   @JoinColumn()
   product: Product;
 
   @OneToMany(() => Order, (order) => order.cart)
-  
   orders: Order[];
 
   @Column({
