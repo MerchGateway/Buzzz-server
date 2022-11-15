@@ -75,13 +75,27 @@ export class CartService {
             );
           }
 
-          const cartItem = this.cartRepository.create({
-            owner: user,
-            quantity: cart.quantity,
-            product: productItem,
+          // search if cart item exists already and update if it does
+          //  fetch new instance of the just updated cart item
+          const isCart = await this.cartRepository.findOne({
+            where: {
+              product: { id: cart.product },
+            },
+            relations: { product: true },
           });
 
-          return await this.cartRepository.save(cartItem);
+          if (isCart) {
+            isCart.quantity += cart.quantity;
+            return await this.cartRepository.save(isCart);
+          } else {
+            const cartItem = this.cartRepository.create({
+              owner: user,
+              quantity: cart.quantity,
+              product: productItem,
+            });
+
+            return await this.cartRepository.save(cartItem);
+          }
         }),
       );
       return items;
