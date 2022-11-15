@@ -58,6 +58,37 @@ export class CartService {
       throw new HttpException(err.message, err.status);
     }
   }
+  public async createMultipleCartItem(
+    cartDto: CreateCartDto[],
+    user: User,
+  ): Promise<Cart[] | undefined> {
+    try {
+      const items = await Promise.all(
+        cartDto.map(async (cart) => {
+          const productItem = await this.product.handleGetAProduct(
+            cart.product,
+          );
+
+          if (!productItem) {
+            throw new NotFoundException(
+              `Product  with id ${cart.product} does not exist`,
+            );
+          }
+
+          const cartItem = this.cartRepository.create({
+            owner: user,
+            quantity: cart.quantity,
+            product: productItem,
+          });
+
+          return await this.cartRepository.save(cartItem);
+        }),
+      );
+      return items;
+    } catch (err: any) {
+      throw new HttpException(err.message, err.status);
+    }
+  }
 
   public async updateCartItemQuantity(
     cartDto: UpdateCartDto,
