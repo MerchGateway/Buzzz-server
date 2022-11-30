@@ -1,12 +1,12 @@
-import { Injectable, HttpException, NotFoundException } from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/transaction.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThanOrEqual, Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { User } from '../users/entities/user.entity';
 import { OrderService } from '../order/order.service';
-
-import * as moment from "moment"
+import * as moment from 'moment';
+import { Status } from 'src/types/transaction';
 
 @Injectable()
 export class TransactionService {
@@ -27,7 +27,7 @@ export class TransactionService {
       const Transaction = this.transactionRepository.create({
         reference: payload.reference,
         user,
-        orders
+        orders,
       });
       await this.transactionRepository.save(Transaction);
       // fetch fresh copy of the just created transaction
@@ -46,16 +46,16 @@ export class TransactionService {
       if (query === 'current-week') {
         this.transactionRepository.find({
           where: {
-            updated_at: MoreThanOrEqual(
+            updatedAt: MoreThanOrEqual(
               new Date(Moment.startOf('week').toString()),
             ),
             status: Status.SUCCESS,
           },
-        })
+        });
       } else if (query === 'current-month') {
         this.transactionRepository.find({
           where: {
-            updated_at: MoreThanOrEqual(
+            updatedAt: MoreThanOrEqual(
               new Date(Moment.startOf('month').toString()),
             ),
             status: Status.SUCCESS,
