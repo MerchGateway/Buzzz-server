@@ -6,6 +6,8 @@ import { Transaction } from './entities/transaction.entity';
 import { User } from '../users/entities/user.entity';
 import { OrderService } from '../order/order.service';
 
+import * as moment from "moment"
+
 @Injectable()
 export class TransactionService {
   constructor(
@@ -33,6 +35,35 @@ export class TransactionService {
         where: { id: Transaction.id },
       });
       return cleanTransaction;
+    } catch (err: any) {
+      throw new HttpException(err.message, err.status);
+    }
+  }
+
+  public async salesAnalytics(query: string): Promise<Transaction | undefined> {
+    const Moment = moment();
+    try {
+      if (query === 'current-week') {
+        this.transactionRepository.find({
+          where: {
+            updated_at: MoreThanOrEqual(
+              new Date(Moment.startOf('week').toString()),
+            ),
+            status: Status.SUCCESS,
+          },
+        })
+      } else if (query === 'current-month') {
+        this.transactionRepository.find({
+          where: {
+            updated_at: MoreThanOrEqual(
+              new Date(Moment.startOf('month').toString()),
+            ),
+            status: Status.SUCCESS,
+          },
+        });
+      } else {
+      }
+      return;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }

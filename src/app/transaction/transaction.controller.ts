@@ -1,4 +1,4 @@
-import { Body, Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, HttpStatus,Get,Query, } from '@nestjs/common';
 
 import { TransactionService } from './transaction.service';
 import { Transaction } from './entities/transaction.entity';
@@ -20,4 +20,14 @@ export class TransactionController {
   ): Promise<Transaction | undefined> {
     return this.transactionService.createTransaction(payload, user);
   }
+
+  // @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  // @UseGuards(RolesGuard)
+  @Get('/sales-analytics')
+  private salesAnalytics(
+    @Query('query') query: string,
+  ): Promise<Transaction | undefined> {
+    return this.transactionService.salesAnalytics(query);
+  }
+  
 }
