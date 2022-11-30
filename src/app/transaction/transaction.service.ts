@@ -70,7 +70,7 @@ export class TransactionService {
           .andWhere('transaction.status = :status', {
             status: Status.SUCCESS,
           })
-          .groupBy('transaction.week')
+          .groupBy('week')
           .getMany();
       } else {
         const start = Moment.startOf('year').format('YYYY-MM-DD');
@@ -84,7 +84,7 @@ export class TransactionService {
           .andWhere('transaction.status = :status', {
             status: Status.SUCCESS,
           })
-          .groupBy('transaction.month')
+          .groupBy('month')
           .getMany();
       }
       return;

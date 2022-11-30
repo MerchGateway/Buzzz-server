@@ -1,8 +1,9 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import SendgridService from 'src/utils/sendgrid';
-import { EmailTemplate } from '../../types/email';
+import { EMAIL_PROVIDER, PASSWORD_RESET_TOKEN_EXPIRY } from '../../constant';
+import { EmailProvider } from '../../types/email';
 import { Repository } from 'typeorm';
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable, HttpException, Inject } from '@nestjs/common';
 import { ContactUsDto } from './dto/contact.dto';
 import { Contact } from './entities/contact.entity';
 import configuration from 'src/config/configuration';
@@ -12,6 +13,8 @@ export class ContactService {
   constructor(
     @InjectRepository(Contact)
     private readonly contactRepository: Repository<Contact>,
+    @Inject(EMAIL_PROVIDER)
+    private emailProvider: EmailProvider,
   ) {}
 
   public async sendMessage(
@@ -20,14 +23,12 @@ export class ContactService {
     const config = configuration();
 
     try {
-      await SendgridService.sendgridMail(
-        [config.fromEmail],
-        EmailTemplate.CONTACT_US,
-        {
-          contact_us: payload.message,
-        },
-        payload.email,
-      );
+      await this.emailProvider.sendMail({
+        message: payload.message,
+        to: config.fromEmail,
+        fromEmail: payload.email,
+        subject: ' Contact Us',
+      });
 
       const message = this.contactRepository.create({
         email: payload.email,

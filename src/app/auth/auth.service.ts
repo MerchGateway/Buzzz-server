@@ -1,6 +1,7 @@
 import {
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -14,11 +15,12 @@ import { SuccessResponse } from '../../utils/response';
 import { JwtPayload } from './guards/jwt.strategy';
 import { IdentityProvider } from '../../types/user';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import SendgridService from 'src/utils/sendgrid';
 import { WinstonLoggerService } from 'src/logger/winston-logger/winston-logger.service';
-import { EmailTemplate } from '../../types/email';
+import { EmailProvider } from '../../types/email';
+
 import { PasswordReset } from './entities/password-reset.entity';
-import { PASSWORD_RESET_TOKEN_EXPIRY } from '../../constant';
+import { EMAIL_PROVIDER, PASSWORD_RESET_TOKEN_EXPIRY } from '../../constant';
+
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 
@@ -31,6 +33,8 @@ export class AuthService {
     @InjectRepository(PasswordReset)
     private readonly passwordResetRepository: Repository<PasswordReset>,
     private readonly logger: WinstonLoggerService,
+    @Inject(EMAIL_PROVIDER)
+    private emailProvider: EmailProvider,
   ) {
     this.logger.setContext(AuthService.name);
   }
@@ -52,6 +56,7 @@ export class AuthService {
       return null;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...result } = user;
 
     return result as User;
@@ -114,11 +119,11 @@ export class AuthService {
     const resetToken = passwordResetToken.token;
 
     try {
-      await SendgridService.sendgridMail(
-        [forgotPasswordDto.email],
-        EmailTemplate.FORGOT_PASSWORD,
-        { token: resetToken },
-      );
+      await this.emailProvider.sendMail({
+        message: `Your password reset token is ${resetToken}`,
+        to: forgotPasswordDto.email,
+        subject: 'Password Reset',
+      });
     } catch (error) {
       this.logger.log(`Error sending email: ${error.message}`);
       throw new HttpException(
@@ -177,7 +182,29 @@ export class AuthService {
   }
 
   async updatePassword(user: User, updatePasswordDto: UpdatePasswordDto) {
+    user = await this.userRepository
+      .createQueryBuilder('user')
+      .where('user.id = :id', { id: user.id })
+      .addSelect('user.password')
+      .getOne();
+
+    const isPasswordMatch = await user.matchPassword(
+      updatePasswordDto.oldPassword,
+    );
+
+    if (!isPasswordMatch) {
+      throw new UnauthorizedException('Invalid old password');
+    }
+
     user.password = updatePasswordDto.password;
     await this.userRepository.save(user);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...result } = user;
+
+    return new SuccessResponse(
+      { user: result },
+      'Password updated successfully',
+    );
   }
 }

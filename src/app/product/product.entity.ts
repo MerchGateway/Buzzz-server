@@ -31,6 +31,7 @@ export class Product extends BaseEntity {
   @Column({ default: false })
   isPublished: boolean;
 
+  @CreateDateColumn()
   @PrimaryColumn()
   categoryId: string;
 

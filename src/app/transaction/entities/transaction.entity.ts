@@ -9,19 +9,22 @@ import {
   PrimaryGeneratedColumn,
   BeforeInsert,
   OneToMany,
+  TableColumn,
 } from 'typeorm';
 
 import { User } from '../../users/entities/user.entity';
-import { ConfigService } from '@nestjs/config';
+import { Status as orderStatus } from '../../../types/order';
+import connection from 'src/app/payment/paystack/utils/connection';
 import { Status } from 'src/types/transaction';
 import { Order } from 'src/app/order/entities/order.entity';
+import { AxiosInstance } from 'axios';
 
 @Entity('transaction')
 export class Transaction extends BaseEntity {
-  constructor(private configService: ConfigService) {
-    super();
+  axiosConnection: AxiosInstance;
+  construnctor() {
+    this.axiosConnection = connection();
   }
-
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -30,26 +33,29 @@ export class Transaction extends BaseEntity {
   })
   @JoinColumn({ name: 'client_id' })
   user: User;
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', unique: true })
   reference: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   fee: string;
 
-  @Column({ type: 'numeric' })
+  @Column({ type: 'numeric', nullable: true })
   amount: number;
 
-  @Column({ type: 'varchar', default: 'USD' })
+  @Column({ type: 'varchar', nullable: true })
   currency: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  message: string;
 
   @Column({ type: 'enum', enum: Status, default: Status.PENDING })
   status: string;
 
-  @OneToMany(() => Order, (order) => order.transaction)
+  @OneToMany(() => Order, (order) => order.transaction, { eager: true })
   orders: Order[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @Column({
     type: 'enum',
@@ -58,36 +64,62 @@ export class Transaction extends BaseEntity {
   channel: string;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
 
-  @BeforeInsert()
-  private async verifyTransaction() {
-    fetch(`https://api.paystack.co/transaction/verify/${this.reference}`, {
-      method: 'GET',
-      headers: new Headers({
-        Authorization: `Bearer ${this.configService.get('paystack.secret')}`,
-      }),
-    })
-      .then((res) => {
-        const jsonResponse: any = res.json();
-        console.log(jsonResponse);
+  public async verifyTransaction() {
+    // create connection instance of axios
+    this.axiosConnection = connection();
+
+    // create conection route and fire route
+    await this.axiosConnection
+      .get(`/transaction/verify/${this.reference}`)
+      .then(async (res: any) => {
+        console.log(res);
         if (
-          jsonResponse.data &&
-          jsonResponse.data.status === 'success' &&
-          jsonResponse.message === 'Verification successful'
+          res.data &&
+          res.data.data.status === 'success' &&
+          res.data.message === 'Verification successful'
         ) {
+          this.fee = res.data.data.fees;
+          this.currency = res.data.data.currency;
+          this.channel = res.data.data.channel;
+          this.amount = res.data.data.amount;
+          this.message = 'Transaction successful';
           this.status = Status.SUCCESS;
+          // save authorization code to enable reusing a card
+    
+
+          // set the status of order to paid on successful payment verification
+          await Promise.all(
+            this.orders.map(async (order) => {
+              await order.updateStatus(orderStatus.PAID);
+              await order.save();
+            }),
+          );
         } else {
-          this.fee = jsonResponse.data.fee;
-          this.currency = jsonResponse.data.currency;
-          this.channel = jsonResponse.data.channel;
-          this.amount = jsonResponse.data.amount;
+          this.fee = res.data.data.fees;
+          this.currency = res.data.data.currency;
+          this.channel = res.data.data.channel;
+          this.amount = res.data.data.amount;
           this.status = Status.FAILED;
+          this.message = 'Transaction could not be verified';
+          await Promise.all(
+            this.orders.map(async (order) => {
+              await order.updateStatus(orderStatus.CANCELLED);
+              await order.save();
+            }),
+          );
         }
       })
-      .catch((err) => {
-        console.log(err);
+      .catch(async (err: any) => {
         this.status = Status.FAILED;
+        this.message = err.message;
+        await Promise.all(
+          this.orders.map(async (order) => {
+            await order.updateStatus(orderStatus.CANCELLED);
+            return await order.save();
+          }),
+        );
       });
   }
 }
