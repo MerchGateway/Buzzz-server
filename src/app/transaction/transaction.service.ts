@@ -44,24 +44,48 @@ export class TransactionService {
     const Moment = moment();
     try {
       if (query === 'current-week') {
-        this.transactionRepository.find({
-          where: {
-            updatedAt: MoreThanOrEqual(
-              new Date(Moment.startOf('week').toString()),
-            ),
+        const start = Moment.startOf('week').format('YYYY-MM-DD');
+        const end = new Date(Date.now()).toISOString();
+
+        await this.transactionRepository
+          .createQueryBuilder('transaction')
+          .select('day')
+          .from('transaction.updatedAt', 'updatedAt')
+
+          .where(`transaction.updatedAt BETWEEN '${start}' AND '${end}'`)
+          .andWhere('transaction.status = :status', {
             status: Status.SUCCESS,
-          },
-        });
+          })
+          .groupBy('transaction.day')
+          .getMany();
       } else if (query === 'current-month') {
-        this.transactionRepository.find({
-          where: {
-            updatedAt: MoreThanOrEqual(
-              new Date(Moment.startOf('month').toString()),
-            ),
+        const start = Moment.startOf('month').format('YYYY-MM-DD');
+        const end = new Date(Date.now()).toISOString();
+
+        await this.transactionRepository
+          .createQueryBuilder('transaction')
+          .select('week')
+          .from('transaction.updatedAt', 'updatedAt')
+          .where(`transaction.updatedAt BETWEEN '${start}' AND '${end}'`)
+          .andWhere('transaction.status = :status', {
             status: Status.SUCCESS,
-          },
-        });
+          })
+          .groupBy('transaction.week')
+          .getMany();
       } else {
+        const start = Moment.startOf('year').format('YYYY-MM-DD');
+        const end = new Date(Date.now()).toISOString();
+
+        await this.transactionRepository
+          .createQueryBuilder('transaction')
+          .select('month')
+          .from('transaction.updatedAt', 'updatedAt')
+          .where(`transaction.updatedAt BETWEEN '${start}' AND '${end}'`)
+          .andWhere('transaction.status = :status', {
+            status: Status.SUCCESS,
+          })
+          .groupBy('transaction.month')
+          .getMany();
       }
       return;
     } catch (err: any) {
