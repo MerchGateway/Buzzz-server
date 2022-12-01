@@ -109,12 +109,14 @@ export class TransactionService {
     query: string,
   ): Promise<Transaction[] | undefined> {
     const Moment = moment();
-
+    let report;
     try {
       if (query === 'current-week') {
         const start = Moment.startOf('week').format('YYYY-MM-DD');
+
         const end = Moment.endOf('week').format('YYYY-MM-DD');
-        const report = await this.transactionRepository
+
+        report = await this.transactionRepository
           .createQueryBuilder('transaction')
           .select('SUM(transaction.amount)', 'sum')
           .addSelect('WEEKDAY(transaction.updated_at)', 'week-day')
@@ -125,12 +127,12 @@ export class TransactionService {
           .groupBy('WEEKDAY(transaction.updated_at)')
           .orderBy('WEEKDAY(transaction.updated_at)')
           .getRawMany();
-        return report;
       } else if (query === 'current-month') {
         const start = Moment.startOf('month').format('YYYY-MM-DD');
+
         const end = Moment.endOf('month').format('YYYY-MM-DD');
 
-        const report = await this.transactionRepository
+        report = await this.transactionRepository
           .createQueryBuilder('transaction')
           .select('SUM(transaction.amount)', 'sum')
           .addSelect('WEEKDAY(transaction.updated_at)', 'week-day')
@@ -141,12 +143,12 @@ export class TransactionService {
           .groupBy('WEEKDAY(transaction.updated_at)')
           .orderBy('WEEKDAY(transaction.updated_at)')
           .getRawMany();
-        return report;
       } else {
         const start = Moment.startOf('year').format('YYYY-MM-DD');
+
         const end = Moment.endOf('year').format('YYYY-MM-DD');
 
-        const report = await this.transactionRepository
+        report = await this.transactionRepository
           .createQueryBuilder('transaction')
           .select('SUM(transaction.amount)', 'sum')
           .addSelect('EXTRACT (MONTH FROM transaction.updated_at)', 'month')
@@ -157,8 +159,8 @@ export class TransactionService {
           .groupBy('EXTRACT (MONTH FROM transaction.updated_at)')
           .orderBy('EXTRACT (MONTH FROM transaction.updated_at)')
           .getRawMany();
-        return report;
       }
+      return report;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
