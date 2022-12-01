@@ -8,11 +8,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Order } from '../../order/entities/order.entity';
 import { Cart } from '../../cart/entities/cart.entity';
+import { Product } from 'src/app/product/product.entity';
 
 @Entity()
 export class User {
@@ -81,6 +83,9 @@ export class User {
 
   @Column({ nullable: true })
   reddit: string;
+
+  @OneToMany(() => Product, (product) => product.seller)
+  products: Product[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

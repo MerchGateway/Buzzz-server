@@ -1,3 +1,4 @@
+import { Product } from 'src/app/product/product.entity';
 import { Transaction } from 'src/app/transaction/entities/transaction.entity';
 import {
   BaseEntity,
@@ -9,8 +10,7 @@ import {
   ManyToOne,
   BeforeInsert,
   BeforeUpdate,
-  JoinColumn,
-  OneToOne,
+  JoinColumn
 } from 'typeorm';
 
 import { Status } from '../../../types/order';
@@ -43,6 +43,9 @@ export class Order extends BaseEntity {
   @Column({ type: 'simple-json', nullable: true })
   product: any;
 
+  @Column()
+  sellerId: string;
+
   @Column({ type: 'numeric', nullable: true })
   quantity: number;
 
@@ -64,7 +67,7 @@ export class Order extends BaseEntity {
   @Column({ nullable: true, default: 0, type: 'decimal', precision: 10 })
   delivery_fee: number;
 
-  @Column({ type: 'varchar',default:"", nullable: true })
+  @Column({ type: 'varchar', default: '', nullable: true })
   coupon: string;
 
   @Column({ type: 'enum', enum: Status, default: Status.PENDING })

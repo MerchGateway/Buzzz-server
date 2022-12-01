@@ -7,9 +7,9 @@ import {
   JoinColumn,
   UpdateDateColumn,
   PrimaryGeneratedColumn,
-  BeforeInsert,
+  // BeforeInsert,
   OneToMany,
-  TableColumn,
+  // TableColumn,
 } from 'typeorm';
 
 import { User } from '../../users/entities/user.entity';
@@ -74,7 +74,7 @@ export class Transaction extends BaseEntity {
     await this.axiosConnection
       .get(`/transaction/verify/${this.reference}`)
       .then(async (res: any) => {
-        console.log(res);
+        // console.log(res);
         if (
           res.data &&
           res.data.data.status === 'success' &&

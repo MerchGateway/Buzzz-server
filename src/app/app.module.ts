@@ -20,6 +20,8 @@ import { PaymentModule } from './payment/payment.module';
 import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
 // import { Category } from './category/entities/category.entity';
 // import { CategoryService } from './category/category.service';
+import { CustomersModule } from './customers/customers.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 // import * as fs from 'fs';
 // import * as path from 'path';
 
@@ -35,6 +37,8 @@ import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
     OrderModule,
     TransactionModule,
     PaymentModule,
+    CustomersModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [
