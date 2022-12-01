@@ -109,7 +109,7 @@ export class TransactionService {
     query: string,
   ): Promise<Transaction[] | undefined> {
     const Moment = moment();
-    let report;
+    let report:Transaction[];
     try {
       if (query === 'current-week') {
         const start = Moment.startOf('week').format('YYYY-MM-DD');
