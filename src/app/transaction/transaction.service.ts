@@ -114,17 +114,16 @@ export class TransactionService {
       if (query === 'current-week') {
         const start = Moment.startOf('week').format('YYYY-MM-DD');
         const end = Moment.endOf('week').format('YYYY-MM-DD');
-
         const report = await this.transactionRepository
           .createQueryBuilder('transaction')
           .select('SUM(transaction.amount)', 'sum')
-          .addSelect('EXTRACT (DAY FROM transaction.updated_at)', 'week-day')
+          .addSelect('WEEKDAY(transaction.updated_at)', 'week-day')
           .where('transaction.status = :status', {
             status: Status.SUCCESS,
           })
           .andWhere(`transaction.updated_at BETWEEN '${start}' AND '${end}'`)
-          .groupBy('EXTRACT (DAY FROM transaction.updated_at)')
-          .orderBy('EXTRACT (DAY FROM transaction.updated_at)')
+          .groupBy('WEEKDAY(transaction.updated_at)')
+          .orderBy('WEEKDAY(transaction.updated_at)')
           .getRawMany();
         return report;
       } else if (query === 'current-month') {
@@ -134,13 +133,13 @@ export class TransactionService {
         const report = await this.transactionRepository
           .createQueryBuilder('transaction')
           .select('SUM(transaction.amount)', 'sum')
-          .addSelect('EXTRACT DAY FROM transaction.updated_at)', 'week-day')
+          .addSelect('WEEKDAY(transaction.updated_at)', 'week-day')
           .where('transaction.status = :status', {
             status: Status.SUCCESS,
           })
           .andWhere(`transaction.updated_at BETWEEN '${start}' AND '${end}'`)
-          .groupBy('EXTRACT DAY FROM transaction.updated_at)')
-          .orderBy('EXTRACT DAY FROM transaction.updated_at)')
+          .groupBy('WEEKDAY(transaction.updated_at)')
+          .orderBy('WEEKDAY(transaction.updated_at)')
           .getRawMany();
         return report;
       } else {
