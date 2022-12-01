@@ -17,6 +17,8 @@ import { TransactionModule } from './transaction/transaction.module';
 import { CartModule } from './cart/cart.module';
 
 import { PaymentModule } from './payment/payment.module';
+import { ContactModule } from './contact/contact.module';
+
 import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
 // import { Category } from './category/entities/category.entity';
 // import { CategoryService } from './category/category.service';
@@ -35,6 +37,7 @@ import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
     OrderModule,
     TransactionModule,
     PaymentModule,
+    ContactModule,
   ],
   controllers: [AppController],
   providers: [

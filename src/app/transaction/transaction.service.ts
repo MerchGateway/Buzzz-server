@@ -105,55 +105,61 @@ export class TransactionService {
     }
   }
 
-  public async salesAnalytics(query: string): Promise<Transaction | undefined> {
+  public async salesAnalytics(
+    query: string,
+  ): Promise<Transaction[] | undefined> {
     const Moment = moment();
+
     try {
       if (query === 'current-week') {
         const start = Moment.startOf('week').format('YYYY-MM-DD');
-        const end = new Date(Date.now()).toISOString();
+        const end = Moment.endOf('week').format('YYYY-MM-DD');
 
-        await this.transactionRepository
+        const report = await this.transactionRepository
           .createQueryBuilder('transaction')
-          .select('week')
-          .from('transaction.updatedAt', 'updatedAt')
-
-          .where(`transaction.updatedAt BETWEEN '${start}' AND '${end}'`)
-          .andWhere('transaction.status = :status', {
+          .select('SUM(transaction.amount)', 'sum')
+          .addSelect('EXTRACT (DAY FROM transaction.updated_at)', 'week-day')
+          .where('transaction.status = :status', {
             status: Status.SUCCESS,
           })
-          .groupBy('transaction.updatedAt')
-          .getMany();
+          .andWhere(`transaction.updated_at BETWEEN '${start}' AND '${end}'`)
+          .groupBy('EXTRACT (DAY FROM transaction.updated_at)')
+          .orderBy('EXTRACT (DAY FROM transaction.updated_at)')
+          .getRawMany();
+        return report;
       } else if (query === 'current-month') {
         const start = Moment.startOf('month').format('YYYY-MM-DD');
-        const end = new Date(Date.now()).toISOString();
+        const end = Moment.endOf('month').format('YYYY-MM-DD');
 
-        await this.transactionRepository
+        const report = await this.transactionRepository
           .createQueryBuilder('transaction')
-          .select('week')
-          .from('transaction.updatedAt', 'updatedAt')
-
-          .where(`transaction.updatedAt BETWEEN '${start}' AND '${end}'`)
-          .andWhere('transaction.status = :status', {
+          .select('SUM(transaction.amount)', 'sum')
+          .addSelect('EXTRACT DAY FROM transaction.updated_at)', 'week-day')
+          .where('transaction.status = :status', {
             status: Status.SUCCESS,
           })
-          .groupBy('transaction.updatedAt')
-          .getMany();
+          .andWhere(`transaction.updated_at BETWEEN '${start}' AND '${end}'`)
+          .groupBy('EXTRACT DAY FROM transaction.updated_at)')
+          .orderBy('EXTRACT DAY FROM transaction.updated_at)')
+          .getRawMany();
+        return report;
       } else {
         const start = Moment.startOf('year').format('YYYY-MM-DD');
-        const end = new Date(Date.now()).toISOString();
+        const end = Moment.endOf('year').format('YYYY-MM-DD');
 
-        await this.transactionRepository
+        const report = await this.transactionRepository
           .createQueryBuilder('transaction')
-          .select('month')
-          .from('transaction.updatedAt', 'updatedAt')
-          .where(`transaction.updatedAt BETWEEN '${start}' AND '${end}'`)
-          .andWhere('transaction.status = :status', {
+          .select('SUM(transaction.amount)', 'sum')
+          .addSelect('EXTRACT (MONTH FROM transaction.updated_at)', 'month')
+          .where('transaction.status = :status', {
             status: Status.SUCCESS,
           })
-          .groupBy('user.updatedAt')
-          .getMany();
+          .andWhere(`transaction.updated_at BETWEEN '${start}' AND '${end}'`)
+          .groupBy('EXTRACT (MONTH FROM transaction.updated_at)')
+          .orderBy('EXTRACT (MONTH FROM transaction.updated_at)')
+          .getRawMany();
+        return report;
       }
-      return;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }

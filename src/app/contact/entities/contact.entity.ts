@@ -1,4 +1,3 @@
-
 import {
   BaseEntity,
   Entity,
@@ -13,12 +12,14 @@ export class Contact extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('email')
+  @Column({
+    name: 'email',
+  })
   email: string;
 
-  @Column('message')
+  @Column({name:'message'})
   message: string;
-  
+
   @CreateDateColumn()
   created_at: Date;
 

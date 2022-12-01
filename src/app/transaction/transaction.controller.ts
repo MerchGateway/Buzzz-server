@@ -1,5 +1,3 @@
-
-
 import {
   Body,
   Controller,
@@ -10,9 +8,8 @@ import {
   Param,
   Delete,
   UseGuards,
-  Query
+  Query,
 } from '@nestjs/common';
-
 
 import { TransactionService } from './transaction.service';
 import { Transaction } from './entities/transaction.entity';
@@ -35,8 +32,7 @@ export class TransactionController {
   private verifyTransaction(
     @Query('reference') reference: string,
   ): Promise<Transaction | undefined> {
-    
-     return this.transactionService.verifyTransaction(reference);
+    return this.transactionService.verifyTransaction(reference);
   }
   @Get('')
   private getTransactions(
@@ -59,8 +55,7 @@ export class TransactionController {
   @Get('/sales-analytics')
   private salesAnalytics(
     @Query('query') query: string,
-  ): Promise<Transaction | undefined> {
+  ): Promise<Transaction[] | undefined> {
     return this.transactionService.salesAnalytics(query);
   }
-  
 }

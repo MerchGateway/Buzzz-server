@@ -16,4 +16,5 @@ export const AppDataSource: DataSource = new DataSource({
   database: config.database.name,
   migrations: [config.database.migrations],
   entities: [config.database.entities],
+  
 });

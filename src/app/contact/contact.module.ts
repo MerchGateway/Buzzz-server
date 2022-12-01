@@ -22,4 +22,4 @@ import { NodemailerProvider } from '../../providers/nodemailer.provider';
   ],
   exports: [ContactService],
 })
-export class OrderModule {}
+export class ContactModule {}

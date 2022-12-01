@@ -10,7 +10,7 @@ import {
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/types/general';
 import { RolesGuard } from '../auth/guards/roles.guard';
-
+import { Public } from 'src/decorators/public.decorator';
 import { ContactService } from './contact.service';
 import { ContactUsDto } from './dto/contact.dto';
 import { Contact } from './entities/contact.entity';
@@ -19,6 +19,7 @@ import { Contact } from './entities/contact.entity';
 export class ContactController {
   constructor(private readonly contactService: ContactService) {}
 
+  @Public()
   @Post('')
   @HttpCode(HttpStatus.CREATED)
   private sendMessage(
@@ -26,10 +27,10 @@ export class ContactController {
   ): Promise<Contact | undefined> {
     return this.contactService.sendMessage(payload);
   }
-
+  @Public()
   @Get('')
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
-  @UseGuards(RolesGuard)
+  // @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  // @UseGuards(RolesGuard)
   private getAllmessages(): Promise<Contact[] | undefined> {
     return this.contactService.getAllMessages();
   }
