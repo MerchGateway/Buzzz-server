@@ -4,11 +4,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import axios, { AxiosInstance } from 'axios';
+import { AxiosInstance } from 'axios';
 import { User } from 'src/app/users/entities/user.entity';
 import configuration from 'src/config/configuration';
 import { config as envConfig } from 'dotenv';
-import { CreatePayRefDto, PaymentReceiptDto } from '../dto/create-pay-ref-dto';
+// import { CreatePayRefDto, PaymentReceiptDto } from '../dto/create-pay-ref-dto';
 import { PaymentReceipt } from '../entities/payment.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -17,7 +17,7 @@ import { CartService } from 'src/app/cart/cart.service';
 import { TransactionService } from 'src/app/transaction/transaction.service';
 import { Cart } from 'src/app/cart/entities/cart.entity';
 import { UsersService } from 'src/app/users/users.service';
-import { UpdateUserDto } from 'src/app/users/dto/update-user.dto';
+// import { UpdateUserDto } from 'src/app/users/dto/update-user.dto';
 
 envConfig();
 
@@ -32,7 +32,7 @@ export class PaystackBrokerService {
     private readonly userService: UsersService,
     private readonly transactionService: TransactionService,
   ) {
-    const config = configuration();
+    // const config = configuration();
     // create connection instance of axios
     this.axiosConnection = connection();
 
@@ -51,14 +51,20 @@ export class PaystackBrokerService {
     reference: string;
   }> {
     // create payload values to be sent to paystack
-    let payload: { email: string; amount: number } = {
+    const payload: { email: string; amount: number } = {
       email: user.email,
 
       amount: 0,
     };
 
     // get all cart items
-    let cartItems: Cart[] = await this.cartService.getCartItems(user);
+    const cartItems: Cart[] = await this.cartService.getCartItems(user);
+    // console.log(cartItems.length);
+    if (cartItems.length === 0) {
+      throw new NotFoundException(
+        'you must have item(s) in your cart before creating a payment',
+      );
+    }
 
     //compute the total price of all cart items
 
@@ -79,7 +85,6 @@ export class PaystackBrokerService {
         //     access_code: string;
         //     reference: string;
         //   }}
-
         // create transaction on payment initalize
         await this.transactionService.createTransaction(
           res.data?.data.reference,
@@ -107,10 +112,7 @@ export class PaystackBrokerService {
     // return authorization data for users to complete their transactions
   }
 
-  // public async verifyPayment(ref: string) {
-  //   const verify = await this.axiosConnection.get(`/transaction/verify/${ref}`);
-  //   return { data: verify.data };
-  // }
+ 
 
   public async createRefund(transaction: string) {
     // console.log(transaction);
@@ -118,19 +120,6 @@ export class PaystackBrokerService {
     return { data: refund.data };
   }
 
-  // public async addPayRecord(body: PaymentReceiptDto) {
-  //   await this.verifyPayment(body.reference);
-  //   await this.checkIfPayRefExists(body.reference);
-  //   const record: PaymentReceipt = new PaymentReceipt();
-
-  //   record.user_id = body.user_id;
-  //   record.currency = body.currency;
-  //   record.reference = body.reference;
-  //   record.broker = body.broker;
-  //   record.payment_status = body.payment_status;
-
-  //   return this.paymentRepository.save(record);
-  // }
 
   private async handleGetPayRecord(id: string) {
     const record = await this.paymentRepository.findOne({ where: { id } });

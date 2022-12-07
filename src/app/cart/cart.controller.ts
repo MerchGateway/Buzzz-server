@@ -34,6 +34,14 @@ export class CartController {
   ): Promise<Cart | undefined> {
     return this.cartService.createCartItem(createCartDto, user);
   }
+  @Post('mutiple-item')
+  @HttpCode(HttpStatus.CREATED)
+  private createMultipleCartItem(
+    @Body() createCartDto: CreateCartDto[],
+    @CurrentUser() user: User,
+  ): Promise<Cart[] | undefined> {
+    return this.cartService.createMultipleCartItem(createCartDto, user);
+  }
 
   @Delete(':cartId')
   private deleteCartItem(
