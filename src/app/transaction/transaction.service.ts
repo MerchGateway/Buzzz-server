@@ -3,6 +3,7 @@ import { CreateTransactionDto } from './dto/transaction.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThanOrEqual, Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
+import connection from '../payment/paystack/utils/connection';
 import { Status as orderStatus } from '../../types/order';
 import { User } from '../users/entities/user.entity';
 import { OrderService } from '../order/order.service';
@@ -70,6 +71,8 @@ export class TransactionService {
   public async verifyTransaction(
     reference: string,
   ): Promise<Transaction | undefined> {
+    // create connection instance of axios
+    this.axiosConnection = connection();
     try {
       const isTransaction = await this.transactionRepository.findOneBy({
         reference,
@@ -81,13 +84,11 @@ export class TransactionService {
         );
       }
 
-     
-
       //verify transactiion status
       await this.axiosConnection
         .get(`/transaction/verify/${reference}`)
         .then(async (res: any) => {
-          console.log(res);
+     
           if (
             res.data &&
             res.data.data.status === 'success' &&
