@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { AxiosInstance } from 'axios';
+
 import { User } from 'src/app/users/entities/user.entity';
 import configuration from 'src/config/configuration';
 import { config as envConfig } from 'dotenv';
