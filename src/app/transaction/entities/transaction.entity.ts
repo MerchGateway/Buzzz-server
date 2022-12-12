@@ -22,9 +22,11 @@ import { AxiosInstance } from 'axios';
 @Entity('transaction')
 export class Transaction extends BaseEntity {
   axiosConnection: AxiosInstance;
-  construnctor() {
+  constructor() {
+    super();
     this.axiosConnection = connection();
   }
+
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -33,6 +35,7 @@ export class Transaction extends BaseEntity {
   })
   @JoinColumn({ name: 'client_id' })
   user: User;
+
   @Column({ type: 'varchar', unique: true })
   reference: string;
 
@@ -87,7 +90,6 @@ export class Transaction extends BaseEntity {
           this.message = 'Transaction successful';
           this.status = Status.SUCCESS;
           // save authorization code to enable reusing a card
-    
 
           // set the status of order to paid on successful payment verification
           await Promise.all(

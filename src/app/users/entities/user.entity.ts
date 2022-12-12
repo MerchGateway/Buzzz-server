@@ -8,11 +8,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Order } from '../../order/entities/order.entity';
 import { Cart } from '../../cart/entities/cart.entity';
+import { Wallet } from '../../wallet/entities/wallet.entity';
 
 @Entity()
 export class User {
@@ -81,6 +83,9 @@ export class User {
 
   @Column({ nullable: true })
   reddit: string;
+
+  @JoinColumn({ name: 'wallet_id' })
+  wallet: Wallet;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

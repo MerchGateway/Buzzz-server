@@ -12,7 +12,7 @@ export class TransactionService {
   constructor(
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
-    private readonly orderService: OrderService
+    private readonly orderService: OrderService,
   ) {}
 
   public async createTransaction(
@@ -53,7 +53,7 @@ export class TransactionService {
       const transactions = await this.transactionRepository.find({
         where: {
           user: { id: user.id },
-        }
+        },
       });
       return transactions;
     } catch (err: any) {
@@ -62,11 +62,11 @@ export class TransactionService {
   }
 
   public async verifyTransaction(
-    reference: string
+    reference: string,
   ): Promise<Transaction | undefined> {
     try {
       const isTransaction = await this.transactionRepository.findOneBy({
-        reference
+        reference,
       });
 
       if (!isTransaction) {
