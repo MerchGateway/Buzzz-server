@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { AxiosInstance } from 'axios';
 import { User } from 'src/app/users/entities/user.entity';
-import configuration from 'src/config/configuration';
+// import configuration  from 'src/config/configuration';
 import { config as envConfig } from 'dotenv';
 // import { CreatePayRefDto, PaymentReceiptDto } from '../dto/create-pay-ref-dto';
 import { PaymentReceipt } from '../entities/payment.entity';
