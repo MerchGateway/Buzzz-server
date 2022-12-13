@@ -18,6 +18,8 @@ import { CartModule } from './cart/cart.module';
 
 import { PaymentModule } from './payment/payment.module';
 import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
+import { CustomersModule } from './customers/customers.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 import { WalletModule } from './wallet/wallet.module';
 import { WalletTransactionsModule } from './wallet-transactions/wallet-transactions.module';
 
@@ -35,6 +37,8 @@ import { WalletTransactionsModule } from './wallet-transactions/wallet-transacti
     PaymentModule,
     WalletModule,
     WalletTransactionsModule,
+    CustomersModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [

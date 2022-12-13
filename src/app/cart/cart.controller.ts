@@ -16,7 +16,7 @@ import { User } from '../users/entities/user.entity';
 import { CartService } from './cart.service';
 import { Cart } from './entities/cart.entity';
 import { CreateCartDto, UpdateCartDto } from './dto/cart.dto';
-import { Public } from 'src/decorators/public.decorator';
+// import { Public } from 'src/decorators/public.decorator';
 
 @Controller('cart')
 export class CartController {
@@ -33,6 +33,14 @@ export class CartController {
     @CurrentUser() user: User,
   ): Promise<Cart | undefined> {
     return this.cartService.createCartItem(createCartDto, user);
+  }
+  @Post('mutiple-item')
+  @HttpCode(HttpStatus.CREATED)
+  private createMultipleCartItem(
+    @Body() createCartDto: CreateCartDto[],
+    @CurrentUser() user: User,
+  ): Promise<Cart[] | undefined> {
+    return this.cartService.createMultipleCartItem(createCartDto, user);
   }
 
   @Delete(':cartId')

@@ -19,6 +19,9 @@ import { CreateProductDto, EditProductDto } from './product.dto';
 import { Product } from './product.entity';
 import { ProductService } from './product.service';
 import { CategoryService } from '../category/category.service';
+import { Public } from 'src/decorators/public.decorator';
+import { User } from '../users/entities/user.entity';
+import { CurrentUser } from 'src/decorators/user.decorator';
 
 @Controller('product')
 export class ProductController {
@@ -31,9 +34,12 @@ export class ProductController {
   ) {}
 
   @Post('create-new')
-  public async createProduct(@Body() body: CreateProductDto): Promise<Product> {
+  public async createProduct(
+    @CurrentUser() user: User,
+    @Body() body: CreateProductDto,
+  ): Promise<Product> {
     await this.categoryService.getCategory(body.categoryId);
-    return this.service.createProduct(body);
+    return this.service.createProduct(body, user);
   }
 
   @Post('upload')
@@ -70,6 +76,7 @@ export class ProductController {
   }
 
   //seach or filter product by price || name || or any other field that would be added
+  @Public()
   @Get('search')
   public queryProducts(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
@@ -86,11 +93,13 @@ export class ProductController {
     );
   }
 
+  @Public()
   @Get(':id')
   public getAProduct(@Param('id') id: string): Promise<Product | string> {
     return this.service.handleGetAProduct(id);
   }
 
+  @Public()
   @Get()
   public getAllProducts(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,

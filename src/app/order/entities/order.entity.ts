@@ -1,3 +1,4 @@
+import { Product } from 'src/app/product/product.entity';
 import { Transaction } from 'src/app/transaction/entities/transaction.entity';
 import {
   BaseEntity,
@@ -9,8 +10,7 @@ import {
   ManyToOne,
   BeforeInsert,
   BeforeUpdate,
-  JoinColumn,
-  OneToOne,
+  JoinColumn
 } from 'typeorm';
 
 import { Status } from '../../../types/order';
@@ -34,8 +34,8 @@ export class Order extends BaseEntity {
   transaction: Transaction;
 
   @ManyToOne(() => Cart, (cart) => cart.orders, {
-    onDelete: 'SET NULL',
     eager: true,
+    onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'cart_item_id' })
   cart: Cart;
@@ -43,14 +43,17 @@ export class Order extends BaseEntity {
   @Column({ type: 'simple-json', nullable: true })
   product: any;
 
+  @Column()
+  sellerId: string;
+
   @Column({ type: 'numeric', nullable: true })
   quantity: number;
 
   @Column({ type: 'numeric', nullable: true })
   total: number;
 
-  @Column({ type: 'simple-json' })
-  shipping_details: {
+  @Column({ type: 'simple-json', default: null, nullable: true })
+  shipping_details!: {
     shipping_fee: number;
     shipping_address: {
       street_number: number;
@@ -64,7 +67,7 @@ export class Order extends BaseEntity {
   @Column({ nullable: true, default: 0, type: 'decimal', precision: 10 })
   delivery_fee: number;
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: 'varchar', default: '', nullable: true })
   coupon: string;
 
   @Column({ type: 'enum', enum: Status, default: Status.PENDING })
@@ -98,11 +101,13 @@ export class Order extends BaseEntity {
 
   public async updateStatus(value: string) {
     this.status = value;
-
+    console.log(this.status);
     if (this.status === Status.PAID) {
       // delete this.cart;
       if (this.cart) {
+        console.log('cart dey oo');
         Cart.remove(this.cart);
+        console.log('Removed cart');
       }
     }
   }
