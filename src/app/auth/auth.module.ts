@@ -16,6 +16,7 @@ import { PasswordReset } from './entities/password-reset.entity';
 import { EMAIL_PROVIDER } from '../../constant';
 import { ConfigService } from '@nestjs/config';
 import { NodemailerProvider } from '../../providers/nodemailer.provider';
+import { WalletModule } from '../wallet/wallet.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { NodemailerProvider } from '../../providers/nodemailer.provider';
     TypeOrmModule.forFeature([User]),
     TypeOrmModule.forFeature([PasswordReset]),
     LoggerModule,
+    WalletModule,
   ],
   controllers: [AuthController],
   providers: [

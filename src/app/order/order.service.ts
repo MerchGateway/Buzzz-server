@@ -15,6 +15,11 @@ import { User } from '../users/entities/user.entity';
 import { CartService } from '../cart/cart.service';
 import { Status } from 'src/types/order';
 
+interface OrderAnalyticsT {
+  thisMonthOrder: number;
+  lastTwoMonthsOrder: number;
+}
+
 @Injectable()
 export class OrderService {
   constructor(
@@ -43,9 +48,11 @@ export class OrderService {
           const order = new Order();
           order.user = user;
           order.cart = cart;
+          order.sellerId = cart.product.sellerId;
+
           if (payload.shipping_address !== null) {
             order.shipping_details = {
-              shipping_fee:0,
+              shipping_fee: 0,
               shipping_address: payload.shipping_address,
             };
           }
@@ -103,7 +110,10 @@ export class OrderService {
 
   public async getOrder(orderId: string): Promise<Order | undefined> {
     try {
-      const order = await this.orderRepository.findOneBy({ id: orderId });
+      const order = await this.orderRepository.findOne({
+        where: { id: orderId },
+        relations: { user: true },
+      });
 
       if (!order) {
         throw new NotFoundException(
@@ -143,10 +153,67 @@ export class OrderService {
 
   public async completeOrder(orderId: string): Promise<Order | undefined> {
     try {
-      console.log(orderId);
+      // console.log(orderId);
       // complete order logic eg when a users order is delievered
       await (await this.getOrder(orderId)).updateStatus(Status.COMPLETED);
       return;
+    } catch (err: any) {
+      throw new HttpException(err.message, err.status);
+    }
+  }
+
+  //  SELLERS ANALYTICS
+
+  // TODO: get revenue analytic for past two months just like orders
+  public async revenueAnalytics(sellerId: string) {
+    try {
+      const data = await this.orderRepository
+        .createQueryBuilder('order__')
+        .where('order__.sellerId = :sellerId', { sellerId })
+        .andWhere('order__.status = :status', { status: Status.PAID })
+        .select('SUM(order__.total)', 'revenue')
+        .getRawMany();
+
+      return data;
+    } catch (err: any) {
+      throw new HttpException(err.message, err.status);
+    }
+  }
+
+  public async orderAnalytics(userId: string): Promise<OrderAnalyticsT> {
+    try {
+      const date = new Date();
+      const day = date.getDate();
+      const month: number = date.getMonth();
+      const year = date.getFullYear();
+
+      // month is indexed at 0
+      const presentMonth = year + '-' + (month + 1) + '-' + day;
+      const lastMonth = year + '-' + month + '-' + day;
+      const twoMonths = year + '-' + (month - 1) + '-' + day;
+
+      //Query the number of all orders with status paid
+      const thisMonthOrder = await this.orderRepository
+        .createQueryBuilder('orders')
+        .where('orders.sellerId = :sellerId', { sellerId: userId })
+        .andWhere('orders.status = :status', { status: Status.PAID })
+        //get the total orders within the last month,
+        .andWhere(`orders.created_at BETWEEN ${lastMonth} AND ${presentMonth}`)
+        .getCount();
+
+      const lastTwoMonthsOrder = await this.orderRepository
+        .createQueryBuilder('orders_')
+        .where('orders_.sellerId = :sellerId', { sellerId: userId })
+        .andWhere('orders_.status = :status', { status: Status.PAID })
+        // get the total orders within the last two months
+        .andWhere(`orders_.created_at BETWEEN ${twoMonths} AND ${lastMonth}`)
+        .getCount();
+
+      // compare the numbers, and show the percentage increase or decrease
+      return {
+        thisMonthOrder,
+        lastTwoMonthsOrder,
+      };
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }

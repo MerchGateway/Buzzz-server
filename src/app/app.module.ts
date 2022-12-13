@@ -20,10 +20,10 @@ import { PaymentModule } from './payment/payment.module';
 import { ContactModule } from './contact/contact.module';
 
 import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
-// import { Category } from './category/entities/category.entity';
-// import { CategoryService } from './category/category.service';
-// import * as fs from 'fs';
-// import * as path from 'path';
+import { CustomersModule } from './customers/customers.module';
+import { AnalyticsModule } from './analytics/analytics.module';
+import { WalletModule } from './wallet/wallet.module';
+import { WalletTransactionsModule } from './wallet-transactions/wallet-transactions.module';
 
 @Module({
   imports: [
@@ -38,6 +38,10 @@ import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
     TransactionModule,
     PaymentModule,
     ContactModule,
+    WalletModule,
+    WalletTransactionsModule,
+    CustomersModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [

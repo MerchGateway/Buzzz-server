@@ -7,9 +7,9 @@ import {
   JoinColumn,
   UpdateDateColumn,
   PrimaryGeneratedColumn,
-  BeforeInsert,
+  // BeforeInsert,
   OneToMany,
-  TableColumn,
+  // TableColumn,
 } from 'typeorm';
 
 import { User } from '../../users/entities/user.entity';
@@ -21,10 +21,12 @@ import { AxiosInstance } from 'axios';
 
 @Entity('transaction')
 export class Transaction extends BaseEntity {
-  axiosConnection: AxiosInstance;
-  construnctor() {
-    this.axiosConnection = connection();
+
+  constructor() {
+    super();
+    
   }
+
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -33,6 +35,7 @@ export class Transaction extends BaseEntity {
   })
   @JoinColumn({ name: 'client_id' })
   user: User;
+
   @Column({ type: 'varchar', unique: true })
   reference: string;
 
@@ -65,4 +68,5 @@ export class Transaction extends BaseEntity {
 
   @UpdateDateColumn()
   updated_at: Date;
+
 }
