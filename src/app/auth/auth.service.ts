@@ -21,6 +21,7 @@ import { PasswordReset } from './entities/password-reset.entity';
 import { EMAIL_PROVIDER, PASSWORD_RESET_TOKEN_EXPIRY } from '../../constant';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
+import { WalletService } from '../wallet/wallet.service';
 
 @Injectable()
 export class AuthService {
@@ -33,6 +34,7 @@ export class AuthService {
     private readonly logger: WinstonLoggerService,
     @Inject(EMAIL_PROVIDER)
     private emailProvider: EmailProvider,
+    private readonly walletService: WalletService,
   ) {
     this.logger.setContext(AuthService.name);
   }
@@ -75,10 +77,15 @@ export class AuthService {
     return user;
   }
 
-  postSignin(user: User) {
+  async postSignin(user: User) {
     const payload: JwtPayload = { sub: user.id, role: user.role };
 
     user.password && delete user.password;
+
+    if (!user.wallet) {
+      const wallet = await this.walletService.createWallet();
+      user = await this.userRepository.save({ ...user, wallet });
+    }
 
     return {
       user,
@@ -86,8 +93,8 @@ export class AuthService {
     };
   }
 
-  signin(user: User) {
-    const data = this.postSignin(user);
+  async signin(user: User) {
+    const data = await this.postSignin(user);
 
     return new SuccessResponse(data, 'Signin successful');
   }
@@ -96,7 +103,7 @@ export class AuthService {
     const user = this.userRepository.create(signupUserDto);
     await this.userRepository.save(user);
 
-    const data = this.postSignin(user);
+    const data = await this.postSignin(user);
 
     return new SuccessResponse(data, 'Signup successful', HttpStatus.CREATED);
   }

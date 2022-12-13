@@ -128,7 +128,7 @@ export class TransactionService {
       await this.transactionRepository.delete({ reference });
       return isTransaction;
     } catch (err: any) {
-      console.log(err)
+      console.log(err);
       throw new HttpException(err.message, err.status);
     }
   }

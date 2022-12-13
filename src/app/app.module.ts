@@ -18,12 +18,10 @@ import { CartModule } from './cart/cart.module';
 
 import { PaymentModule } from './payment/payment.module';
 import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
-// import { Category } from './category/entities/category.entity';
-// import { CategoryService } from './category/category.service';
 import { CustomersModule } from './customers/customers.module';
 import { AnalyticsModule } from './analytics/analytics.module';
-// import * as fs from 'fs';
-// import * as path from 'path';
+import { WalletModule } from './wallet/wallet.module';
+import { WalletTransactionsModule } from './wallet-transactions/wallet-transactions.module';
 
 @Module({
   imports: [
@@ -37,6 +35,8 @@ import { AnalyticsModule } from './analytics/analytics.module';
     OrderModule,
     TransactionModule,
     PaymentModule,
+    WalletModule,
+    WalletTransactionsModule,
     CustomersModule,
     AnalyticsModule,
   ],
