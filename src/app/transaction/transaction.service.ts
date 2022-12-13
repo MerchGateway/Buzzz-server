@@ -88,7 +88,6 @@ export class TransactionService {
       await this.axiosConnection
         .get(`/transaction/verify/${reference}`)
         .then(async (res: any) => {
-     
           if (
             res.data &&
             res.data.data.status === 'success' &&
