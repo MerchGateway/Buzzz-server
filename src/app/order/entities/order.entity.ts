@@ -105,9 +105,8 @@ export class Order extends BaseEntity {
     if (this.status === Status.PAID) {
       // delete this.cart;
       if (this.cart) {
-        console.log('cart dey oo');
+    
         Cart.remove(this.cart);
-        console.log('Removed cart');
       }
     }
   }

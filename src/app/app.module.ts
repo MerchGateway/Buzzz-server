@@ -17,6 +17,8 @@ import { TransactionModule } from './transaction/transaction.module';
 import { CartModule } from './cart/cart.module';
 
 import { PaymentModule } from './payment/payment.module';
+import { ContactModule } from './contact/contact.module';
+
 import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
 import { CustomersModule } from './customers/customers.module';
 import { AnalyticsModule } from './analytics/analytics.module';
@@ -35,6 +37,7 @@ import { WalletTransactionsModule } from './wallet-transactions/wallet-transacti
     OrderModule,
     TransactionModule,
     PaymentModule,
+    ContactModule,
     WalletModule,
     WalletTransactionsModule,
     CustomersModule,

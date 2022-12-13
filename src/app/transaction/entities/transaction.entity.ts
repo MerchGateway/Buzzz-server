@@ -13,7 +13,7 @@ import {
 } from 'typeorm';
 
 import { User } from '../../users/entities/user.entity';
-import { Status as orderStatus } from '../../../types/order';
+
 import connection from 'src/app/payment/paystack/utils/connection';
 import { Status } from 'src/types/transaction';
 import { Order } from 'src/app/order/entities/order.entity';
@@ -21,10 +21,10 @@ import { AxiosInstance } from 'axios';
 
 @Entity('transaction')
 export class Transaction extends BaseEntity {
-  axiosConnection: AxiosInstance;
+
   constructor() {
     super();
-    this.axiosConnection = connection();
+    
   }
 
   @PrimaryGeneratedColumn('uuid')
@@ -69,60 +69,4 @@ export class Transaction extends BaseEntity {
   @UpdateDateColumn()
   updated_at: Date;
 
-  public async verifyTransaction() {
-    // create connection instance of axios
-    this.axiosConnection = connection();
-
-    // create conection route and fire route
-    await this.axiosConnection
-      .get(`/transaction/verify/${this.reference}`)
-      .then(async (res: any) => {
-        // console.log(res);
-        if (
-          res.data &&
-          res.data.data.status === 'success' &&
-          res.data.message === 'Verification successful'
-        ) {
-          this.fee = res.data.data.fees;
-          this.currency = res.data.data.currency;
-          this.channel = res.data.data.channel;
-          this.amount = res.data.data.amount;
-          this.message = 'Transaction successful';
-          this.status = Status.SUCCESS;
-        
-          // save authorization code to enable reusing a card
-
-          // set the status of order to paid on successful payment verification
-          await Promise.all(
-            this.orders.map(async (order) => {
-              await order.updateStatus(orderStatus.PAID);
-              await order.save();
-            }),
-          );
-        } else {
-          this.fee = res.data.data.fees;
-          this.currency = res.data.data.currency;
-          this.channel = res.data.data.channel;
-          this.amount = res.data.data.amount;
-          this.status = Status.FAILED;
-          this.message = 'Transaction could not be verified';
-          await Promise.all(
-            this.orders.map(async (order) => {
-              await order.updateStatus(orderStatus.CANCELLED);
-              await order.save();
-            }),
-          );
-        }
-      })
-      .catch(async (err: any) => {
-        this.status = Status.FAILED;
-        this.message = err.message;
-        await Promise.all(
-          this.orders.map(async (order) => {
-            await order.updateStatus(orderStatus.CANCELLED);
-            return await order.save();
-          }),
-        );
-      });
-  }
 }

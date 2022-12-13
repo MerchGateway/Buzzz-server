@@ -8,7 +8,7 @@ import {
   Param,
   Delete,
   UseGuards,
-  Query
+  Query,
 } from '@nestjs/common';
 
 import { TransactionService } from './transaction.service';
@@ -33,8 +33,7 @@ export class TransactionController {
   private verifyTransaction(
     @Query('reference') reference: string,
   ): Promise<Transaction | undefined> {
-    
-     return this.transactionService.verifyTransaction(reference);
+    return this.transactionService.verifyTransaction(reference);
   }
   @Get('')
   private getTransactions(
@@ -50,5 +49,14 @@ export class TransactionController {
     @Param('reference') reference: string,
   ): Promise<Transaction | undefined> {
     return this.transactionService.deleteTransaction(reference);
+  }
+
+  // @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  // @UseGuards(RolesGuard)
+  @Get('/sales-analytics')
+  private salesAnalytics(
+    @Query('query') query: string,
+  ): Promise<Transaction[] | undefined> {
+    return this.transactionService.salesAnalytics(query);
   }
 }
