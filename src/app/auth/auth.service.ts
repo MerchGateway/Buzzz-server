@@ -17,8 +17,10 @@ import { IdentityProvider } from '../../types/user';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { WinstonLoggerService } from 'src/logger/winston-logger/winston-logger.service';
 import { EmailProvider } from '../../types/email';
+
 import { PasswordReset } from './entities/password-reset.entity';
 import { EMAIL_PROVIDER, PASSWORD_RESET_TOKEN_EXPIRY } from '../../constant';
+
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 
