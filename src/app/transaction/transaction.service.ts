@@ -11,7 +11,11 @@ import * as moment from 'moment';
 import { AxiosInstance } from 'axios';
 
 import { Order } from '../order/entities/order.entity';
+
 import { Status } from 'src/types/transaction';
+import { CustomersService } from '../customers/customers.service';
+import { ProductService } from '../product/product.service';
+
 
 @Injectable()
 export class TransactionService {
@@ -20,6 +24,8 @@ export class TransactionService {
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
     private readonly orderService: OrderService,
+    private readonly customerService: CustomersService,
+    private readonly productService: ProductService,
   ) {}
 
   public async createTransaction(
@@ -33,18 +39,19 @@ export class TransactionService {
         { shipping_address: user.shipping_address },
         user,
       );
-
-      const Transaction = this.transactionRepository.create({
+      console.log(orders)
+      const transaction = this.transactionRepository.create({
         reference,
         user,
         message,
         orders,
       });
 
-      await this.transactionRepository.save(Transaction);
+      console.log(transaction)
+      await this.transactionRepository.save(transaction);
       // fetch fresh copy of the just created transaction
       const cleanTransaction = await this.transactionRepository.findOne({
-        where: { id: Transaction.id },
+        where: { id: transaction.id },
         relations: { orders: true },
       });
       return cleanTransaction;
@@ -68,6 +75,22 @@ export class TransactionService {
     }
   }
 
+  private async getATransaction(
+    transactionId: string,
+  ): Promise<Transaction | undefined> {
+    const transaction = await this.transactionRepository.findOne({
+      where: { id: transactionId },
+      relations: { user: true, orders: true },
+    });
+
+    if (!transaction) {
+      throw new NotFoundException(
+        `transaction with id ${transactionId} not found`,
+      );
+    }
+    return transaction;
+  }
+
   public async verifyTransaction(
     reference: string,
   ): Promise<Transaction | undefined> {
@@ -83,6 +106,7 @@ export class TransactionService {
           `Transaction with reference ${reference} does not exist`,
         );
       }
+
 
       //verify transactiion status
       await this.axiosConnection
@@ -134,7 +158,18 @@ export class TransactionService {
         });
       //
 
-      return await this.transactionRepository.save(isTransaction);
+      await this.transactionRepository.save(isTransaction);
+
+
+      // TODO: handle this a better way
+      const res = await this.getATransaction(isTransaction.id);
+      const product = await this.productService.handleGetAProduct(
+        res.orders[0].product.id,
+      );
+      // add user to customer list
+      await this.customerService.create(product.seller.id, res.user.id);
+      return res;
+
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
@@ -157,6 +192,7 @@ export class TransactionService {
       await this.transactionRepository.delete({ reference });
       return isTransaction;
     } catch (err: any) {
+      console.log(err);
       throw new HttpException(err.message, err.status);
     }
   }

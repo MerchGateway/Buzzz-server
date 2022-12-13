@@ -8,6 +8,7 @@ import {
 } from 'nestjs-typeorm-paginate';
 import { CreateProductDto, EditProductDto } from './product.dto';
 import { Product } from './product.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class ProductService {
@@ -16,12 +17,13 @@ export class ProductService {
     private readonly productRepository: Repository<Product>,
   ) {}
 
-  public createProduct(body: CreateProductDto): Promise<Product> {
+  public createProduct(body: CreateProductDto, user: User): Promise<Product> {
     const product: Product = new Product();
     product.name = body.name;
     product.price = body.price;
     product.categoryId = body.categoryId;
-
+    product.seller = user;
+    product.sellerId = user.id;
     return this.productRepository.save(product);
   }
 
@@ -86,6 +88,7 @@ export class ProductService {
       const product = await this.productRepository.findOne({
         where: { id },
         relations: {
+          seller: true,
           category: true,
           receipt: true,
         },

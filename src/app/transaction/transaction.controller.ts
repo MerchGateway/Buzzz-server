@@ -27,6 +27,7 @@ export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
   @Public()
+  
   @Get('verify/')
   @HttpCode(HttpStatus.CREATED)
   private verifyTransaction(
