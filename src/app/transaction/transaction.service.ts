@@ -16,7 +16,6 @@ import { Status } from 'src/types/transaction';
 import { CustomersService } from '../customers/customers.service';
 import { ProductService } from '../product/product.service';
 
-
 @Injectable()
 export class TransactionService {
   axiosConnection: AxiosInstance;
@@ -39,7 +38,6 @@ export class TransactionService {
         { shipping_address: user.shipping_address },
         user,
       );
-      console.log(orders)
       const transaction = this.transactionRepository.create({
         reference,
         user,
@@ -47,7 +45,6 @@ export class TransactionService {
         orders,
       });
 
-      console.log(transaction)
       await this.transactionRepository.save(transaction);
       // fetch fresh copy of the just created transaction
       const cleanTransaction = await this.transactionRepository.findOne({
@@ -107,7 +104,6 @@ export class TransactionService {
         );
       }
 
-
       //verify transactiion status
       await this.axiosConnection
         .get(`/transaction/verify/${reference}`)
@@ -160,16 +156,15 @@ export class TransactionService {
 
       await this.transactionRepository.save(isTransaction);
 
-
-      // TODO: handle this a better way
+      // TODO: map throught the orders and do this for all product in the order
       const res = await this.getATransaction(isTransaction.id);
       const product = await this.productService.handleGetAProduct(
         res.orders[0].product.id,
       );
+      // console.log(res)
       // add user to customer list
-      await this.customerService.create(product.seller.id, res.user.id);
+      await this.customerService.create(product.seller.id, res.user);
       return res;
-
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
