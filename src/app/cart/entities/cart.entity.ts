@@ -31,7 +31,7 @@ export class Cart extends BaseEntity {
   @ManyToOne(() => Product, {
     cascade: true,
   })
-  @JoinColumn({ name: 'product_id' })
+  @JoinColumn()
   product: Product;
 
   @OneToOne(() => Order, {
