@@ -8,11 +8,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Order } from '../../order/entities/order.entity';
-import { Cart } from '../../cart/entities/cart.entity';
+import { Wallet } from '../../wallet/entities/wallet.entity';
+import { Product } from 'src/app/product/product.entity';
 
 @Entity()
 export class User {
@@ -55,6 +57,15 @@ export class User {
   @Column({ nullable: true })
   address: string;
 
+  @Column({ nullable: true, type: 'simple-json' })
+  shipping_address: {
+    street_number: number;
+    state: string;
+    LGA: string;
+    Nearest_bustop: string;
+    street: string;
+  };
+
   @Column({ name: 'is_public', default: true })
   isPublic: boolean;
 
@@ -72,6 +83,11 @@ export class User {
 
   @Column({ nullable: true })
   reddit: string;
+
+  @JoinColumn({ name: 'wallet_id' })
+  wallet: Wallet;
+  @OneToMany(() => Product, (product) => product.seller)
+  products: Product[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

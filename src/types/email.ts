@@ -1,3 +1,21 @@
-export enum EmailTemplate {
-  FORGOT_PASSWORD = 'd-8e1fa4d96c834cbfac907674c2272c01',
+
+export type EmailProviderId = 'nodemailer';
+
+export interface MailOptions {
+  fromName?: string;
+  fromEmail?: string;
+  to: string | string[];
+  subject: string;
+  message: string;
+  html?: string;
+}
+
+export interface MailResponse {
+  messageId: string;
+}
+
+export interface EmailProvider {
+  providerId: EmailProviderId;
+  sendMail: (mailOptions: MailOptions) => Promise<MailResponse>;
+
 }

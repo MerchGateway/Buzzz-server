@@ -7,6 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
   Column,
+  OneToMany,
   OneToOne,
   BeforeInsert,
   BeforeUpdate,
@@ -17,7 +18,7 @@ import { User } from '../../users/entities/user.entity';
 import { Order } from '../../order/entities/order.entity';
 import { Product } from '../../product/product.entity';
 
-@Entity('cart-item')
+@Entity('cart_item')
 export class Cart extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -28,19 +29,20 @@ export class Cart extends BaseEntity {
   @JoinColumn({ name: 'client_id' })
   owner: User;
 
-  @ManyToOne(() => Product, {
+  @OneToOne(() => Product, {
     cascade: true,
+    eager: true,
   })
   @JoinColumn()
   product: Product;
 
-  @OneToOne(() => Order, {
-    cascade: true,
-  })
-  @JoinColumn({ name: 'order_id' })
-  order: Order;
+  @OneToMany(() => Order, (order) => order.cart)
+  orders: Order[];
 
-  @Column({ type: 'integer' })
+  @Column({
+    type: 'integer',
+    transformer: { to: (value) => Math.abs(value), from: (value) => value },
+  })
   quantity: number;
 
   @Column({ type: 'integer' })
@@ -48,8 +50,9 @@ export class Cart extends BaseEntity {
 
   @BeforeInsert()
   @BeforeUpdate()
-  private async calculateTotal() {
-    this.total = this.product.price * this.quantity;
+  private async calculateTotal(): Promise<void> {
+    console.log('this calculate total ran after');
+    this.total = this.product.price * Math.abs(this.quantity);
   }
 
   @CreateDateColumn()

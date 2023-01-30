@@ -5,21 +5,21 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   PrimaryGeneratedColumn,
-  OneToMany,
   ManyToOne,
   JoinColumn,
   PrimaryColumn,
 } from 'typeorm';
 import { Category } from '../category/entities/category.entity';
+// import { Order } from '../order/entities/order.entity';
 import { PaymentReceipt } from '../payment/entities/payment.entity';
-import { Cart } from '../cart/entities/cart.entity';
+import { User } from '../users/entities/user.entity';
 
 @Entity({ name: 'product', schema: 'public' })
 export class Product extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ unique: false })
   name: string;
 
   @Column({ default: false })
@@ -31,6 +31,7 @@ export class Product extends BaseEntity {
   @Column({ default: false })
   isPublished: boolean;
 
+  @CreateDateColumn()
   @PrimaryColumn()
   categoryId: string;
 
@@ -47,6 +48,14 @@ export class Product extends BaseEntity {
   @ManyToOne(() => PaymentReceipt, (paymentReceipt) => paymentReceipt.product)
   @JoinColumn()
   receipt: PaymentReceipt;
+
+  @Column({ default: null })
+  sellerId: string;
+
+  @ManyToOne(() => User, (user) => user.products)
+  @JoinColumn()
+  seller: User;
+
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

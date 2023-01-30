@@ -13,11 +13,17 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
-import { CartController } from './cart/cart.controller';
-import { CartService } from './cart/cart.service';
+import { TransactionModule } from './transaction/transaction.module';
 import { CartModule } from './cart/cart.module';
+
 import { PaymentModule } from './payment/payment.module';
+import { ContactModule } from './contact/contact.module';
+
 import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
+import { CustomersModule } from './customers/customers.module';
+import { AnalyticsModule } from './analytics/analytics.module';
+import { WalletModule } from './wallet/wallet.module';
+import { WalletTransactionsModule } from './wallet-transactions/wallet-transactions.module';
 
 @Module({
   imports: [
@@ -28,6 +34,14 @@ import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
     CategoryModule,
     CartModule,
     ProductModule,
+    OrderModule,
+    TransactionModule,
+    PaymentModule,
+    ContactModule,
+    WalletModule,
+    WalletTransactionsModule,
+    CustomersModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [

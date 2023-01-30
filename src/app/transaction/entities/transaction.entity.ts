@@ -7,19 +7,24 @@ import {
   JoinColumn,
   UpdateDateColumn,
   PrimaryGeneratedColumn,
-  BeforeInsert,
+  // BeforeInsert,
   OneToMany,
+  // TableColumn,
 } from 'typeorm';
 
 import { User } from '../../users/entities/user.entity';
-import { ConfigService } from '@nestjs/config';
+
+import connection from 'src/app/payment/paystack/utils/connection';
 import { Status } from 'src/types/transaction';
 import { Order } from 'src/app/order/entities/order.entity';
+import { AxiosInstance } from 'axios';
 
 @Entity('transaction')
 export class Transaction extends BaseEntity {
-  constructor(private configService: ConfigService) {
+
+  constructor() {
     super();
+    
   }
 
   @PrimaryGeneratedColumn('uuid')
@@ -30,26 +35,30 @@ export class Transaction extends BaseEntity {
   })
   @JoinColumn({ name: 'client_id' })
   user: User;
-  @Column({ type: 'varchar' })
+
+  @Column({ type: 'varchar', unique: true })
   reference: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   fee: string;
 
-  @Column({ type: 'numeric' })
+  @Column({ type: 'numeric', nullable: true })
   amount: number;
 
-  @Column({ type: 'varchar', default: 'USD' })
+  @Column({ type: 'varchar', nullable: true })
   currency: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  message: string;
 
   @Column({ type: 'enum', enum: Status, default: Status.PENDING })
   status: string;
 
-  @OneToMany(() => Order, (order) => order.transaction)
+  @OneToMany(() => Order, (order) => order.transaction, { eager: true })
   orders: Order[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @Column({
     type: 'enum',
@@ -58,36 +67,6 @@ export class Transaction extends BaseEntity {
   channel: string;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
 
-  @BeforeInsert()
-  private async verifyTransaction() {
-    fetch(`https://api.paystack.co/transaction/verify/${this.reference}`, {
-      method: 'GET',
-      headers: new Headers({
-        Authorization: `Bearer ${this.configService.get('paystack.secret')}`,
-      }),
-    })
-      .then((res) => {
-        const jsonResponse: any = res.json();
-        console.log(jsonResponse);
-        if (
-          jsonResponse.data &&
-          jsonResponse.data.status === 'success' &&
-          jsonResponse.message === 'Verification successful'
-        ) {
-          this.status = Status.SUCCESS;
-        } else {
-          this.fee = jsonResponse.data.fee;
-          this.currency = jsonResponse.data.currency;
-          this.channel = jsonResponse.data.channel;
-          this.amount = jsonResponse.data.amount;
-          this.status = Status.FAILED;
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        this.status = Status.FAILED;
-      });
-  }
 }

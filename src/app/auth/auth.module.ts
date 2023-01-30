@@ -13,6 +13,10 @@ import { GoogleOauthStrategy } from './guards/google-oauth.strategy';
 import { TwitterOauthStrategy } from './guards/twitter-oauth.strategy';
 import { LoggerModule } from 'src/logger/logger.module';
 import { PasswordReset } from './entities/password-reset.entity';
+import { EMAIL_PROVIDER } from '../../constant';
+import { ConfigService } from '@nestjs/config';
+import { NodemailerProvider } from '../../providers/nodemailer.provider';
+import { WalletModule } from '../wallet/wallet.module';
 
 @Module({
   imports: [
@@ -25,6 +29,7 @@ import { PasswordReset } from './entities/password-reset.entity';
     TypeOrmModule.forFeature([User]),
     TypeOrmModule.forFeature([PasswordReset]),
     LoggerModule,
+    WalletModule,
   ],
   controllers: [AuthController],
   providers: [
@@ -34,6 +39,13 @@ import { PasswordReset } from './entities/password-reset.entity';
     TwitterOauthStrategy,
     AuthService,
     PasswordReset,
+    {
+      provide: EMAIL_PROVIDER,
+      useFactory: (configService: ConfigService) => {
+        return new NodemailerProvider(configService);
+      },
+      inject: [ConfigService],
+    },
   ],
 })
 export class AuthModule {}

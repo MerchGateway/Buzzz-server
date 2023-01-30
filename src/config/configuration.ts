@@ -48,4 +48,8 @@ export default () => ({
   broker: {
     paystackSecretKey: process.env.PAYSTACK_SECRET_KEY,
   },
+  smtpHost: process.env.SMTP_HOST,
+  smtpPort: process.env.SMTP_PORT,
+  smtpEmail: process.env.SMTP_EMAIL,
+  smtpPassword: process.env.SMTP_PASSWORD,
 });

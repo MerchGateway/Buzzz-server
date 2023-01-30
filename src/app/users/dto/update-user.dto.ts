@@ -1,6 +1,7 @@
 import {
   IsBoolean,
   IsEmail,
+  IsObject,
   IsOptional,
   IsString,
   IsUrl,
@@ -26,6 +27,16 @@ export class UpdateUserDto {
   @IsString()
   @IsOptional()
   address: string;
+  
+  @IsObject()
+  @IsOptional()
+  shipping_address: {
+    street_number: number;
+    state: string;
+    LGA: string;
+    Nearest_bustop: string;
+    street: string;
+  };
 
   @IsBoolean()
   @IsOptional()

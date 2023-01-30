@@ -8,12 +8,13 @@ export default class SendgridService {
     emails: [string],
     templateId: string,
     dynamicTemplateData: { [key: string]: any },
+    from?: string,
   ) {
     sgMail.setApiKey(config.sendgridApiKey);
 
     const msg: sgMail.MailDataRequired = {
       to: emails,
-      from: config.fromEmail,
+      from: from || config.fromEmail,
       templateId,
       dynamicTemplateData,
     };

@@ -1,23 +1,62 @@
-import { Body, Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  HttpCode,
+  HttpStatus,
+  Get,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 
 import { TransactionService } from './transaction.service';
 import { Transaction } from './entities/transaction.entity';
-import { CreateTransactionDto } from './dto/transaction.dto';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/types/general';
+import { RolesGuard } from '../auth/guards/roles.guard';
+// import { CreateTransactionDto } from './dto/transaction.dto';
 import { User } from '../users/entities/user.entity';
 
 import { CurrentUser } from 'src/decorators/user.decorator';
+import { Public } from 'src/decorators/public.decorator';
 
 @Controller('transaction')
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
-  @Post('initialize')
+  @Public()
+  
+  @Get('verify/')
   @HttpCode(HttpStatus.CREATED)
-  private createOrder(
-    @Body() payload: CreateTransactionDto,
-
-    @CurrentUser() user: User,
+  private verifyTransaction(
+    @Query('reference') reference: string,
   ): Promise<Transaction | undefined> {
-    return this.transactionService.createTransaction(payload, user);
+    return this.transactionService.verifyTransaction(reference);
+  }
+  @Get('')
+  private getTransactions(
+    @CurrentUser() user: User,
+  ): Promise<Transaction[] | undefined> {
+    return this.transactionService.getTransactionsForAuthUser(user);
+  }
+
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @UseGuards(RolesGuard)
+  @Delete(':reference')
+  private deleteTransaction(
+    @Param('reference') reference: string,
+  ): Promise<Transaction | undefined> {
+    return this.transactionService.deleteTransaction(reference);
+  }
+
+  // @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  // @UseGuards(RolesGuard)
+  @Get('/sales-analytics')
+  private salesAnalytics(
+    @Query('query') query: string,
+  ): Promise<Transaction[] | undefined> {
+    return this.transactionService.salesAnalytics(query);
   }
 }
