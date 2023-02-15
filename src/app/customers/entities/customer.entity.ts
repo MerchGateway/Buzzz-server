@@ -4,6 +4,8 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  ManyToMany,
+  JoinTable
 } from 'typeorm';
 
 @Entity('customer')
@@ -17,8 +19,10 @@ export class Customer {
   @Column()
   sellerId: string;
 
-  @Column()
-  customerId: string;
+
+  @ManyToMany(() => User)
+    @JoinTable()
+    customer: User[]
 
 }
 

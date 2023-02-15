@@ -2,6 +2,7 @@ import { Controller, Get, Param, ParseUUIDPipe, Post } from '@nestjs/common';
 import { CurrentUser } from 'src/decorators/user.decorator';
 import { User } from '../users/entities/user.entity';
 import { CustomersService } from './customers.service';
+// import { CustomerParams } from '../../../dist/app/customers/customers.service';
 
 @Controller('customers')
 export class CustomersController {
@@ -15,7 +16,7 @@ export class CustomersController {
     @Param('sellerId', ParseUUIDPipe) sellerId: string,
     @CurrentUser() user: User,
   ) {
-    return this.customersService.create(sellerId, user.id);
+    return this.customersService.create(sellerId, user);
   }
 
   // gets all the customers for the current user,
@@ -23,5 +24,5 @@ export class CustomersController {
   findAll(@CurrentUser() user: User) {
     return this.customersService.findAll(user.id);
   }
-//TODO: search or filter by sex, country(should be done on the frontend though)
+  //TODO: search or filter by sex, country(should be done on the frontend though)
 }

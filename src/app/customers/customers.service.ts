@@ -4,11 +4,18 @@ import { Repository } from 'typeorm';
 import { Customer } from './entities/customer.entity';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
+import { OrderService } from '../order/order.service';
+import { Order } from '../order/entities/order.entity';
 
 interface customerAnalyticsT {
   allCustomers: number;
   thisMonthCustomers: number;
   lastTwoMonthsCustomers: number;
+}
+
+interface CustomerParams {
+  customer: Customer | [];
+  order: Order[] | [];
 }
 
 @Injectable()
@@ -18,34 +25,51 @@ export class CustomersService {
     private readonly customerRepository: Repository<Customer>,
 
     private readonly userRepository: UsersService,
+    private readonly orderRepository: OrderService,
   ) {}
-  async create(sellerId: any, userId: string): Promise<Customer | []> {
+  async create(sellerId: any, user: User): Promise<Customer | []> {
     await this.userRepository.findOne(sellerId);
 
     const res = await this.customerRepository
       .createQueryBuilder('findCustomer')
       .where('sellerId = :sellerId', { sellerId })
-      .andWhere('customerId = :customerId', { customerId: userId })
+      // .andWhere('customer = :customer', { customer: user })
       .getOne();
-
+    // get order of customerId and add it to the rreturn value
     if (!res) {
       const customer = new Customer();
-      customer.customerId = userId;
       customer.sellerId = sellerId;
+      customer.customer = [user];
       return await this.customerRepository.save(customer);
     }
 
     return res;
   }
 
-  async findAll(userId: string): Promise<Customer[] | []> {
-    const res = await this.customerRepository
-      .createQueryBuilder('allSellersCustomers')
-      .where('sellerId = :sellerId', { sellerId: userId })
-      .orderBy('allSellersCustomers.createdAt', 'DESC')
-      .getMany();
+  async findAll(userId: string): Promise<any> {
+    const res = await this.customerRepository.find({
+      where: {
+        sellerId: userId,
+      },
+      relations: {
+        customer: true,
+      },
+    });
 
-    return res;
+    const sort = async (customer: Customer) => {
+      const orders = await this.orderRepository.getOrders(customer.customer[0]);
+      const data = {
+        customer: customer,
+        order: orders,
+      };
+      return data;
+    };
+
+    const caller = async () => {
+      return Promise.all(res?.map((h) => sort(h)));
+    };
+
+    return caller();
   }
 
   public async customerAnalytics(user: User): Promise<customerAnalyticsT> {
