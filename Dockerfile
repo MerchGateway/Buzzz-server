@@ -14,7 +14,6 @@ COPY --chown=node:node package*.json ./
 COPY --chown=node:node prod.env ./
 COPY --chown=node:node tsconfig.build.json ./
 COPY --chown=node:node tsconfig.json ./
-COPY --chown=node:node mock_category_data.json ./
 
 # Install app dependencies using the `npm ci` command instead of `npm install`
 RUN yarn install
@@ -43,7 +42,6 @@ COPY --chown=node:node . .
 COPY --chown=node:node --from=development /usr/src/app/prod.env ./.env
 COPY --chown=node:node --from=development /usr/src/app/tsconfig.build.json ./
 COPY --chown=node:node --from=development /usr/src/app/tsconfig.json ./
-COPY --chown=node:node --from=development /usr/src/app/mock_category_data.json ./
 
 
 # Run the build command which creates the production bundle

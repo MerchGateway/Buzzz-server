@@ -4,7 +4,11 @@ import * as path from 'path';
 import { Category } from 'src/app/category/entities/category.entity';
 
 const createDefaultCategories = async () => {
-  const pathSrc = path.join(__dirname, '/mock_category_data.json');
+  const pathSrc = path.join(
+    __dirname,
+    '..',
+    '/assets/data/mock_category_data.json',
+  );
   const data = fs.readFileSync(pathSrc, {
     encoding: 'ascii',
   });
