@@ -1,13 +1,19 @@
 import * as fs from 'fs';
+import * as path from 'path';
 
 import { Category } from 'src/app/category/entities/category.entity';
 
 const createDefaultCategories = async () => {
-  let data = fs.readFileSync('./mock_category_data.json', {
+  const pathSrc = path.join(
+    __dirname,
+    '..',
+    '/assets/data/mock_category_data.json',
+  );
+  const data = fs.readFileSync(pathSrc, {
     encoding: 'ascii',
   });
   // parse data into json
-  let jsonData = JSON.parse(data);
+  const jsonData = JSON.parse(data);
   // get categories
   const categories = await Category.find();
 

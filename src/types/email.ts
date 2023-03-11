@@ -1,4 +1,3 @@
-
 export type EmailProviderId = 'nodemailer';
 
 export interface MailOptions {
@@ -17,5 +16,4 @@ export interface MailResponse {
 export interface EmailProvider {
   providerId: EmailProviderId;
   sendMail: (mailOptions: MailOptions) => Promise<MailResponse>;
-
 }
