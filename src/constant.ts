@@ -1,3 +1,6 @@
 export const PASSWORD_RESET_TOKEN_EXPIRY = 5 * 60 * 1000;
 
 export const EMAIL_PROVIDER = 'EMAIL_PROVIDER';
+export const AUTHENTICATOR = 'AUTHENTICATOR';
+export const QRCODE = 'QRCODE';
+export const AUTH_APP_NAME='BUZZZ'

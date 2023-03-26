@@ -28,6 +28,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     try {
       user = await this.usersService.findOne(payload.sub);
+      if (
+        user.twoFactorAuthentication.allow2fa == true &&
+        user.twoFactorAuthentication.isTwoFactorVerified == false
+      ) {
+        throw new UnauthorizedException('Unauthorized');
+      }
     } catch (error) {
       throw new UnauthorizedException('Unauthorized');
     }

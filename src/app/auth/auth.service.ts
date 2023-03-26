@@ -24,7 +24,7 @@ import { EMAIL_PROVIDER, PASSWORD_RESET_TOKEN_EXPIRY } from '../../constant';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { WalletService } from '../wallet/wallet.service';
-
+import { twoFactorAuthService } from '../2fa/twoFactorAuth.service';
 @Injectable()
 export class AuthService {
   constructor(
@@ -37,6 +37,7 @@ export class AuthService {
     @Inject(EMAIL_PROVIDER)
     private emailProvider: EmailProvider,
     private readonly walletService: WalletService,
+    private readonly twoFactorAuthService: twoFactorAuthService,
   ) {
     this.logger.setContext(AuthService.name);
   }
@@ -96,6 +97,7 @@ export class AuthService {
   }
 
   async signin(user: User) {
+
     const data = await this.postSignin(user);
 
     return new SuccessResponse(data, 'Signin successful');

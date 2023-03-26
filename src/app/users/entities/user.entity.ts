@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import { Role } from 'src/types/general';
+import { Authtype } from 'src/types/authenticator';
 import { IdentityProvider } from 'src/types/user';
 
 import {
@@ -69,6 +70,24 @@ export class User {
   @Column({ name: 'is_public', default: true })
   isPublic: boolean;
 
+  @Column({ name: 'notification', default: true })
+  allowNotification: boolean;
+
+  @Column({
+    name: '2fa',
+    type: 'simple-json',
+    default: {
+      allow2Fa: false,
+      isTwoFactorVerified: false,
+      type: Authtype.INAPP,
+    },
+  })
+  twoFactorAuthentication: {
+    allow2fa: boolean;
+    isTwoFactorVerified: boolean;
+    type: Authtype;
+  };
+
   @Column({ name: 'show_email', default: true })
   showEmail: boolean;
 
@@ -86,6 +105,7 @@ export class User {
 
   @JoinColumn({ name: 'wallet_id' })
   wallet: Wallet;
+
   @OneToMany(() => Product, (product) => product.seller)
   products: Product[];
 

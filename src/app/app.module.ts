@@ -25,6 +25,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
 import { WalletModule } from './wallet/wallet.module';
 import { WalletTransactionsModule } from './wallet-transactions/wallet-transactions.module';
 
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
@@ -42,6 +43,7 @@ import { WalletTransactionsModule } from './wallet-transactions/wallet-transacti
     WalletTransactionsModule,
     CustomersModule,
     AnalyticsModule,
+
   ],
   controllers: [AppController],
   providers: [
@@ -59,6 +61,7 @@ import { WalletTransactionsModule } from './wallet-transactions/wallet-transacti
       provide: APP_INTERCEPTOR,
       useClass: ErrorsInterceptor,
     },
+   
   ],
 })
 export class AppModule {}

@@ -61,4 +61,15 @@ export class UpdateUserDto {
   @IsUrl()
   @IsOptional()
   reddit: string;
+
+  @IsBoolean()
+  @IsOptional()
+  allowNotification:boolean
+
+  @IsObject()
+  @IsOptional()
+  twoFactorAuthentication:{
+    allow2fa:boolean,
+    isTwoFactorVerified:boolean
+   }
 }

@@ -17,10 +17,11 @@ import { EMAIL_PROVIDER } from '../../constant';
 import { ConfigService } from '@nestjs/config';
 import { NodemailerProvider } from '../../providers/nodemailer.provider';
 import { WalletModule } from '../wallet/wallet.module';
-
+import { TwoFactorAuthModule } from '../2fa/twoFactorAuth.module';
 @Module({
   imports: [
     PassportModule,
+    TwoFactorAuthModule,
     JwtModule.register({
       secret: configuration().jwt.secret,
       signOptions: { expiresIn: configuration().jwt.expiresIn },
@@ -47,5 +48,6 @@ import { WalletModule } from '../wallet/wallet.module';
       inject: [ConfigService],
     },
   ],
+  exports:[AuthService]
 })
 export class AuthModule {}
