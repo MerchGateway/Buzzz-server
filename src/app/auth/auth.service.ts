@@ -37,7 +37,7 @@ export class AuthService {
     @Inject(EMAIL_PROVIDER)
     private emailProvider: EmailProvider,
     private readonly walletService: WalletService,
-    private readonly twoFactorAuthService: twoFactorAuthService,
+   
   ) {
     this.logger.setContext(AuthService.name);
   }

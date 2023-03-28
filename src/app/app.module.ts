@@ -24,6 +24,7 @@ import { CustomersModule } from './customers/customers.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { WalletModule } from './wallet/wallet.module';
 import { WalletTransactionsModule } from './wallet-transactions/wallet-transactions.module';
+import { NotificationModule } from './notification/notification.module';
 
 
 @Module({
@@ -43,6 +44,7 @@ import { WalletTransactionsModule } from './wallet-transactions/wallet-transacti
     WalletTransactionsModule,
     CustomersModule,
     AnalyticsModule,
+    NotificationModule,
 
   ],
   controllers: [AppController],

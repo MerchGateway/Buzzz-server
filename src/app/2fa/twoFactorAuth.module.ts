@@ -17,11 +17,11 @@ import { AuthModule } from '../auth/auth.module';
     twoFactorAuthService,
     {
       provide: AUTHENTICATOR,
-      useValue: Authenticator,
+      useClass: Authenticator,
     },
     {
       provide: QRCODE,
-      useValue: Qrcode,
+      useClass: Qrcode,
     },
   ],
   controllers: [TwoFactorAuthController],

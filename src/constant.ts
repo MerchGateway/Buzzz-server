@@ -4,3 +4,5 @@ export const EMAIL_PROVIDER = 'EMAIL_PROVIDER';
 export const AUTHENTICATOR = 'AUTHENTICATOR';
 export const QRCODE = 'QRCODE';
 export const AUTH_APP_NAME='BUZZZ'
+export const PUSH_NOTIFICATION = 'PUSH_NOTIFICATION';
+
