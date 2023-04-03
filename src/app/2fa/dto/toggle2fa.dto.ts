@@ -1,6 +1,11 @@
-import { IsObject } from 'class-validator';
+import { IsBoolean, IsObject, IsOptional, IsString } from 'class-validator';
+import { Authtype } from 'src/types/authenticator';
 
 export class Toggle2faDto {
-  @IsObject()
+  @IsBoolean()
  allow2fa : boolean;
+ 
+ @IsOptional()
+ @IsString()
+ twoFactorType:string
 }

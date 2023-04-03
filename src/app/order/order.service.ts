@@ -57,14 +57,7 @@ export class OrderService {
             };
           }
 
-          // const newOrder = this.orderRepository.create({
-          //   user,
-          //   cart,
-          //   shipping_details: {
-          //     shipping_address: payload.shipping_address,
-          //   },
-          // });
-          // // // save cart items
+         // // save cart items
 
           return await this.orderRepository.save(order);
           // return await connection.manager.save(order);

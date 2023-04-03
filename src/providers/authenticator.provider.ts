@@ -17,6 +17,7 @@ export class Authenticator implements AuthenticatorProvider {
     };
   }
   verifyTwoFactorToken(token: string, secret: string) {
+    console.log(token,secret)
     return authenticator.verify({
       token,
       secret,

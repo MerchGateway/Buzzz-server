@@ -26,7 +26,6 @@ import { WalletModule } from './wallet/wallet.module';
 import { WalletTransactionsModule } from './wallet-transactions/wallet-transactions.module';
 import { NotificationModule } from './notification/notification.module';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
@@ -45,7 +44,6 @@ import { NotificationModule } from './notification/notification.module';
     CustomersModule,
     AnalyticsModule,
     NotificationModule,
-
   ],
   controllers: [AppController],
   providers: [
@@ -63,7 +61,8 @@ import { NotificationModule } from './notification/notification.module';
       provide: APP_INTERCEPTOR,
       useClass: ErrorsInterceptor,
     },
-   
+
+    
   ],
 })
 export class AppModule {}

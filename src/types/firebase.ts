@@ -5,11 +5,13 @@ import { User } from 'src/app/users/entities/user.entity';
 export interface Payload {
   title: string;
   body: string;
-  token: string;
+  
+ 
 }
 export interface FireBaseProvider {
   sendPushNotification: (
-    options: Payload,
-    user: User,
+    token:string,
+    options: Payload
+   
   ) => Promise<Notification | HttpException>;
 }

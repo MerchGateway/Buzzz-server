@@ -36,8 +36,6 @@ export class Notification extends BaseEntity {
   @Column({ type: 'enum', enum: Status, default: Status.UNREAD })
   status: string;
 
-  @Column({ type: 'varchar' })
-  token: string;
   @CreateDateColumn()
   created_at: Date;
 

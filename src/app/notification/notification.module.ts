@@ -3,24 +3,23 @@ import { NotificationService } from './notification.service';
 import { NotificationController } from './notification.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Notification } from './entities/notification.entity';
-import { PUSH_NOTIFICATION } from 'src/constant';
-import { PushNotification } from 'src/providers/firebase-push-notification.provider';
+
 import { ConfigService } from '@nestjs/config';
-import * as firebase from 'firebase-admin';
+import { PushNotification } from 'src/providers/firebase-push-notification.provider';
+import { PUSH_NOTIFICATION } from 'src/constant';
+
+import { User } from '../users/entities/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Notification])],
+  imports: [TypeOrmModule.forFeature([Notification, User])],
   providers: [
     NotificationService,
     {
       provide: PUSH_NOTIFICATION,
-      useFactory: (
-        configService: ConfigService,
-        notificationService: NotificationService
-      ) => {
-        return new PushNotification(configService, notificationService);
+      useFactory: (configService: ConfigService) => {
+        return new PushNotification(configService);
       },
-      inject: [ConfigService, NotificationService],
+      inject: [ConfigService],
     },
   ],
   controllers: [NotificationController],

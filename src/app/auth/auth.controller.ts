@@ -7,6 +7,7 @@ import {
   Get,
   Patch,
   Res,
+  HttpStatus,
 } from '@nestjs/common';
 import { Public } from '../../decorators/public.decorator';
 import { CurrentUser } from '../../decorators/user.decorator';
@@ -20,31 +21,28 @@ import { GoogleOauthGuard } from './guards/google-oauth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { TwitterOauthGuard } from './guards/twitter-oauth.guard';
 import { UpdatePasswordDto } from './dto/update-password.dto';
-import { twoFactorAuthService } from '../2fa/twoFactorAuth.service';
-
+import { TwoFactorAuthService } from '../2fa/twoFactorAuth.service';
+import { TwoFactorJwtAuthGuard } from '../2fa/guard/twoFactor-jwt-auth-guard';
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly twoFactorAuthService: twoFactorAuthService,
+    private readonly twoFactorAuthService: TwoFactorAuthService,
   ) {}
 
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('signin')
   @HttpCode(200)
-  signin(
-    @Body() localSignin: LocalSigninDto,
-    @CurrentUser() user: User,
-    @Res() stream: Response,
-  ) {
-    if (
-      user.twoFactorAuthentication.allow2fa == true &&
-      user.twoFactorAuthentication.isTwoFactorVerified == false
-    ) {
-      return this.twoFactorAuthService.initialize2fa(user, stream);
-    }
+  signin(@Body() localSignin: LocalSigninDto, @CurrentUser() user: User) {
     return this.authService.signin(user);
+  }
+
+  @HttpCode(HttpStatus.ACCEPTED)
+  @UseGuards(TwoFactorJwtAuthGuard)
+  @Post('2fa-signin')
+  signinWith2fa(@CurrentUser() user: User) {
+    return this.twoFactorAuthService.signinWith2fa(user);
   }
 
   @Public()

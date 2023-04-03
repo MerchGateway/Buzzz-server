@@ -5,8 +5,7 @@ import {
   Inject,
   HttpStatus,
 } from '@nestjs/common';
-import { totp } from 'otplib';
-import { toFileStream } from 'qrcode';
+
 import { Toggle2faDto } from './dto/toggle2fa.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -15,59 +14,65 @@ import { User } from '../users/entities/user.entity';
 import { AUTHENTICATOR, QRCODE } from 'src/constant';
 import { AuthenticatorProvider } from 'src/types/authenticator';
 import { QrcodeProvider } from 'src/types/qrcode';
-import { JwtPayload } from '../auth/guards/jwt.strategy';
-import { WalletService } from '../wallet/wallet.service';
-import { JwtService } from '@nestjs/jwt';
 import { EMAIL_PROVIDER } from '../../constant';
 import { EmailProvider } from '../../types/email';
 import { SuccessResponse } from 'src/utils/response';
 import { Authtype } from 'src/types/authenticator';
-import { AuthService } from '../auth/auth.service';
 
 @Injectable()
-export class twoFactorAuthService {
+export class TwoFactorAuthService {
   constructor(
-    private jwtService: JwtService,
-    private authService: AuthService,
     @InjectRepository(TwoFactorAuth)
     private readonly twoFactorAuthRepository: Repository<TwoFactorAuth>,
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private readonly walletService: WalletService,
     @Inject(AUTHENTICATOR) private authenticator: AuthenticatorProvider,
     @Inject(QRCODE) private qrcode: QrcodeProvider,
     @Inject(EMAIL_PROVIDER)
     private emailProvider: EmailProvider,
   ) {}
 
-  public async toggle2fa(
-    payload: Toggle2faDto,
-    user: User,
-  ): Promise<User | undefined> {
+  public async toggle2fa(payload: Toggle2faDto, user: User): Promise<any> {
     try {
-      return this.userRepository.save({
+      if (payload.allow2fa == false) {
+        await this.userRepository.save({
+          ...user,
+          isTwoFactorVerified: false,
+          allow2fa: false,
+        });
+        return new SuccessResponse(
+          {},
+          'two factor authentication turned off successfully',
+          200,
+        );
+      }
+      await this.userRepository.save({
         ...user,
-        twoFactorAuthentication: {
-          allow2fa: payload.allow2fa,
-        },
+        isTwoFactorVerified: false,
+        allow2fa: true,
       });
+
+      return await this.initialize2fa(user);
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
   }
 
-  private async generateOtp(user: User): Promise<any | undefined> {
+  async generateOtp(user: User): Promise<any> {
     try {
       const twoFaSecret =
         await this.authenticator.generateTwoFactorAuthenticationSecret(user);
 
       const token = this.authenticator.generate(twoFaSecret.secret);
 
-      const twoFactorAuthData = this.twoFactorAuthRepository.create({
-        user,
-        secret: twoFaSecret.secret,
-      });
+      const twoFactorAuthData = new TwoFactorAuth();
+      twoFactorAuthData.user = user;
+      twoFactorAuthData.secret = twoFaSecret.secret;
+      // const twoFactorAuthData = this.twoFactorAuthRepository.create({
+      //   user,
+      //   secret: twoFaSecret.secret,
+      // });
 
       await this.twoFactorAuthRepository.save(twoFactorAuthData);
 
@@ -78,7 +83,6 @@ export class twoFactorAuthService {
         subject: 'Login OTP',
       });
 
-      
       return new SuccessResponse(
         {},
         'OTP sent to registered email',
@@ -89,10 +93,7 @@ export class twoFactorAuthService {
     }
   }
 
-  private async generateQrCode(
-    user: User,
-    stream: Response,
-  ): Promise<User | undefined> {
+  private async generateQrCode(user: User): Promise<{ qrcode: any }> {
     try {
       const twoFaSecret =
         await this.authenticator.generateTwoFactorAuthenticationSecret(user);
@@ -105,25 +106,29 @@ export class twoFactorAuthService {
         this.twoFactorAuthRepository.create({
           user,
           secret: twoFaSecret.secret,
-          twofactorUri: twoFaSecret.otpauthUrl,
-          twofactorQrCode: qrcodeDataUrl,
         });
 
       await this.twoFactorAuthRepository.save(generatedQrData);
-      //  return a qrcode image to client (png)
-      return this.qrCodeStreamPipe(stream, qrcodeDataUrl);
+      //  return a qrcode image url to client (png)
+
+      return { qrcode: qrcodeDataUrl };
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
   }
 
-  public async initialize2fa(
-    user: User,
-    stream: Response,
-  ): Promise<any | undefined> {
+  public async initialize2fa(user: User): Promise<any> {
     try {
-      if (user.twoFactorAuthentication.type === Authtype.GOOGLE) {
-        return this.generateQrCode(user, stream);
+      // ensure 2fa is turned uon
+      if (user.allow2fa == false) {
+        await this.userRepository.save({
+          ...user,
+          allow2fa: true,
+          isTwoFactorVerified: false,
+        });
+      }
+      if (user.twoFactorType === Authtype.GOOGLE) {
+        return this.generateQrCode(user);
       }
       return this.generateOtp(user);
     } catch (err: any) {
@@ -131,34 +136,20 @@ export class twoFactorAuthService {
     }
   }
 
-  async verify2faToken(token: string, user: User) {
+  async verify2faToken(token: string, user: User): Promise<any> {
     // select the most recently created 2fa  entity
-    const isToken: TwoFactorAuth = await this.twoFactorAuthRepository.findOne({
-      where: { user: { id: user.id } },
-      relations: { user: true },
-      select: ['secret'],
-    });
 
-    // if there hasnt been any record of 2fa,decline them access to proceed
-    if (!isToken) {
-      return new UnauthorizedException();
-    }
+    const isToken: TwoFactorAuth =
+      await this.twoFactorAuthRepository.findOneOrFail({
+        where: { user: { id: user.id } },
+        relations: ['user'],
+        select: ['id', 'secret'],
+      });
 
     return this.authenticator.verifyTwoFactorToken(token, isToken.secret);
   }
 
-  public async qrCodeStreamPipe(stream: Response, otpPathUrl: string) {
-    return toFileStream(stream, otpPathUrl);
-  }
-
-  public async signinWith2fa(user: User) {
-    if (
-      user.twoFactorAuthentication.allow2fa &&
-      user.twoFactorAuthentication.isTwoFactorVerified == false
-    ) {
-      return new UnauthorizedException('Invalid credentials');
-    }
-
-    return this.authService.signin(user);
+  public async signinWith2fa(user: User): Promise<any> {
+    return new SuccessResponse(user, 'Signin successful');
   }
 }

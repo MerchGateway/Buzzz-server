@@ -70,25 +70,28 @@ export class User {
   @Column({ name: 'is_public', default: true })
   isPublic: boolean;
 
-  @Column({ name: 'notification', default: true })
+  @Column({ name: 'notification', default: false })
   allowNotification: boolean;
 
   @Column({
-    name: '2fa',
-    type: 'simple-json',
-    default: {
-      allow2Fa: false,
-      isTwoFactorVerified: false,
-      type: Authtype.INAPP,
-    },
+    name: 'registeration-token',
+    type: 'varchar',
+    nullable: true,
+    unique:true,
+    select: false,
   })
-  twoFactorAuthentication: {
-    allow2fa: boolean;
-    isTwoFactorVerified: boolean;
-    type: Authtype;
-  };
+  registerationToken: string;
 
-  @Column({ name: 'show_email', default: true })
+  @Column({ name: 'allow_twofactor_authentication', type: 'bool', default: false })
+  allow2fa: boolean;
+
+  @Column({ name: 'is_twofactor_verified', type: 'bool', default: false })
+  isTwoFactorVerified: boolean;
+
+  @Column({ name: 'two_factor_type', type: 'enum', enum:Authtype, default: Authtype.GOOGLE })
+  twoFactorType: Authtype;
+
+  @Column({ name: 'show_email', type: 'bool', default: true })
   showEmail: boolean;
 
   @Column({ nullable: true })
