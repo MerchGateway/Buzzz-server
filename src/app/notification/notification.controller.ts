@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Query,
+  Get,
 } from '@nestjs/common';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/types/general';
@@ -25,7 +26,7 @@ CreateNotificationDto;
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
-  @Post('fetch-notification')
+  @Get('fetch-notification')
   @HttpCode(HttpStatus.FOUND)
   fetchNotification(@CurrentUser() user: User) {
     return this.notificationService.fetchNotification(user);
