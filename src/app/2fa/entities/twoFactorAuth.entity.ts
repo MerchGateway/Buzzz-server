@@ -24,9 +24,7 @@ export class TwoFactorAuth extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User, {
-    cascade: true,
-  })
+  @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })
   user: User;
 

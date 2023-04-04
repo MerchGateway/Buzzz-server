@@ -35,7 +35,9 @@ export class TwoFactorAuthService {
 
   public async toggle2fa(payload: Toggle2faDto, user: User): Promise<any> {
     try {
+
       if (payload.allow2fa == false) {
+      
         await this.userRepository.save({
           ...user,
           isTwoFactorVerified: false,
@@ -46,14 +48,15 @@ export class TwoFactorAuthService {
           'two factor authentication turned off successfully',
           200,
         );
-      }
-      await this.userRepository.save({
+      }  console.log(user)
+    const updatedUser=  await this.userRepository.save({
         ...user,
         isTwoFactorVerified: false,
         allow2fa: true,
       });
 
-      return await this.initialize2fa(user);
+      console.log('passed here')
+      return await this.initialize2fa(updatedUser);
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
@@ -127,6 +130,7 @@ export class TwoFactorAuthService {
           isTwoFactorVerified: false,
         });
       }
+      console.log("passed init save")
       if (user.twoFactorType === Authtype.GOOGLE) {
         return this.generateQrCode(user);
       }
