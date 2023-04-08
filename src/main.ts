@@ -11,7 +11,7 @@ async function bootstrap() {
   app.enableCors();
   // const config: ConfigService = app.get(ConfigService);
   // const port: number = config.get<number>('port');
-  await app.listen(process.env.PORT || 5000);
+  await app.listen(process.env.PORT || 8080);
   // create default categories after all routes must have loaded
   createDefaultCategories();
 }
