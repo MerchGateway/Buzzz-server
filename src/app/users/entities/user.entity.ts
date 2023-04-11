@@ -2,10 +2,12 @@ import * as bcrypt from 'bcrypt';
 import { Role } from 'src/types/general';
 import { Authtype } from 'src/types/authenticator';
 import { IdentityProvider } from 'src/types/user';
+import * as usernameGenerator from 'unique-username-generator';
 
 import {
   BeforeInsert,
   BeforeUpdate,
+  AfterInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -14,11 +16,18 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
 import { Wallet } from '../../wallet/entities/wallet.entity';
 import { Product } from 'src/app/product/product.entity';
+import { Inject } from '@nestjs/common';
 
 @Entity()
 export class User {
+  constructor(
+    @Inject('USERNAME_GENERATOR')
+    private usernameGenerator: usernameGenerator,
+  ) {}
+
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -77,18 +86,27 @@ export class User {
     name: 'registeration-token',
     type: 'varchar',
     nullable: true,
-    unique:true,
+    unique: true,
     select: false,
   })
   registerationToken: string;
 
-  @Column({ name: 'allow_twofactor_authentication', type: 'bool', default: false })
+  @Column({
+    name: 'allow_twofactor_authentication',
+    type: 'bool',
+    default: false,
+  })
   allow2fa: boolean;
 
   @Column({ name: 'is_twofactor_verified', type: 'bool', default: false })
   isTwoFactorVerified: boolean;
 
-  @Column({ name: 'two_factor_type', type: 'enum', enum:Authtype, default: Authtype.GOOGLE })
+  @Column({
+    name: 'two_factor_type',
+    type: 'enum',
+    enum: Authtype,
+    default: Authtype.GOOGLE,
+  })
   twoFactorType: Authtype;
 
   @Column({ name: 'show_email', type: 'bool', default: true })
@@ -96,6 +114,9 @@ export class User {
 
   @Column({ nullable: true })
   instagram: string;
+
+  @Column({ nullable: true })
+  username: string;
 
   @Column({ nullable: true })
   facebook: string;
@@ -123,6 +144,13 @@ export class User {
   private async hashPassword() {
     const salt = await bcrypt.genSalt(10);
     this.password = bcrypt.hashSync(this.password, salt);
+  }
+
+  @BeforeInsert()
+  private async setUsername() {
+    const username = await this.usernameGenerator.generateFromEmail(this.email, 3);
+    this.username = username;
+    console.log(this.username);
   }
 
   public async matchPassword(enteredPassword: string) {
