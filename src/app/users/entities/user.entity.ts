@@ -3,7 +3,6 @@ import { Role } from 'src/types/general';
 import { Authtype } from 'src/types/authenticator';
 import { IdentityProvider } from 'src/types/user';
 
-
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -26,7 +25,7 @@ import { UsernameGenerator } from 'src/providers/usernameGenerator.provider';
 export class User {
   constructor(
     @Inject('USERNAME_GENERATOR')
-    private usernameGenerator:UsernameGenerator,
+    private usernameGenerator: UsernameGenerator,
   ) {}
 
   @PrimaryGeneratedColumn('uuid')
@@ -148,8 +147,8 @@ export class User {
   }
 
   @BeforeInsert()
-  private async setUsername() {
-    const username = await this.usernameGenerator.generateFromEmail(this.email, 3);
+  private setUsername() {
+    const username = this.usernameGenerator.generateFromEmail(this.email, 3);
     this.username = username;
     console.log(this.username);
   }
