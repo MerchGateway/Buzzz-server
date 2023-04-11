@@ -2,7 +2,7 @@ import * as bcrypt from 'bcrypt';
 import { Role } from 'src/types/general';
 import { Authtype } from 'src/types/authenticator';
 import { IdentityProvider } from 'src/types/user';
-import * as usernameGenerator from 'unique-username-generator';
+
 
 import {
   BeforeInsert,
@@ -20,12 +20,13 @@ import {
 import { Wallet } from '../../wallet/entities/wallet.entity';
 import { Product } from 'src/app/product/product.entity';
 import { Inject } from '@nestjs/common';
+import { UsernameGenerator } from 'src/providers/usernameGenerator.provider';
 
 @Entity()
 export class User {
   constructor(
     @Inject('USERNAME_GENERATOR')
-    private usernameGenerator: usernameGenerator,
+    private usernameGenerator:UsernameGenerator,
   ) {}
 
   @PrimaryGeneratedColumn('uuid')
