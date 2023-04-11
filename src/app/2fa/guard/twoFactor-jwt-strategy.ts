@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { ExtractJwt } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
+
 class CustomRequest extends Request {
   user: User;
 }
@@ -20,28 +21,26 @@ export class TwofactorJwtStrategy extends PassportStrategy(
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private configService:ConfigService,
+    private configService: ConfigService,
     private twoFactorService: TwoFactorAuthService,
   ) {
-     console.log('two factor strategy');
+    console.log('two factor strategy');
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: configService.get('jwt.secret'),
       passReqToCallback: true,
     });
   }
- 
 
-  async validate(req: CustomRequest, payload:any) {
-    let  body=req.body as unknown as {token:string}
-     
+  async validate(req: CustomRequest, payload: any) {
+    let body = req.body as unknown as { token: string };
+
     const isValidToken = await this.twoFactorService.verify2faToken(
-     body.token,
+      body.token,
       req.user,
     );
-    
 
-    console.log(isValidToken)
+    console.log(isValidToken);
     const user: User = await this.userRepository.findOne({
       where: { id: payload.sub },
     });
@@ -50,10 +49,10 @@ export class TwofactorJwtStrategy extends PassportStrategy(
     }
 
     // update user  2fa state
-   
+
     return await this.userRepository.save({
       ...user,
-      isTwoFactorVerified : true,
+      isTwoFactorVerified: true,
     });
   }
 }
