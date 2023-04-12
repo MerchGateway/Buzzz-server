@@ -146,6 +146,7 @@ export class User {
     this.password = bcrypt.hashSync(this.password, salt);
   }
 
+@BeforeUpdate()
   @BeforeInsert()
   private setUsername() {
     // ensure username is generated only once as long as it is already set
