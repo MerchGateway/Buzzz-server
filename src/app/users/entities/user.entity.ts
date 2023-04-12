@@ -148,9 +148,12 @@ export class User {
 
   @BeforeInsert()
   private setUsername() {
-    const username = this.usernameGenerator.generateFromEmail(this.email, 3);
-    this.username = username;
-    console.log(this.username);
+    // ensure username is generated only once as long as it is already set
+    if (!this.username) {
+      const username = this.usernameGenerator.generateFromEmail(this.email, 3);
+      this.username = username;
+      console.log(this.username);
+    }
   }
 
   public async matchPassword(enteredPassword: string) {

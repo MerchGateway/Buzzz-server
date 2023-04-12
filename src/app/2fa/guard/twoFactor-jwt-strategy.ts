@@ -1,3 +1,4 @@
+import { Request  } from 'express';
 import { Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
@@ -7,10 +8,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ExtractJwt } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
-import { Request } from 'express';
 
-class CustomRequest extends Request {
+export interface CustomRequest extends Request {
   user: User;
+ 
 }
 
 @Injectable()
