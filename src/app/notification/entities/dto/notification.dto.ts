@@ -1,9 +1,7 @@
 import {
-  IsOptional,
-  IsArray,
-  IsObject,
   IsString,
-  IsUUID,
+
+  IsEmail,
 } from 'class-validator';
 import { Status } from '../../../../types/notification';
 export class CreateNotificationDto {
@@ -11,8 +9,8 @@ export class CreateNotificationDto {
   title: string;
   @IsString()
   message: string;
-  @IsUUID()
-  userId: string;
+  @IsEmail()
+  email: string;
 }
 
 export class CreateMultipleNotificationDto {

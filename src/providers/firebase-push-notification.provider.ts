@@ -6,10 +6,10 @@ import {
   Message,
   MulticastMessage,
 } from 'firebase-admin/lib/messaging/messaging-api';
-import { NotificationService } from 'src/app/notification/notification.service';
-import { User } from 'src/app/users/entities/user.entity';
 import * as firebaseCredentials from '../assets/data/firebase_adminsdk.json';
 import { ServiceAccount } from 'firebase-admin';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 
 @Injectable()
 export class PushNotification implements FireBaseProvider {
@@ -26,24 +26,24 @@ export class PushNotification implements FireBaseProvider {
   }
 
   public async sendPushNotification(token: string, message: Payload) {
-    const payload = {
-      title: message.title,
-      message: message.body,
-    };
+    // console.log(resolve(__dirname, '../assets/images/logo.svg'));
+    
 
     const pushMessage: Message = {
       notification: {
         title: message.title,
         body: message.body,
-        imageUrl: '',
+        imageUrl: 'https://buzzz-chi.vercel.app/svg/logo.svg',
       },
       token,
       android: { priority: 'high' },
     };
 
     try {
-      await this.admin.messaging().send(pushMessage, true);
+      const sent = await this.admin.messaging().send(pushMessage, true);
+      console.log(token,sent);
     } catch (err) {
+      console.log(err)
       return new HttpException(err.message, err.status);
     }
   }
@@ -53,7 +53,7 @@ export class PushNotification implements FireBaseProvider {
       notification: {
         title: message.title,
         body: message.body,
-        imageUrl: '',
+        imageUrl: resolve(__dirname, 'src/assets/images/logo.svg'),
       },
       tokens,
       android: { priority: 'high' },

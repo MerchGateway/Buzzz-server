@@ -44,15 +44,16 @@ export class NotificationService {
   }
 
   private async getUserWithRegisterationToken(
-    user: string,
+    email: string,
   ): Promise<User | undefined> {
     try {
       const userWithToken = await this.userRepository.findOne({
-        where: { id: user, allowNotification: true },
-        select: ['registerationToken'],
+        where: { email  },
+        select: ['id','registerationToken',"allowNotification"],
       });
 
-      if (userWithToken && !userWithToken.registerationToken) {
+
+      if (!userWithToken) {
         return;
       }
       return userWithToken;
@@ -66,13 +67,17 @@ export class NotificationService {
   ): Promise<Notification> {
     try {
       const isRegisteredToken = await this.getUserWithRegisterationToken(
-        payload.userId,
+        payload.email,
       );
+     
 
+      if(!isRegisteredToken){
+        throw new NotFoundException(`User  with provided email ${payload.email} not  found`)
+      }
       const notification = this.notificationRepository.create({
         title: payload.title,
         message: payload.message,
-        user: { id: payload.userId },
+        user: { id: isRegisteredToken.id },
       });
 
       const savedNotifications = await this.notificationRepository.save(
@@ -80,7 +85,7 @@ export class NotificationService {
       );
       console.log(notification);
 
-      if (isRegisteredToken) {
+      if (isRegisteredToken &&  isRegisteredToken.allowNotification==true ) {
         // send push notification
 
         this.pushNotificationProvider.sendPushNotification(

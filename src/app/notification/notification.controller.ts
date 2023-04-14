@@ -52,7 +52,7 @@ export class NotificationController {
   }
 
   @Post('create-notification')
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.PUBLISHER)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.PUBLISHER,Role.USER)
   @HttpCode(HttpStatus.CREATED)
   createNotification(@Body() payload: CreateNotificationDto) {
     return this.notificationService.createNotification(payload);
