@@ -113,14 +113,11 @@ export class PaystackBrokerService {
     // return authorization data for users to complete their transactions
   }
 
- 
-
   public async createRefund(transaction: string) {
     // console.log(transaction);
     const refund = await this.axiosConnection.post('/refund', { transaction });
     return { data: refund.data };
   }
-
 
   private async handleGetPayRecord(id: string) {
     const record = await this.paymentRepository.findOne({ where: { id } });
