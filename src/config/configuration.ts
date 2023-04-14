@@ -50,7 +50,7 @@ export default () => ({
   },
   firebaseCredentials: {
     type: process.env.TYPE,
-   firebase_image_url=process.env.FIREBASE_IMAGE_URL,
+   firebase_image_url:process.env.FIREBASE_IMAGE_URL,
     project_id: process.env.PROJECT_ID,
     private_key_id: process.env.PRIVATE_KEY_ID,
     private_key: process.env.PRIVATE_KEY,
