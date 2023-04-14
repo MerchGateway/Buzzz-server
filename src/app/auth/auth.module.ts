@@ -20,7 +20,7 @@ import { WalletModule } from '../wallet/wallet.module';
 
 import { NotificationModule } from '../notification/notification.module';
 import { TwoFactorAuthModule } from '../2fa/twoFactorAuth.module';
-import { Repository } from 'typeorm';
+
 
 @Module({
   imports: [

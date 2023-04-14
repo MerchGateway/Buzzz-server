@@ -10,7 +10,7 @@ import {
 
 @Injectable()
 export class UsernameGenerator implements UsernameGeneratorInterface {
-  public generateFromEmail(email: string, random: number) {
+  public generateUsernameFromEmail(email: string, random: number) {
     return generateFromEmail(email, random);
   }
   public generateUniqueUsername(config: Config) {

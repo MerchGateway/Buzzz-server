@@ -32,7 +32,7 @@ export class Product extends BaseEntity {
   isPublished: boolean;
 
   @CreateDateColumn()
-  @PrimaryColumn()
+  @PrimaryColumn()  
   categoryId: string;
 
   @ManyToOne(() => Category, (category) => category.products)

@@ -69,18 +69,6 @@ export class ProductService {
       throw err;
     }
   }
-  async handleQueryProductsBySellerUsername(
-    { limit, page, route }: IPaginationOptions,
-    username: string,
-  ) {
-    const searchResult = this.productRepository
-      .createQueryBuilder('product')
-      .where('product.seller.username= :username', {
-        seller: { username },
-      });
-
-    return paginate<Product>(searchResult, { limit, page, route });
-  }
 
   async handleQueryProducts(
     { limit, page, route }: IPaginationOptions,
@@ -88,12 +76,14 @@ export class ProductService {
   ) {
     const searchResult = this.productRepository
       .createQueryBuilder('product')
+      .leftJoinAndSelect('product.seller', 'seller')
       .where(
-        'product.name = :name OR product.price = :price OR product.sellerId= :sellerId',
+        'product.name = :name OR product.price = :price OR product.sellerId= :sellerId OR seller.username= :username ',
         {
           name: searchQuery?.name,
           price: searchQuery?.price,
           sellerId: searchQuery?.sellerId,
+          username: searchQuery?.username,
         },
       );
 

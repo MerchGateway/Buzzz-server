@@ -7,6 +7,6 @@ export interface Config {
 }
 
 export interface UsernameGeneratorInterface {
-  generateFromEmail: (email: string, random: number) => string;
+  generateUsernameFromEmail: (email: string, random: number) => string;
   generateUniqueUsername: (config: Config) => string;
 }

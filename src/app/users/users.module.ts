@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { WalletModule } from '../wallet/wallet.module';
 import { UsernameGenerator } from 'src/providers/usernameGenerator.provider';
+import { USERNAME_GENERATOR } from 'src/constant';
 
 @Module({
   imports: [WalletModule, TypeOrmModule.forFeature([User])],
@@ -12,7 +13,7 @@ import { UsernameGenerator } from 'src/providers/usernameGenerator.provider';
   providers: [
     UsersService,
     {
-      provide: 'USERNAME_GENERATOR',
+      provide: USERNAME_GENERATOR,
       useClass: UsernameGenerator,
     },
   ],

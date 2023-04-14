@@ -75,23 +75,7 @@ export class ProductController {
     return this.service.handleEditProduct(body, id);
   }
 
-  //seach or filter product by price || name || or any other field that would be added
-  @Public()
-  @Get('search:username')
-  public queryProductsBySellerUsername(
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
-    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
-    @Param('username') username: string,
-  ) {
-    return this.service.handleQueryProductsBySellerUsername(
-      {
-        limit,
-        page,
-        route: 'http://localhost:5000/product/search/:username',
-      },
-      username,
-    );
-  }
+  
 
   //seach or filter product by price || name || or any other field that would be added
   @Public()

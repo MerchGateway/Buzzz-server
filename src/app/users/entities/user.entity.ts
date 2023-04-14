@@ -19,14 +19,19 @@ import {
 import { Wallet } from '../../wallet/entities/wallet.entity';
 import { Product } from 'src/app/product/product.entity';
 import { Inject } from '@nestjs/common';
-import { UsernameGenerator } from 'src/providers/usernameGenerator.provider';
+// import { UsernameGenerator } from 'src/providers/usernameGenerator.provider';
+// import { USERNAME_GENERATOR } from 'src/constant';
+import {
+  generateFromEmail,
+  uniqueUsernameGenerator,
+} from 'unique-username-generator';
 
 @Entity()
 export class User {
-  constructor(
-    @Inject('USERNAME_GENERATOR')
-    private usernameGenerator: UsernameGenerator,
-  ) {}
+  // constructor(
+  //   @Inject(USERNAME_GENERATOR)
+  //   private readonly usernameGenerator: UsernameGenerator
+  // ) {}
 
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -151,7 +156,8 @@ export class User {
   private setUsername() {
     // ensure username is generated only once as long as it is already set
     if (!this.username) {
-      const username = this.usernameGenerator.generateFromEmail(this.email, 3);
+     
+      const username = generateFromEmail(this.email, 3);
       this.username = username;
       console.log(this.username);
     }
