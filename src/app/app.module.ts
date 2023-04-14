@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -24,6 +24,8 @@ import { CustomersModule } from './customers/customers.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { WalletModule } from './wallet/wallet.module';
 import { WalletTransactionsModule } from './wallet-transactions/wallet-transactions.module';
+import { NotificationModule } from './notification/notification.module';
+
 
 @Module({
   imports: [
@@ -42,6 +44,7 @@ import { WalletTransactionsModule } from './wallet-transactions/wallet-transacti
     WalletTransactionsModule,
     CustomersModule,
     AnalyticsModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [
@@ -59,6 +62,8 @@ import { WalletTransactionsModule } from './wallet-transactions/wallet-transacti
       provide: APP_INTERCEPTOR,
       useClass: ErrorsInterceptor,
     },
+
+    
   ],
 })
 export class AppModule {}

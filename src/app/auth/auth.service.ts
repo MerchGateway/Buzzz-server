@@ -7,6 +7,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { PushNotification } from 'src/providers/firebase-push-notification.provider';
+import { PUSH_NOTIFICATION } from '../../constant';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/app/users/entities/user.entity';
 import { MoreThanOrEqual, Repository } from 'typeorm';
@@ -24,6 +26,8 @@ import { EMAIL_PROVIDER, PASSWORD_RESET_TOKEN_EXPIRY } from '../../constant';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { WalletService } from '../wallet/wallet.service';
+import { Authtype } from 'src/types/authenticator';
+import { TwoFactorAuthService } from '../2fa/twoFactorAuth.service';
 
 @Injectable()
 export class AuthService {
@@ -36,7 +40,9 @@ export class AuthService {
     private readonly logger: WinstonLoggerService,
     @Inject(EMAIL_PROVIDER)
     private emailProvider: EmailProvider,
+   
     private readonly walletService: WalletService,
+    private readonly twoFactorAuthService: TwoFactorAuthService,
   ) {
     this.logger.setContext(AuthService.name);
   }
@@ -48,6 +54,7 @@ export class AuthService {
       .addSelect('user.password')
       .getOne();
 
+    console.log(user);
     if (!user) {
       return null;
     }
@@ -81,14 +88,18 @@ export class AuthService {
 
   async postSignin(user: User) {
     const payload: JwtPayload = { sub: user.id, role: user.role };
-
     user.password && delete user.password;
 
+    // get refreshed push notification registeration token eachtime on signin to capture possible new device
+
+    
     if (!user.wallet) {
       const wallet = await this.walletService.createWallet();
-      user = await this.userRepository.save({ ...user, wallet });
-    }
-
+      user = await this.userRepository.save({
+        ...user,
+        wallet
+      });
+    } 
     return {
       user,
       accessToken: this.jwtService.sign(payload),
@@ -98,11 +109,35 @@ export class AuthService {
   async signin(user: User) {
     const data = await this.postSignin(user);
 
+    if (user.allow2fa == true) {
+      // always reset two factor verify status to false on login
+      const updatedUserData = await this.userRepository.save({
+        ...data.user,
+        isTwoFactorVerified: false,
+      });
+
+      if (user.twoFactorType === Authtype.INAPP) {
+        // send  login token
+        await this.twoFactorAuthService.generateOtp(user);
+      }
+      const tokenLocation =
+        user.twoFactorType === Authtype.GOOGLE
+          ? 'google authenticator app'
+          : 'registered email';
+
+      return new SuccessResponse(
+        { ...updatedUserData, accessToken: data.accessToken },
+        `Continue sign in by providing an authorization token from your ${tokenLocation} `,
+      );
+    }
     return new SuccessResponse(data, 'Signin successful');
   }
 
   async signup(signupUserDto: SignupUserDto) {
-    const user = this.userRepository.create(signupUserDto);
+    let user: User;
+
+    user = this.userRepository.create(signupUserDto);
+
     await this.userRepository.save(user);
 
     const data = await this.postSignin(user);

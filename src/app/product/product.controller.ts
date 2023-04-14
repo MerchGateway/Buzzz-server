@@ -75,6 +75,8 @@ export class ProductController {
     return this.service.handleEditProduct(body, id);
   }
 
+  
+
   //seach or filter product by price || name || or any other field that would be added
   @Public()
   @Get('search')

@@ -69,20 +69,26 @@ export class ProductService {
       throw err;
     }
   }
+
   async handleQueryProducts(
     { limit, page, route }: IPaginationOptions,
     searchQuery: any,
   ) {
     const searchResult = this.productRepository
       .createQueryBuilder('product')
-      .where('product.name = :name OR product.price = :price', {
-        name: searchQuery?.name,
-        price: searchQuery?.price,
-      });
+      .leftJoinAndSelect('product.seller', 'seller')
+      .where(
+        'product.name = :name OR product.price = :price OR product.sellerId= :sellerId OR seller.username= :username ',
+        {
+          name: searchQuery?.name,
+          price: searchQuery?.price,
+          sellerId: searchQuery?.sellerId,
+          username: searchQuery?.username,
+        },
+      );
 
     return paginate<Product>(searchResult, { limit, page, route });
   }
-
   async handleGetAProduct(id: string) {
     try {
       const product = await this.productRepository.findOne({
