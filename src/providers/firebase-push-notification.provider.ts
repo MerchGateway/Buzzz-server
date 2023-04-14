@@ -33,7 +33,7 @@ export class PushNotification implements FireBaseProvider {
       notification: {
         title: message.title,
         body: message.body,
-        imageUrl: 'https://buzzz-chi.vercel.app/svg/logo.svg',
+        imageUrl: this.configService.get('firebase_image_url'),
       },
       token,
       android: { priority: 'high' },
