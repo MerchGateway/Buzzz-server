@@ -40,7 +40,7 @@ export class PushNotification implements FireBaseProvider {
     };
 
     try {
-      const sent = await this.admin.messaging().send(pushMessage, true);
+      const sent = await this.admin.messaging().send(pushMessage);
       console.log(token,sent);
     } catch (err) {
       console.log(err)
@@ -60,7 +60,8 @@ export class PushNotification implements FireBaseProvider {
     };
 
     try {
-      return firebase.messaging().sendMulticast(pushMessage, true);
+      return this.admin.messaging()
+        .sendMulticast(pushMessage);
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }

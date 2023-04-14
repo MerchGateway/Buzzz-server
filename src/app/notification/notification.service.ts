@@ -36,10 +36,9 @@ export class NotificationService {
   ): Promise<Notification[] | HttpException> {
     try {
       return await this.notificationRepository.find({
-        where: { user: { id: user.id },
-       },
-        order:{created_at:"DESC"}
-      })
+        where: { user: { id: user.id } },
+        order: { created_at: 'DESC' },
+      });
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
@@ -50,10 +49,9 @@ export class NotificationService {
   ): Promise<User | undefined> {
     try {
       const userWithToken = await this.userRepository.findOne({
-        where: { email  },
-        select: ['id','registerationToken',"allowNotification"],
+        where: { email },
+        select: ['id', 'registerationToken', 'allowNotification'],
       });
-
 
       if (!userWithToken) {
         return;
@@ -71,10 +69,11 @@ export class NotificationService {
       const isRegisteredToken = await this.getUserWithRegisterationToken(
         payload.email,
       );
-     
 
-      if(!isRegisteredToken){
-        throw new NotFoundException(`User  with provided email ${payload.email} not  found`)
+      if (!isRegisteredToken) {
+        throw new NotFoundException(
+          `User  with provided email ${payload.email} not  found`,
+        );
       }
       const notification = this.notificationRepository.create({
         title: payload.title,
@@ -87,7 +86,7 @@ export class NotificationService {
       );
       console.log(notification);
 
-      if (isRegisteredToken &&  isRegisteredToken.allowNotification==true ) {
+      if (isRegisteredToken && isRegisteredToken.allowNotification == true) {
         // send push notification
 
         this.pushNotificationProvider.sendPushNotification(
@@ -152,7 +151,6 @@ export class NotificationService {
     }
   }
 
-  
   public async refreshRegisterationToken(
     user: User,
     payload: TurnOnPushNotificationDto,
