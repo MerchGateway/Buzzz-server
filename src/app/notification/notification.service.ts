@@ -36,8 +36,10 @@ export class NotificationService {
   ): Promise<Notification[] | HttpException> {
     try {
       return await this.notificationRepository.find({
-        where: { user: { id: user.id } },
-      });
+        where: { user: { id: user.id },
+       },
+        order:{created_at:"DESC"}
+      })
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
