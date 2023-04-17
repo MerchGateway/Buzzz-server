@@ -27,12 +27,14 @@ export class Product extends BaseEntity {
 
   @Column({ type: 'numeric' })
   price: number;
+  @Column({ type: 'char', nullable: true })
+  description: string;
 
   @Column({ default: false })
   isPublished: boolean;
 
   @CreateDateColumn()
-  @PrimaryColumn()  
+  @PrimaryColumn()
   categoryId: string;
 
   @ManyToOne(() => Category, (category) => category.products)
@@ -55,7 +57,6 @@ export class Product extends BaseEntity {
   @ManyToOne(() => User, (user) => user.products)
   @JoinColumn()
   seller: User;
-
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

@@ -58,7 +58,7 @@ export class PushNotification implements FireBaseProvider {
       tokens,
       android: { priority: 'high' },
     };
-
+    
     try {
       return this.admin.messaging()
         .sendMulticast(pushMessage);

@@ -15,6 +15,10 @@ export class CreateProductDto {
   @IsNotEmpty()
   public price: number;
 
+  @IsString()
+  @IsNotEmpty()
+  public description: string;
+
   @IsUUID()
   @IsNotEmpty()
   public categoryId: string;
@@ -32,4 +36,8 @@ export class EditProductDto {
   @IsUUID()
   @IsOptional()
   public categoryId: string;
+
+  @IsString()
+  @IsOptional()
+  public description: string;
 }

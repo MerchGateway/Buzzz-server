@@ -24,6 +24,7 @@ export class ProductService {
     product.categoryId = body.categoryId;
     product.seller = user;
     product.sellerId = user.id;
+    product.description = body.description;
     return this.productRepository.save(product);
   }
 
@@ -38,6 +39,7 @@ export class ProductService {
           name: body.name,
           price: body.price,
           categoryId: body.categoryId,
+          description: body.description,
         })
         .execute();
       return await this.handleGetAProduct(id);
