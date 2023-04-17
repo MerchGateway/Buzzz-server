@@ -120,7 +120,7 @@ export class User {
   @Column({ nullable: true })
   instagram: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true,unique:true })
   username: string;
 
   @Column({ nullable: true })
