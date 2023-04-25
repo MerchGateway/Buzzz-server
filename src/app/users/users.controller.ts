@@ -39,7 +39,7 @@ export class UsersController {
   }
 
   @Public()
-  @Get('')
+  @Get('user')
   findOneBy(@Query() query: FindOptionsWhere<User>) {
     return this.usersService.findOneBy(query);
   }
