@@ -36,7 +36,8 @@ export class UsersService {
   }
 
   async findOneBy(conditions: FindOptionsWhere<User>) {
-    const user = await this.userRepository.findOneBy(conditions);
+
+        const user = await this.userRepository.findOneBy(conditions);
 
     if (!user) {
       throw new NotFoundException(

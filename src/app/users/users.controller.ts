@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -13,6 +14,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Public } from 'src/decorators/public.decorator';
 import { CurrentUser } from '../../decorators/user.decorator';
 import { User } from './entities/user.entity';
+import { FindOptionsWhere } from 'typeorm';
 
 @Controller('users')
 export class UsersController {
@@ -29,11 +31,19 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
 
+  @Public()
+  @Get('user')
+  findOneBy(@Query() query: FindOptionsWhere<User>) {
+    return this.usersService.findOneBy(query);
+  }
+  
   @Patch(':id')
   update(@CurrentUser() user: User, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(user, updateUserDto);
