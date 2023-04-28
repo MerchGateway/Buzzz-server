@@ -27,9 +27,11 @@ export class UsersController {
   }
 
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Query() query: FindOptionsWhere<User>) {
+    console.log(query);
+    return this.usersService.findAll(query);
   }
+
 
 
   @Public()
@@ -38,12 +40,6 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
-  @Public()
-  @Get('user')
-  findOneBy(@Query() query: FindOptionsWhere<User>) {
-    return this.usersService.findOneBy(query);
-  }
-  
   @Patch(':id')
   update(@CurrentUser() user: User, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(user, updateUserDto);
