@@ -11,11 +11,16 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToMany,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  BaseEntity,
 } from 'typeorm';
 
+import { LogisticsPartner } from 'src/app/admin/logistics-partners/entities/logistics-partner.entity';
+import { PrintingPartner } from 'src/app/admin/printing-partners/entities/printing-partner.entity';
 import { Wallet } from '../../wallet/entities/wallet.entity';
 import { Product } from 'src/app/product/product.entity';
 import { Inject } from '@nestjs/common';
@@ -27,7 +32,7 @@ import {
 } from 'unique-username-generator';
 
 @Entity()
-export class User {
+export class User extends BaseEntity {
   // constructor(
   //   @Inject(USERNAME_GENERATOR)
   //   private readonly usernameGenerator: UsernameGenerator
@@ -54,7 +59,7 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({nullable:true})
   name: string;
 
   @Column({ select: false, nullable: true })
@@ -86,6 +91,24 @@ export class User {
 
   @Column({ name: 'notification', default: false })
   allowNotification: boolean;
+
+  @ManyToOne(
+    () => PrintingPartner,
+    (printingPartner) => printingPartner.administrators,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
+  printing_partner: PrintingPartner;
+
+  @ManyToOne(
+    () => LogisticsPartner,
+    (logisticsPartner) => logisticsPartner.administrators,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
+  logistics_partner: LogisticsPartner;
 
   @Column({
     name: 'registeration-token',
@@ -120,7 +143,7 @@ export class User {
   @Column({ nullable: true })
   instagram: string;
 
-  @Column({ nullable: true,unique:true })
+  @Column({ nullable: true, unique: true })
   username: string;
 
   @Column({ nullable: true })
@@ -147,8 +170,10 @@ export class User {
   @BeforeInsert()
   @BeforeUpdate()
   private async hashPassword() {
+    if(this.password){
     const salt = await bcrypt.genSalt(10);
-    this.password = bcrypt.hashSync(this.password, salt);
+    this.password = bcrypt.hashSync(this.password, salt)}
+    
   }
 
   @BeforeUpdate()
@@ -156,7 +181,6 @@ export class User {
   private setUsername() {
     // ensure username is generated only once as long as it is already set
     if (!this.username) {
-     
       const username = generateFromEmail(this.email, 3);
       this.username = username;
       console.log(this.username);

@@ -4,7 +4,7 @@ import { IdentityProvider } from 'src/types/user';
 export class CreateUserDto {
   @IsEmail()
   email: string;
-
+  
   @IsString()
   name: string;
 

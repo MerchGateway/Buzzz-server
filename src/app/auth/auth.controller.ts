@@ -38,6 +38,14 @@ export class AuthController {
     return this.authService.signin(user);
   }
 
+  @Public()
+  @UseGuards(LocalAuthGuard)
+  @Post('super-signin')
+  @HttpCode(200)
+  superAdminSignin(@Body() localSignin: LocalSigninDto, @CurrentUser() user: User) {
+    return this.authService.superAdminSignin(user);
+  }
+
   @HttpCode(HttpStatus.ACCEPTED)
   @UseGuards(TwoFactorJwtAuthGuard)
   @Post('2fa-signin')
