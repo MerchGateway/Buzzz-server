@@ -12,6 +12,7 @@ import {
   Param,
 } from '@nestjs/common';
 
+import { Status } from 'src/types/status';
 import { Role } from 'src/types/general';
 import { Roles } from 'src/decorators/roles.decorator';
 import {
@@ -48,7 +49,7 @@ export class AdminController {
   }
 
   @Roles(Role.SUPER_ADMIN)
-  @Put('edit-printing-partner/:id')
+  @Patch('edit-printing-partner/:id')
   editPrintingPartner(
     @Body() data: UpdatePrintingPartnerDto,
     @Param('id', ParseUUIDPipe) id: string,
@@ -57,7 +58,7 @@ export class AdminController {
   }
 
   @Roles(Role.SUPER_ADMIN)
-  @Put('edit-logistics-partner/:id')
+  @Patch('edit-logistics-partner/:id')
   editLogisticsPartner(
     @Body() data: UpdateLogisticsPartnerDto,
     @Param('id', ParseUUIDPipe) id: string,
@@ -78,7 +79,7 @@ export class AdminController {
   }
 
   @Roles(Role.SUPER_ADMIN)
-  @Get('get-logistic-partner/:id')
+  @Get('get-logistics-partner/:id')
   getSingleLogisticsPartner(@Param('id', ParseUUIDPipe) id: string) {
     return this.adminService.getSingleLogisticsPartner(id);
   }
@@ -89,16 +90,22 @@ export class AdminController {
     return this.adminService.getSinglePrintingPartner(id);
   }
 
-  @Roles(Role.SUPER_ADMIN)
-  @Patch('suspend-printing-partner/:id')
-  suspendPrintingPartner(@Param('id', ParseUUIDPipe) id: string) {
-    return this.adminService.suspendPrintingPartner(id);
-  }
-  @Roles(Role.SUPER_ADMIN)
-  @Patch('suspend-logistics-partner/:id')
-  suspendLogisticsPartner(@Param('id', ParseUUIDPipe) id: string) {
-    return this.adminService.suspendLogisticsPartner(id);
-  }
+  // @Roles(Role.SUPER_ADMIN)
+  // @Patch('toggle-printing-partner-status/:id')
+  // togglePrintingPartnerStatus(
+  //   @Param('id', ParseUUIDPipe) id: string,
+  //   @Body() data: UpdateLogisticsPartnerDto,
+  // ) {
+  //   return this.adminService.togglePrintingPartnerStatus(id, data);
+  // }
+  // @Roles(Role.SUPER_ADMIN)
+  // @Patch('toggle-logistics-partner-status/:id')
+  // toggleLogisticsPartnerStatus(
+  //   @Param('id', ParseUUIDPipe) id: string,
+  //   @Body() data: UpdateLogisticsPartnerDto,
+  // ) {
+  //   return this.adminService.toggleLogisticsPartnerStatus(id, data);
+  // }
 
   @Roles(Role.SUPER_ADMIN)
   @Put('edit-logistics-admin/:id')
@@ -131,15 +138,21 @@ export class AdminController {
   }
 
   @Roles(Role.SUPER_ADMIN)
-  @Post('create-logistics-admin')
-  createLogisticsAdmin(@Body() data: CreateLogisticsAdminDto) {
-    return this.adminService.createLogisticsAdmin(data);
+  @Post('create-logistics-admin/:id')
+  createLogisticsAdmin(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: CreateLogisticsAdminDto,
+  ) {
+    return this.adminService.createLogisticsAdmin(data, id);
   }
 
   @Roles(Role.SUPER_ADMIN)
-  @Post('create-printing-admin')
-  createPrintingAdmin(@Body() data: CreatePrintingAdminDto) {
-    return this.adminService.createPrintingAdmin(data);
+  @Post('create-printing-admin/:id')
+  createPrintingAdmin(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: CreatePrintingAdminDto,
+  ) {
+    return this.adminService.createPrintingAdmin(data, id);
   }
 
   @Roles(Role.SUPER_ADMIN)
@@ -149,7 +162,7 @@ export class AdminController {
   }
 
   @Roles(Role.SUPER_ADMIN)
-  @Get('get-printing-admins')
+  @Get('get-logistics-admins')
   getLogisticsAdmins() {
     return this.adminService.viewAllLogisticsAdmins();
   }

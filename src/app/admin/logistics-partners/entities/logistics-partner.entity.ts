@@ -24,7 +24,9 @@ export class LogisticsPartner extends BaseEntity {
   })
   name: string;
 
-  @OneToMany(() => User, (user) => user.logistics_partner, { eager: true })
+  @OneToMany(() => User, (user) => user.logistics_partner, {
+    cascade: true,
+  })
   administrators: User[];
 
   @OneToMany(() => Order, (order) => order.logistics_partner, { eager: true })
@@ -32,15 +34,14 @@ export class LogisticsPartner extends BaseEntity {
 
   @Column({ type: 'simple-json' })
   partner_address: {
-    street_number: number;
+    address: string;
     state: string;
     LGA: string;
-    zipcode: number;
+    city: string;
   };
 
   @Column({ type: 'enum', enum: Status, default: Status.ENABLED })
   status: Status;
-
 
   @CreateDateColumn()
   created_at: Date;

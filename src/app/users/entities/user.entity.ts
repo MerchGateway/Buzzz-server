@@ -59,7 +59,7 @@ export class User extends BaseEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column({nullable:true})
+  @Column({ nullable: true })
   name: string;
 
   @Column({ select: false, nullable: true })
@@ -95,19 +95,17 @@ export class User extends BaseEntity {
   @ManyToOne(
     () => PrintingPartner,
     (printingPartner) => printingPartner.administrators,
-    {
-      onDelete: 'CASCADE',
-    },
+    { onDelete: 'SET NULL' },
   )
+  @JoinColumn({ name: 'printing_partner' })
   printing_partner: PrintingPartner;
 
   @ManyToOne(
     () => LogisticsPartner,
     (logisticsPartner) => logisticsPartner.administrators,
-    {
-      onDelete: 'CASCADE',
-    },
+    { onDelete: 'SET NULL' },
   )
+  @JoinColumn({ name: 'logistics_partner' })
   logistics_partner: LogisticsPartner;
 
   @Column({
@@ -170,10 +168,12 @@ export class User extends BaseEntity {
   @BeforeInsert()
   @BeforeUpdate()
   private async hashPassword() {
-    if(this.password){
-    const salt = await bcrypt.genSalt(10);
-    this.password = bcrypt.hashSync(this.password, salt)}
-    
+    if (this.password) {
+      const salt = await bcrypt.genSalt(10);
+      this.password = bcrypt.hashSync(this.password, salt);
+
+      console.log(this.password);
+    }
   }
 
   @BeforeUpdate()

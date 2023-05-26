@@ -25,6 +25,8 @@ import { AnalyticsModule } from './analytics/analytics.module';
 import { WalletModule } from './wallet/wallet.module';
 import { WalletTransactionsModule } from './wallet-transactions/wallet-transactions.module';
 import { NotificationModule } from './notification/notification.module';
+import { DesignController } from './design/design.controller';
+import { DesignModule } from './design/design.module';
 
 @Module({
   imports: [
@@ -44,8 +46,9 @@ import { NotificationModule } from './notification/notification.module';
     CustomersModule,
     AnalyticsModule,
     NotificationModule,
+    DesignModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, DesignController],
   providers: [
     AppService,
     WinstonLoggerService,

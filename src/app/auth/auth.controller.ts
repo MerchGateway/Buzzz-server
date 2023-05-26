@@ -23,6 +23,8 @@ import { TwitterOauthGuard } from './guards/twitter-oauth.guard';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { TwoFactorAuthService } from '../2fa/twoFactorAuth.service';
 import { TwoFactorJwtAuthGuard } from '../2fa/guard/twoFactor-jwt-auth-guard';
+
+
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -40,10 +42,10 @@ export class AuthController {
 
   @Public()
   @UseGuards(LocalAuthGuard)
-  @Post('super-signin')
+  @Post('admin-signin')
   @HttpCode(200)
   superAdminSignin(@Body() localSignin: LocalSigninDto, @CurrentUser() user: User) {
-    return this.authService.superAdminSignin(user);
+    return this.authService.adminSignin(user);
   }
 
   @HttpCode(HttpStatus.ACCEPTED)

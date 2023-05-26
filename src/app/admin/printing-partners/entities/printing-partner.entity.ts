@@ -27,18 +27,18 @@ export class PrintingPartner extends BaseEntity {
   })
   name: string;
 
-  @OneToMany(() => User, (partner) => partner.printing_partner, { eager: true })
+  @OneToMany(() => User, (user) => user.printing_partner, { cascade: true })
   administrators: User[];
 
-  @OneToMany(() => Order, (order) => order.printing_partner, { eager: true })
+  @OneToMany(() => Order, (order) => order.printing_partner, { eager: true,cascade:true})
   orders: Order[];
 
   @Column({ type: 'simple-json' })
   partner_address: {
-    street_number: number;
+    address: string;
     state: string;
     LGA: string;
-    zipcode: number;
+    city: string;
   };
 
   @Column({ type: 'enum', enum: Status, default: Status.ENABLED })

@@ -65,7 +65,10 @@ export class AdminService {
         );
       }
 
-      return await this.printingPartnerRepository.update(id, data);
+      return await this.printingPartnerRepository.save({
+        ...isPrintingPartner,
+        ...data,
+      });
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
@@ -83,7 +86,10 @@ export class AdminService {
         );
       }
 
-      return await this.logisticsPartnerRepository.update(id, data);
+      return await this.logisticsPartnerRepository.save({
+        ...isLogisticsPartner,
+        ...data,
+      });
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
@@ -91,22 +97,29 @@ export class AdminService {
 
   async getAllPrintingPartners() {
     try {
-      return await this.printingPartnerRepository.find();
+      return await this.printingPartnerRepository.find({
+        relations: ['administrators'],
+      });
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
   }
   async getAllLogisticsPartners() {
     try {
-      return await this.logisticsPartnerRepository.find();
+      return await this.logisticsPartnerRepository.find({
+        relations: ['administrators'],
+      });
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
   }
   async getSinglePrintingPartner(id: string) {
     try {
-      const printingPartner = await this.printingPartnerRepository.findOneBy({
-        id,
+      const printingPartner = await this.printingPartnerRepository.findOne({
+        where: {
+          id,
+        },
+        relations: ['administrators'],
       });
       if (!printingPartner) {
         throw new NotFoundException(
@@ -121,8 +134,11 @@ export class AdminService {
   }
   async getSingleLogisticsPartner(id: string) {
     try {
-      const logisticsPartner = await this.logisticsPartnerRepository.findOneBy({
-        id,
+      const logisticsPartner = await this.logisticsPartnerRepository.findOne({
+        where: {
+          id,
+        },
+        relations: ['administrators'],
       });
       if (!logisticsPartner) {
         throw new NotFoundException(
@@ -135,7 +151,7 @@ export class AdminService {
       throw new HttpException(err.message, err.status);
     }
   }
-  async suspendPrintingPartner(id: string) {
+  async togglePrintingPartnerStatus(id: string, data: { status: Status }) {
     try {
       const printingPartner = await this.printingPartnerRepository.findOneBy({
         id,
@@ -145,14 +161,15 @@ export class AdminService {
           `printing partner with id ${id} does  not exist`,
         );
       }
-      return await this.printingPartnerRepository.update(id, {
-        status: Status.DISABLED,
+      return await this.printingPartnerRepository.save({
+        ...printingPartner,
+        status: data.status,
       });
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
   }
-  async suspendLogisticsPartner(id: string) {
+  async toggleLogisticsPartnerStatus(id: string, data: { status: Status }) {
     try {
       const logisticsPartner = await this.logisticsPartnerRepository.findOneBy({
         id,
@@ -162,8 +179,9 @@ export class AdminService {
           `logistics partner with id ${id} does  not exist`,
         );
       }
-      return await this.logisticsPartnerRepository.update(id, {
-        status: Status.DISABLED,
+      return await this.logisticsPartnerRepository.save({
+        ...logisticsPartner,
+        status: data.status,
       });
     } catch (err) {
       throw new HttpException(err.message, err.status);
@@ -246,22 +264,16 @@ export class AdminService {
     }
   }
 
-  async createLogisticsAdmin(data: CreateLogisticsAdminDto) {
+  async createLogisticsAdmin(data: CreateLogisticsAdminDto, id: string) {
     try {
       // find logistics
-      const isLogisticsPartner = await this.getSingleLogisticsPartner(
-        data.logistics_partner,
-      );
+      const isLogisticsPartner = await this.getSingleLogisticsPartner(id);
 
-      if (!isLogisticsPartner) {
-        throw new NotFoundException(
-          `logistics partner with id ${data.logistics_partner} does  not exist`,
-        );
-      }
 
       const logisticsAdmin = this.userRepository.create({
         email: data.email,
         role: Role.LOGISTIC_ADMIN,
+        password:data.password,
         logistics_partner: isLogisticsPartner,
       });
 
@@ -271,23 +283,19 @@ export class AdminService {
     }
   }
 
-  async createPrintingAdmin(data: CreatePrintingAdminDto) {
+  async createPrintingAdmin(data: CreatePrintingAdminDto, id: string) {
     try {
       // find logistics
-      const isPrintingPartner = await this.getSinglePrintingPartner(
-        data.printing_partner,
-      );
+      const isPrintingPartner = await this.getSinglePrintingPartner(id);
 
-      if (!isPrintingPartner) {
-        throw new NotFoundException(
-          `printing partner with id ${data.printing_partner} does  not exist`,
-        );
-      }
+    
 
+      console.log(isPrintingPartner);
       const printingsAdmin = this.userRepository.create({
         email: data.email,
         role: Role.PRINTING_ADMIN,
-        logistics_partner: isPrintingPartner,
+        password:data.password,
+        printing_partner: isPrintingPartner,
       });
 
       return await this.userRepository.save(printingsAdmin);
@@ -300,6 +308,7 @@ export class AdminService {
     try {
       return await this.userRepository.find({
         where: { role: Role.PRINTING_ADMIN },
+        relations:["printing_partner"]
       });
     } catch (err) {
       throw new HttpException(err.message, err.status);
@@ -310,6 +319,7 @@ export class AdminService {
     try {
       return await this.userRepository.find({
         where: { role: Role.LOGISTIC_ADMIN },
+        relations: ['logistics_partner'],
       });
     } catch (err) {
       throw new HttpException(err.message, err.status);
@@ -350,39 +360,38 @@ export class AdminService {
     }
   }
 
- 
   async AssignOrdersToPrintingPartner(data: {
     orders: string[];
     printingPartner: string;
   }) {
-        try {
-          const printingPartner = this.printingPartnerRepository.findOneBy({
-            id: data.printingPartner,
-            status: Status.ENABLED,
+    try {
+      const printingPartner = this.printingPartnerRepository.findOneBy({
+        id: data.printingPartner,
+        status: Status.ENABLED,
+      });
+
+      const orders: Order[] = await Promise.all(
+        data.orders.map(async (id) => {
+          return await this.orderRepository.findOneBy({
+            id,
+            status: OrderStatus.PRINTED,
           });
+        }),
+      );
 
-          const orders: Order[] = await Promise.all(
-            data.orders.map(async (id) => {
-              return await this.orderRepository.findOneBy({
-                id,
-                status: OrderStatus.PRINTED,
-              });
-            }),
-          );
+      if (!printingPartner) {
+        throw new NotFoundException(
+          `printing  partner with id ${data.printingPartner} does  not exist or  disabled`,
+        );
+      }
 
-          if (!printingPartner) {
-            throw new NotFoundException(
-              `printing  partner with id ${data.printingPartner} does  not exist or  disabled`,
-            );
-          }
-
-          return await this.printingPartnerRepository.save({
-            ...printingPartner,
-            orders: [...orders],
-          });
-        } catch (err) {
-          throw new HttpException(err.message, err.status);
-        }
+      return await this.printingPartnerRepository.save({
+        ...printingPartner,
+        orders: [...orders],
+      });
+    } catch (err) {
+      throw new HttpException(err.message, err.status);
+    }
   }
 
   async AssignOrdersToLogisticsPartner(data: {

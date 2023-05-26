@@ -1,42 +1,58 @@
-import { IsEmail, IsObject, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsObject,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
+import { Status } from 'src/types/status';
 import { IdentityProvider } from 'src/types/user';
 
 export class CreatePrintingPartnerDto {
   @IsString()
   name: string;
+
   @IsObject()
   partner_address: {
-    street_number: number;
+    address: string;
     state: string;
     LGA: string;
-    zipcode: number;
+    city: string;
   };
+
+
 }
 
 export class UpdatePrintingPartnerDto {
   @IsString()
   @IsOptional()
   name: string;
+
+  @IsEnum(Status)
+ 
+  @IsOptional()
+  status:Status;
+
   @IsObject()
   @IsOptional()
   partner_address: {
-    street_number: number;
+    address: string;
     state: string;
     LGA: string;
-    zipcode: number;
+    city: string;
   };
+
+
 }
 
-
-
-
 export class CreatePrintingAdminDto {
-    
   @IsEmail()
   email: string;
 
-  @IsUUID()
-  printing_partner:string;
+
+  @IsString()
+  password: string;
 }
 
 export class UpdatePrintingAdminDto {
@@ -48,5 +64,7 @@ export class UpdatePrintingAdminDto {
   @IsString()
   name: string;
 
-
+  @IsOptional()
+  @IsString()
+  password: string;
 }
