@@ -344,7 +344,7 @@ export class AdminService {
   }
   async viewAllOrdersAssignedToPrintingPartner(id: string) {
     try {
-      const printingPartner = await this.logisticsPartnerRepository.findOneBy({
+      const printingPartner = await this.printingPartnerRepository.findOneBy({
         id,
       });
 
