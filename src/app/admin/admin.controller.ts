@@ -187,7 +187,7 @@ export class AdminController {
   @Put('assign-orders-to-logistics-partner')
   assignOrdersToLogisticsPartner(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() data: { orders: string[]},
+    @Body() data: { orders: string[] },
   ) {
     return this.adminService.AssignOrdersToLogisticsPartner({
       ...data,
@@ -196,7 +196,7 @@ export class AdminController {
   }
 
   @Roles(Role.SUPER_ADMIN)
-  @Put('assign-orders-to-printing-partner')
+  @Put('assign-orders-to-printing-partner/:id')
   assignOrdersPrintingPartner(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() data: { orders: string[] },
