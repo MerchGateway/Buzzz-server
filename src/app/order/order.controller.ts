@@ -42,7 +42,7 @@ export class OrderController {
   //   return this.orderService.updateOrder(payload, orderId);
   // }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(Role.SUPER_ADMIN)
   @UseGuards(RolesGuard)
   @Put('/:orderId/complete')
   private completeOrder(
@@ -51,7 +51,7 @@ export class OrderController {
     return this.orderService.completeOrder(orderId);
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(Role.SUPER_ADMIN)
   @UseGuards(RolesGuard)
   @Delete('/:orderId')
   private deleteOrder(
@@ -74,7 +74,7 @@ export class OrderController {
     return this.orderService.getOrders(user);
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles( Role.SUPER_ADMIN)
   @UseGuards(RolesGuard)
   @Get('/:userId/active')
   private getActiveOrders(

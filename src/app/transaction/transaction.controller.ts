@@ -15,6 +15,7 @@ import { TransactionService } from './transaction.service';
 import { Transaction } from './entities/transaction.entity';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/types/general';
+
 import { RolesGuard } from '../auth/guards/roles.guard';
 // import { CreateTransactionDto } from './dto/transaction.dto';
 import { User } from '../users/entities/user.entity';
@@ -27,7 +28,6 @@ export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
   @Public()
-  
   @Get('verify/')
   @HttpCode(HttpStatus.CREATED)
   private verifyTransaction(
@@ -35,6 +35,10 @@ export class TransactionController {
   ): Promise<Transaction | undefined> {
     return this.transactionService.verifyTransaction(reference);
   }
+
+  
+  @Roles(Role.SUPER_ADMIN)
+  @UseGuards(RolesGuard)
   @Get('')
   private getTransactions(
     @CurrentUser() user: User,
@@ -42,7 +46,7 @@ export class TransactionController {
     return this.transactionService.getTransactionsForAuthUser(user);
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(Role.SUPER_ADMIN)
   @UseGuards(RolesGuard)
   @Delete(':reference')
   private deleteTransaction(
@@ -51,8 +55,8 @@ export class TransactionController {
     return this.transactionService.deleteTransaction(reference);
   }
 
-  // @Roles(Role.ADMIN, Role.SUPER_ADMIN)
-  // @UseGuards(RolesGuard)
+  @Roles(Role.SUPER_ADMIN)
+  @UseGuards(RolesGuard)
   @Get('/sales-analytics')
   private salesAnalytics(
     @Query('query') query: string,

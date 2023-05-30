@@ -40,7 +40,7 @@ export class AuthService {
     private readonly logger: WinstonLoggerService,
     @Inject(EMAIL_PROVIDER)
     private emailProvider: EmailProvider,
-   
+
     private readonly walletService: WalletService,
     private readonly twoFactorAuthService: TwoFactorAuthService,
   ) {
@@ -48,6 +48,7 @@ export class AuthService {
   }
 
   async validateUser(email: string, enteredPassword: string) {
+
     const user = await this.userRepository
       .createQueryBuilder('user')
       .where('user.email = :email', { email })
@@ -60,7 +61,7 @@ export class AuthService {
     }
 
     const isMatch = await user.matchPassword(enteredPassword);
-
+ console.log(isMatch)
     if (!isMatch) {
       return null;
     }
@@ -86,20 +87,29 @@ export class AuthService {
     return user;
   }
 
+  async postAdminSignin(user: User) {
+    console.log("this is the user",user)
+    const payload: JwtPayload = { sub: user.id, role: user.role };
+    user.password && delete user.password;
+    return {
+      user,
+      accessToken: this.jwtService.sign(payload),
+    };
+  }
+
   async postSignin(user: User) {
     const payload: JwtPayload = { sub: user.id, role: user.role };
     user.password && delete user.password;
 
     // get refreshed push notification registeration token eachtime on signin to capture possible new device
 
-    
     if (!user.wallet) {
       const wallet = await this.walletService.createWallet();
       user = await this.userRepository.save({
         ...user,
-        wallet
+        wallet,
       });
-    } 
+    }
     return {
       user,
       accessToken: this.jwtService.sign(payload),
@@ -249,4 +259,13 @@ export class AuthService {
       'Password updated successfully',
     );
   }
+
+  // admin section
+
+  async adminSignin(user: User) {
+    const data = await this.postAdminSignin(user);
+    return new SuccessResponse(data, 'Signin successful');
+  }
+
+ 
 }

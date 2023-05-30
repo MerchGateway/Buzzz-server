@@ -47,6 +47,9 @@ export class Product extends BaseEntity {
   @Column({ default: false })
   purchased: boolean;
 
+  @Column({ nullable: true})
+  bio: string;
+
   @ManyToOne(() => PaymentReceipt, (paymentReceipt) => paymentReceipt.product)
   @JoinColumn()
   receipt: PaymentReceipt;

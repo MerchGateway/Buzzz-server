@@ -17,7 +17,7 @@ import { EMAIL_PROVIDER } from '../../constant';
 import { ConfigService } from '@nestjs/config';
 import { NodemailerProvider } from '../../providers/nodemailer.provider';
 import { WalletModule } from '../wallet/wallet.module';
-
+import { AdminModule } from '../admin/admin.module';
 import { NotificationModule } from '../notification/notification.module';
 import { TwoFactorAuthModule } from '../2fa/twoFactorAuth.module';
 
@@ -26,14 +26,15 @@ import { TwoFactorAuthModule } from '../2fa/twoFactorAuth.module';
   imports: [
     TwoFactorAuthModule,
     PassportModule,
+    AdminModule,
     JwtModule.register({
       secret: configuration().jwt.secret,
       signOptions: { expiresIn: configuration().jwt.expiresIn },
     }),
     UsersModule,
     NotificationModule,
-    TypeOrmModule.forFeature([User]),
-    TypeOrmModule.forFeature([PasswordReset]),
+    TypeOrmModule.forFeature([User,PasswordReset]),
+
     LoggerModule,
     WalletModule,
   ],

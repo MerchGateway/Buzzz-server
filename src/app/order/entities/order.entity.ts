@@ -16,6 +16,8 @@ import {
 import { Status } from '../../../types/order';
 import { Cart } from '../../cart/entities/cart.entity';
 import { User } from '../../users/entities/user.entity';
+import { PrintingPartner } from 'src/app/admin/printing-partners/entities/printing-partner.entity';
+import { LogisticsPartner } from 'src/app/admin/logistics-partners/entities/logistics-partner.entity';
 @Entity('order')
 export class Order extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -73,6 +75,17 @@ export class Order extends BaseEntity {
   @Column({ type: 'enum', enum: Status, default: Status.PENDING })
   status: string;
 
+  @ManyToOne(() => PrintingPartner, (partner) => partner.orders, {
+    onDelete: 'SET NULL',
+  })
+  printing_partner: PrintingPartner;
+
+  @ManyToOne(() => LogisticsPartner, (logistics) => logistics.orders, {
+    onDelete: 'SET NULL',
+  })
+
+  logistics_partner: LogisticsPartner;
+
   @BeforeInsert()
   @BeforeUpdate()
   private async setDeliveryFee() {
@@ -105,7 +118,6 @@ export class Order extends BaseEntity {
     if (this.status === Status.PAID) {
       // delete this.cart;
       if (this.cart) {
-    
         Cart.remove(this.cart);
       }
     }
