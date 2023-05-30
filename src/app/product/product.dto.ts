@@ -19,7 +19,7 @@ export class CreateProductDto {
   public price: number;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   public description: string;
 
   @IsUUID()

@@ -184,18 +184,26 @@ export class AdminController {
   }
 
   @Roles(Role.SUPER_ADMIN)
-  @Put('assigned-orders-to-logistics-partner')
+  @Put('assign-orders-to-logistics-partner')
   assignOrdersToLogisticsPartner(
-    @Body() data: { orders: string[]; logisticsPartner: string },
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: { orders: string[] },
   ) {
-    return this.adminService.AssignOrdersToLogisticsPartner(data);
+    return this.adminService.AssignOrdersToLogisticsPartner({
+      ...data,
+      logisticsPartner: id,
+    });
   }
 
   @Roles(Role.SUPER_ADMIN)
-  @Put('assigned-orders-to-printing-partner')
+  @Put('assign-orders-to-printing-partner/:id')
   assignOrdersPrintingPartner(
-    @Body() data: { orders: string[]; printingPartner: string },
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: { orders: string[] },
   ) {
-    return this.adminService.AssignOrdersToPrintingPartner(data);
+    return this.adminService.AssignOrdersToPrintingPartner({
+      ...data,
+      printingPartner: id,
+    });
   }
 }

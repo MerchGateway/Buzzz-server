@@ -71,7 +71,18 @@ export class TransactionService {
       throw new HttpException(err.message, err.status);
     }
   }
-
+  public async getTransactions(
+   
+  ): Promise<Transaction[] | undefined> {
+    try {
+      const transactions = await this.transactionRepository.find({
+        relations:["user"]
+      });
+      return transactions;
+    } catch (err: any) {
+      throw new HttpException(err.message, err.status);
+    }
+  }
   private async getATransaction(
     transactionId: string,
   ): Promise<Transaction | undefined> {

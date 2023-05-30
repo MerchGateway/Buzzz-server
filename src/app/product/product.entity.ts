@@ -27,7 +27,8 @@ export class Product extends BaseEntity {
 
   @Column({ type: 'numeric' })
   price: number;
-  @Column({ type: 'char', nullable: true })
+
+  @Column({ type:"varchar", nullable: true })
   description: string;
 
   @Column({ default: false })

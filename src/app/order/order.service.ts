@@ -25,7 +25,7 @@ export class OrderService {
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
-    
+
     @Inject(forwardRef(() => CartService))
     private readonly cartService: CartService,
   ) {}
@@ -58,7 +58,7 @@ export class OrderService {
             };
           }
 
-         // // save cart items
+          // // save cart items
 
           return await this.orderRepository.save(order);
           // return await connection.manager.save(order);
@@ -115,6 +115,18 @@ export class OrderService {
         );
       }
       return order;
+    } catch (err: any) {
+      throw new HttpException(err.message, err.status);
+    }
+  }
+
+  public async getAllOrders(): Promise<Order[] | undefined> {
+    try {
+      const Orders = await this.orderRepository.find({
+        relations:["user"]
+       
+      });
+      return Orders;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }

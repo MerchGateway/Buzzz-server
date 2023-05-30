@@ -36,9 +36,15 @@ export class TransactionController {
     return this.transactionService.verifyTransaction(reference);
   }
 
-  
   @Roles(Role.SUPER_ADMIN)
   @UseGuards(RolesGuard)
+  @Get('/all')
+  private getAllTransactions(
+   
+  ): Promise<Transaction[] | undefined> {
+    return this.transactionService.getTransactions();
+  }
+
   @Get('')
   private getTransactions(
     @CurrentUser() user: User,
