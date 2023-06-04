@@ -184,7 +184,7 @@ export class AdminController {
   }
 
   @Roles(Role.SUPER_ADMIN)
-  @Put('assign-orders-to-logistics-partner')
+  @Put('assign-orders-to-logistics-partner/:id')
   assignOrdersToLogisticsPartner(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() data: { orders: string[] },

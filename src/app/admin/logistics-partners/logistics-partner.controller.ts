@@ -36,7 +36,7 @@ export class LogisticsPartnerController {
     @CurrentUser() user: User,
     @Param('id') id: string,
   ) {
-    return this.logisticsService.updateStatus(user, body, id);
+  return this.logisticsService.updateStatus(user, body, id);
   }
 
   @Roles(Role.LOGISTIC_ADMIN)

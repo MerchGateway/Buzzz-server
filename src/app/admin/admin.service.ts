@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { HttpException } from '@nestjs/common';
@@ -269,11 +273,10 @@ export class AdminService {
       // find logistics
       const isLogisticsPartner = await this.getSingleLogisticsPartner(id);
 
-
       const logisticsAdmin = this.userRepository.create({
         email: data.email,
         role: Role.LOGISTIC_ADMIN,
-        password:data.password,
+        password: data.password,
         logistics_partner: isLogisticsPartner,
       });
 
@@ -288,13 +291,11 @@ export class AdminService {
       // find logistics
       const isPrintingPartner = await this.getSinglePrintingPartner(id);
 
-    
-
       console.log(isPrintingPartner);
       const printingsAdmin = this.userRepository.create({
         email: data.email,
         role: Role.PRINTING_ADMIN,
-        password:data.password,
+        password: data.password,
         printing_partner: isPrintingPartner,
       });
 
@@ -308,7 +309,7 @@ export class AdminService {
     try {
       return await this.userRepository.find({
         where: { role: Role.PRINTING_ADMIN },
-        relations:["printing_partner"]
+        relations: ['printing_partner'],
       });
     } catch (err) {
       throw new HttpException(err.message, err.status);
@@ -365,17 +366,19 @@ export class AdminService {
     printingPartner: string;
   }) {
     try {
-      const printingPartner = this.printingPartnerRepository.findOneBy({
+      const printingPartner = await this.printingPartnerRepository.findOneBy({
         id: data.printingPartner,
         status: Status.ENABLED,
       });
 
       const orders: Order[] = await Promise.all(
         data.orders.map(async (id) => {
-          return await this.orderRepository.findOneBy({
+          const isOrderPaid = await this.orderRepository.findOneBy({
             id,
-            status: OrderStatus.PRINTED,
+            status: OrderStatus.PAID,
           });
+          console.log(isOrderPaid);
+          return isOrderPaid;
         }),
       );
 
@@ -384,11 +387,14 @@ export class AdminService {
           `printing  partner with id ${data.printingPartner} does  not exist or  disabled`,
         );
       }
+      if (!orders[0]) {
+        throw new BadRequestException(
+          'order(s)  have not been paid for  or does not exist',
+        );
+      }
 
-      return await this.printingPartnerRepository.save({
-        ...printingPartner,
-        orders: [...orders],
-      });
+      printingPartner.orders = [...printingPartner.orders, ...orders];
+      return await this.printingPartnerRepository.save(printingPartner);
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
@@ -399,17 +405,19 @@ export class AdminService {
     logisticsPartner: string;
   }) {
     try {
-      const logisticsPartner = this.logisticsPartnerRepository.findOneBy({
+      const logisticsPartner = await this.logisticsPartnerRepository.findOneBy({
         id: data.logisticsPartner,
         status: Status.ENABLED,
       });
 
       const orders: Order[] = await Promise.all(
         data.orders.map(async (id) => {
-          return await this.orderRepository.findOneBy({
+          const isOrderPrinted = await this.orderRepository.findOneBy({
             id,
             status: OrderStatus.PRINTED,
           });
+          console.log(isOrderPrinted);
+          return isOrderPrinted;
         }),
       );
 
@@ -419,10 +427,14 @@ export class AdminService {
         );
       }
 
-      return await this.logisticsPartnerRepository.save({
-        ...logisticsPartner,
-        orders: [...orders],
-      });
+      if (!orders[0]) {
+        throw new BadRequestException(
+          'order(s)  have not been printed  or does not exist',
+        );
+      }
+      logisticsPartner.orders = [...logisticsPartner.orders, ...orders];
+
+      return await this.logisticsPartnerRepository.save(logisticsPartner);
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }

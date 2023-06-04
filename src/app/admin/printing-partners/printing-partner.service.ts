@@ -28,24 +28,37 @@ export class PrintingPartnerService {
 
   async getOrders(user: User) {
     try {
-      const orders = await this.printingPartnerRepository.findOneBy({
-        id: user.printing_partner.id,
+      // load user  with  printing  partner relationship
+      const userWithPrintingRelation = await this.userRepository.findOne({
+        where: { id: user.id },
+        relations: ['printing_partner'],
       });
 
-      return orders.orders;
+      const partner = await this.printingPartnerRepository.findOneBy({
+        id: userWithPrintingRelation.printing_partner.id,
+      });
+
+      return partner.orders;
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
   }
   async viewOrder(user: User, id: string) {
     try {
-      const order = await this.orderRepository.findOneBy({
-        id,
-        printing_partner: { id: user.printing_partner.id },
+      const userWithPartner = await this.userRepository.findOne({
+        where: { id: user.id },
+        relations: { printing_partner: true },
+      });
+      const order = await this.orderRepository.findOne({
+        where: {
+          id,
+          printing_partner: { id: userWithPartner.printing_partner.id },
+        },
+        relations: { printing_partner: true },
       });
 
       if (!order) {
-        return new NotFoundException(
+        throw new NotFoundException(
           ` order with id ${id} does  not  exist or isnt asigned to you`,
         );
       }
@@ -74,26 +87,29 @@ export class PrintingPartnerService {
 
   async updateStatus(user: User, body: { status: Status }, id: string) {
     try {
-      const allowedStatuses = ['In-progress', 'Printed'];
+      const userWithPartner = await this.userRepository.findOne({
+        where: { id: user.id },
+        relations: { printing_partner: true },
+      });
+      const allowedStatuses = ['In-Progress', 'Printed'];
 
       if (!allowedStatuses.includes(body.status)) {
-        return new UnauthorizedException(
-          'Printing partner  only allowed  to set status  to "In-progress" or "Printed" ',
+        throw new UnauthorizedException(
+          'Printing partner  only allowed  to set status  to "In  Progress" or "Printed" ',
         );
       }
 
-      const order = await this.orderService.getOrder(id);
+      const order = await this.orderRepository.findOne({
+        where: { id },
+        relations: ['printing_partner'],
+      });
+      console.log(order.printing_partner);
+
       if (
-        typeof order.printing_partner === 'undefined' ||
-        !order.printing_partner
+        !order.printing_partner ||
+        order.printing_partner.id !== userWithPartner.printing_partner.id
       ) {
-        return new UnauthorizedException(
-          'This order hasnt been assigned to you',
-        );
-      }
-
-      if (order.printing_partner !== user.printing_partner) {
-        return new UnauthorizedException(
+        throw new UnauthorizedException(
           'This order hasnt been assigned to you',
         );
       }
