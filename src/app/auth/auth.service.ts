@@ -7,8 +7,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PushNotification } from 'src/providers/firebase-push-notification.provider';
-import { PUSH_NOTIFICATION } from '../../constant';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/app/users/entities/user.entity';
 import { MoreThanOrEqual, Repository } from 'typeorm';

@@ -2,7 +2,7 @@ import * as bcrypt from 'bcrypt';
 import { Role } from 'src/types/general';
 import { Authtype } from 'src/types/authenticator';
 import { IdentityProvider } from 'src/types/user';
-
+import { Design } from 'src/app/design/entities/design.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -116,6 +116,9 @@ export class User extends BaseEntity {
     select: false,
   })
   registerationToken: string;
+
+  @OneToMany(() => Design, (design) => design.owner)
+  designs: Design[];
 
   @Column({
     name: 'allow_twofactor_authentication',

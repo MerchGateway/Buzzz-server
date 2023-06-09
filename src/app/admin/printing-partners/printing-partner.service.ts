@@ -34,11 +34,24 @@ export class PrintingPartnerService {
         relations: ['printing_partner'],
       });
 
-      const partner = await this.printingPartnerRepository.findOneBy({
-        id: userWithPrintingRelation.printing_partner.id,
-      });
+      // const partner = await this.printingPartnerRepository.findOneBy({
+      //   id: userWithPrintingRelation.printing_partner.id,
+      // });
+      const orders = await this.orderRepository
+        .createQueryBuilder('order')
+        .leftJoin('order.printing_partner', 'printing_partner')
+        .leftJoinAndSelect('order.product', 'product')
+        .select('product.design')
+        .select('product.thumbnail')
+        .addSelect('quantity')
+        .addSelect('polymailer_details')
+        .addSelect('order.status', 'status')
+        .where('printing_partner.id=:printing_partner', {
+          printing_partner: userWithPrintingRelation.printing_partner.id,
+        })
+        .getRawMany();
 
-      return partner.orders;
+      return orders;
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
@@ -62,16 +75,23 @@ export class PrintingPartnerService {
           ` order with id ${id} does  not  exist or isnt asigned to you`,
         );
       }
-      return order;
+      return {
+        design: order.product.design,
+        thumbnail: order.product.thumbnail,
+        quantity: order.quantity,
+        status: order.status,
+        polymailer_details: order.polymailer_details,
+      };
     } catch (err) {
       user;
       throw new HttpException(err.message, err.status);
     }
   }
 
-  async viewPackagingContent(user: User) {
+  async viewPackagingContent(user: User, id: string) {
     try {
-      return 'returns the packaging contents associated with printing partner ';
+      const order = await this.viewOrder(user, id);
+      return { polymailer_details: order.polymailer_details };
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
@@ -79,7 +99,8 @@ export class PrintingPartnerService {
 
   async viewDesign(user: User, id: string) {
     try {
-      return 'returns a  single design ';
+      const order = await this.viewOrder(user, id);
+      return { design: order.design };
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }

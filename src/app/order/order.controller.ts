@@ -20,6 +20,7 @@ import { User } from '../users/entities/user.entity';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/types/general';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { PolyMailerContent } from './entities/polymailer_content.entity';
 
 @Controller('order')
 export class OrderController {
@@ -34,14 +35,6 @@ export class OrderController {
     return this.orderService.createOrder(payload, user);
   }
 
-  // @Put('/:orderId')
-  // private updateOrder(
-  //   @Body() payload: UpdateOrderDto,
-  //   @Param('orderId', ParseUUIDPipe) orderId: string,
-  // ): Promise<Order | undefined> {
-  //   return this.orderService.updateOrder(payload, orderId);
-  // }
-
   @Roles(Role.SUPER_ADMIN)
   @UseGuards(RolesGuard)
   @Put('/:orderId/complete')
@@ -50,6 +43,8 @@ export class OrderController {
   ): Promise<Order | undefined> {
     return this.orderService.completeOrder(orderId);
   }
+  
+
 
   @Roles(Role.SUPER_ADMIN)
   @UseGuards(RolesGuard)
@@ -64,9 +59,7 @@ export class OrderController {
   @Roles(Role.SUPER_ADMIN)
   @UseGuards(RolesGuard)
   @Get('/all')
-  private getAllOrders(
-    
-  ): Promise<Order[] | undefined> {
+  private getAllOrders(): Promise<Order[] | undefined> {
     return this.orderService.getAllOrders();
   }
   @Get('/:orderId')

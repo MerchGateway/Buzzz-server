@@ -14,6 +14,7 @@ import { Order } from './entities/order.entity';
 import { User } from '../users/entities/user.entity';
 import { CartService } from '../cart/cart.service';
 import { Status } from 'src/types/order';
+import { PolyMailerContent } from './entities/polymailer_content.entity';
 
 interface OrderAnalyticsT {
   thisMonthOrder: number;
@@ -25,7 +26,6 @@ export class OrderService {
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
-
     @Inject(forwardRef(() => CartService))
     private readonly cartService: CartService,
   ) {}
@@ -71,19 +71,6 @@ export class OrderService {
     }
   }
 
-  // public async updateOrder(
-  //   payload: UpdateOrderDto,
-  //   orderId: string,
-  // ): Promise<Order | undefined> {
-  //   try {
-  //     console.log(payload, orderId);
-
-  //     return;
-  //   } catch (err: any) {
-  //     throw new HttpException(err.message, err.status);
-  //   }
-  // }
-
   public async deleteOrder(orderId: string): Promise<Order | undefined> {
     try {
       // check if order exists
@@ -122,10 +109,7 @@ export class OrderService {
 
   public async getAllOrders(): Promise<Order[] | undefined> {
     try {
-      const Orders = await this.orderRepository.find({
-        relations:["user"]
-       
-      });
+      const Orders = await this.orderRepository.find();
       return Orders;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
@@ -134,8 +118,10 @@ export class OrderService {
 
   public async getOrders(user: User): Promise<Order[] | undefined> {
     try {
-      const Orders = await this.orderRepository.findBy({
-        user: { id: user.id },
+      const Orders = await this.orderRepository.find({
+        where: {
+          user: { id: user.id },
+        },
       });
       return Orders;
     } catch (err: any) {

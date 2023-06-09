@@ -33,14 +33,14 @@ export class ProductController {
     private readonly service: ProductService,
   ) {}
 
-  @Post('create-new')
-  public async createProduct(
-    @CurrentUser() user: User,
-    @Body() body: CreateProductDto,
-  ): Promise<Product> {
-    await this.categoryService.getCategory(body.categoryId);
-    return this.service.createProduct(body, user);
-  }
+  // @Post('create-new')
+  // public async createProduct(
+  //   @CurrentUser() user: User,
+  //   @Body() body: CreateProductDto,
+  // ): Promise<Product> {
+  //   await this.categoryService.getCategory(body.categoryId);
+  //   return this.service.createProduct(body, user);
+  // }
 
   @Post('upload')
   @UseInterceptors(

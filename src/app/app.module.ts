@@ -27,10 +27,16 @@ import { WalletTransactionsModule } from './wallet-transactions/wallet-transacti
 import { NotificationModule } from './notification/notification.module';
 import { DesignController } from './design/design.controller';
 import { DesignModule } from './design/design.module';
+import { JwtModule } from '@nestjs/jwt';
+
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
+    JwtModule.register({
+      secret: configuration().jwt.secret,
+      signOptions: { expiresIn: configuration().jwt.expiresIn },
+    }),
     DatabaseModule,
     AuthModule,
     UsersModule,
@@ -52,6 +58,7 @@ import { DesignModule } from './design/design.module';
   providers: [
     AppService,
     WinstonLoggerService,
+
     {
       provide: APP_INTERCEPTOR,
       useClass: RequestLoggingInterceptor,

@@ -24,7 +24,6 @@ import { UpdatePasswordDto } from './dto/update-password.dto';
 import { TwoFactorAuthService } from '../2fa/twoFactorAuth.service';
 import { TwoFactorJwtAuthGuard } from '../2fa/guard/twoFactor-jwt-auth-guard';
 
-
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -44,7 +43,10 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('admin-signin')
   @HttpCode(200)
-  superAdminSignin(@Body() localSignin: LocalSigninDto, @CurrentUser() user: User) {
+  superAdminSignin(
+    @Body() localSignin: LocalSigninDto,
+    @CurrentUser() user: User,
+  ) {
     return this.authService.adminSignin(user);
   }
 
