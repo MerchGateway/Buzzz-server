@@ -15,6 +15,10 @@ export class UpdateUserDto {
   @IsString()
   @IsOptional()
   name: string;
+  
+  @IsString()
+  @IsOptional()
+  username: string;
 
   @IsString()
   @IsOptional()
@@ -27,7 +31,7 @@ export class UpdateUserDto {
   @IsString()
   @IsOptional()
   address: string;
-  
+
   @IsObject()
   @IsOptional()
   shipping_address: {
@@ -64,12 +68,12 @@ export class UpdateUserDto {
 
   @IsBoolean()
   @IsOptional()
-  allowNotification:boolean
+  allowNotification: boolean;
 
   @IsObject()
   @IsOptional()
-  twoFactorAuthentication:{
-    allow2fa:boolean,
-    isTwoFactorVerified:boolean
-   }
+  twoFactorAuthentication: {
+    allow2fa: boolean;
+    isTwoFactorVerified: boolean;
+  };
 }

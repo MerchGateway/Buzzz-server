@@ -2,10 +2,10 @@ export enum Status {
   PENDING = 'Pending',
   PAID = 'Paid',
   CANCELLED = 'Cancelled',
-  INPROGRESS = 'In-progress',
+  INPROGRESS = 'In-Progress',
   PRINTED = 'Printed',
-  SENT_FOR_DELIEVERY = 'Sent-for-delievery',
+  SENT_FOR_DELIEVERY = 'Sent-For-Delievery',
   DELIEVERED = 'Delievered',
-  NOT_DELIEVERED = 'Not-delievered',
+  NOT_DELIEVERED = 'Not-Delievered',
   COMPLETED = 'Completed',
 }

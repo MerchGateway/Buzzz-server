@@ -23,11 +23,17 @@ export class LogisticsPartnerService {
 
   async getOrders(user: User) {
     try {
-      const orders = await this.logisticsPartnerRepository.findOneBy({
-        id: user.logistics_partner.id,
+      // load user  with  logistics  partner relationship
+      const userWithLogisticsRelation = await this.userRepository.findOne({
+        where: { id: user.id },
+        relations: ['logistics_partner'],
       });
 
-      return orders.orders;
+      const partner = await this.logisticsPartnerRepository.findOneBy({
+        id: userWithLogisticsRelation.logistics_partner.id,
+      });
+
+      return partner.orders;
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
@@ -35,26 +41,30 @@ export class LogisticsPartnerService {
 
   async updateStatus(user: User, body: { status: Status }, id: string) {
     try {
-      const allowedStatuses = ['Sent-for-delievery', 'Delievered'];
+      // load user  with  logistics  partner relationship
+      const userWithLogisticsRelation = await this.userRepository.findOne({
+        where: { id: user.id },
+        relations: ['logistics_partner'],
+      });
+
+      const allowedStatuses = ['Sent-For-Delievery', 'Delievered'];
 
       if (!allowedStatuses.includes(body.status)) {
-        return new UnauthorizedException(
-          'Logistics partner  only allowed  to set status  to "Sent-for-delievery" or "Delievered" ',
+        throw new UnauthorizedException(
+          'Logistics partner  only allowed  to set status  to "Sent for delievery" or "Delievered" ',
         );
       }
 
-      const order = await this.orderService.getOrder(id);
+      const order = await this.orderRepository.findOne({
+        where: { id },
+        relations: ['logistics_partner'],
+      });
+
       if (
-        typeof order.logistics_partner === 'undefined' ||
-        !order.logistics_partner
+        !order.logistics_partner ||
+        order.logistics_partner.id !== userWithLogisticsRelation.logistics_partner.id
       ) {
-        return new UnauthorizedException(
-          'This order hasnt been assigned to you',
-        );
-      }
-
-      if (order.logistics_partner !== user.logistics_partner) {
-        return new UnauthorizedException(
+        throw new UnauthorizedException(
           'This order hasnt been assigned to you',
         );
       }
@@ -67,13 +77,20 @@ export class LogisticsPartnerService {
 
   async viewOrder(user: User, id: string) {
     try {
-      const order = await this.orderRepository.findOneBy({
-        id,
-        logistics_partner: { id: user.logistics_partner.id },
+      const userWithPartner = await this.userRepository.findOne({
+        where: { id: user.id },
+        relations: { logistics_partner: true },
+      });
+      const order = await this.orderRepository.findOne({
+        where: {
+          id,
+          logistics_partner: { id: userWithPartner.logistics_partner.id },
+        },
+        relations: { logistics_partner: true },
       });
 
       if (!order) {
-        return new NotFoundException(
+        throw new NotFoundException(
           ` order with id ${id} does  not  exist or isnt asigned to you`,
         );
       }

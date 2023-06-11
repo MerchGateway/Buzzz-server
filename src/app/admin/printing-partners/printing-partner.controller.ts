@@ -49,7 +49,7 @@ export class PrintingPartnerController {
   updateStatus(
     @Body() body: { status: Status },
     @CurrentUser() user: User,
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
   ) {
     return this.printingService.updateStatus(user, body, id);
   }
