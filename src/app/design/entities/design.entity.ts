@@ -8,6 +8,8 @@ import {
   OneToOne,
   Column,
   JoinColumn,
+  BeforeInsert,
+  BeforeUpdate,
 } from 'typeorm';
 import { Product } from 'src/app/product/product.entity';
 import { User } from 'src/app/users/entities/user.entity';
@@ -38,6 +40,9 @@ export class Design extends BaseEntity {
   @Column({ type: 'simple-json' })
   design_data: any;
 
+  @Column({ type: 'simple-json' })
+  contributors: String[];
+
   @Column({
     type: 'json',
     nullable: true,
@@ -53,4 +58,11 @@ export class Design extends BaseEntity {
 
   @UpdateDateColumn()
   updated_at: Date;
+  @BeforeInsert()
+  @BeforeUpdate()
+  private async() {
+    if (!this.contributors[0]) {
+      this.contributors.push(this.owner.email);
+    }
+  }
 }

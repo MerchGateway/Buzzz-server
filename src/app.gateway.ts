@@ -31,10 +31,9 @@ export class AppGateway
 {
   constructor(
     private readonly designService: DesignService,
-     private readonly userService:UsersService,
+    private readonly userService: UsersService,
     @Inject(JWT)
     private readonly jwtService: Jwt,
-
   ) {}
 
   @WebSocketServer() server: Server;
@@ -43,15 +42,38 @@ export class AppGateway
   @SubscribeMessage('design-merch')
   async handleDesign(client: ExtendedSocket, payload: any): Promise<void> {
     // const user: User = client.user;
-     const response = await this.jwtService.verifyToken(
-       client.handshake.headers.authorization.split(' ')[1],
-     );
-     
-     const user:User= await this.userService.findOne(response.sub)
-    await this.designService.design(user, payload);
-    client.to(user.id).emit('design-merch', payload);
+    const response = await this.jwtService.verifyToken(
+      client.handshake.headers.authorization.split(' ')[1],
+    );
 
+    const user: User = await this.userService.findOne(response.sub);
+    await this.designService.design(
+      user,
+      payload,
+      client.handshake.query.id as string,
+    );
+    client.to(user.id).emit('design-merch', payload);
   }
+
+  // @UseGuards(WsGuard)
+  // @SubscribeMessage('contribute-to-design')
+  // async contributeToDesign(
+  //   client: ExtendedSocket,
+  //   payload: any,
+  // ): Promise<void> {
+  //   // const user: User = client.user;
+  //   const response = await this.jwtService.verifyToken(
+  //     client.handshake.headers.authorization.split(' ')[1],
+  //   );
+
+  //   const user: User = await this.userService.findOne(response.sub);
+  //   await this.designService.contributeToDesign(
+  //     user,
+  //     payload,
+  //     client.handshake.query.id as string,
+  //   );
+  //   client.to(user.id).emit('contribute-to-design', payload);
+  // }
 
   afterInit(server: Server) {
     console.log('server initialized', server);

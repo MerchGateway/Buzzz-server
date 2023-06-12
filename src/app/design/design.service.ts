@@ -104,9 +104,50 @@ export class DesignService {
       throw new WsException(error.message);
     }
   }
-  async design(user: User, payload: any) {
+
+  // async contributeToDesign(user: User, payload: any, id: string) {
+  //   try {
+  //     const isDesignExist = await this.fetchSingleDesign(id);
+
+  //     if (!isDesignExist) {
+  //       throw new WsException('Design to contribute does not exist');
+  //     }
+
+  //     if (!isDesignExist.contributors.includes(user.email)) {
+  //       throw new WsException('You are not an authorized contributor');
+  //     }
+
+  //     console.log('updating  design');
+  //     isDesignExist.images = [];
+  //     isDesignExist.texts = [];
+
+  //     // delete old images from cloudinary
+  //     await this.imageStorage.deletePhotosByPrefix(
+  //       isDesignExist.owner.username,
+  //     );
+  //     let updatedDesign = await this.sortAssets(isDesignExist, payload);
+
+  //     updatedDesign = await this.designRepository.save(updatedDesign);
+  //     console.log(updatedDesign);
+  //     return updatedDesign;
+  //   } catch (err) {
+  //     throw new WsException(err.message);
+  //   }
+  // }
+
+  async design(user: User, payload: any, id?: string) {
     try {
-      const isDesignExist = await this.fetchLatestDesignForCurrentUser(user);
+      let isDesignExist: { design: Design };
+      if (id) {
+        isDesignExist = { design: await this.fetchSingleDesign(id) };
+        if (
+          !isDesignExist.design.contributors.includes(user.email)
+        ) {
+          throw new WsException('You are not an authorized contributor');
+        }
+      } else {
+        isDesignExist = await this.fetchLatestDesignForCurrentUser(user);
+      }
 
       if (!isDesignExist.design) {
         console.log('creating new design');
@@ -138,7 +179,7 @@ export class DesignService {
         return updatedDesign;
       }
     } catch (err) {
-      throw new HttpException(err.message, err.status);
+      throw new WsException(err.message);
     }
   }
 
@@ -153,6 +194,48 @@ export class DesignService {
         );
       }
       return design;
+    } catch (err) {
+      throw new HttpException(err.message, err.status);
+    }
+  }
+
+  async addContributorsToDesign(
+    payload: { emails: string[]; id: string },
+    user: User,
+  ): Promise<SuccessResponse> {
+    try {
+      const isDesign = await this.fetchMyDesign(payload.id, user);
+      isDesign.contributors = [...isDesign.contributors, ...payload.emails];
+      await this.designRepository.save(isDesign);
+      return new SuccessResponse(
+        payload.emails,
+        'Contributor(s) added to design',
+      );
+    } catch (err) {
+      throw new HttpException(err.message, err.status);
+    }
+  }
+  async removeContributorsToDesign(
+    payload: { emails: string[]; id: string },
+    user: User,
+  ): Promise<SuccessResponse> {
+    try {
+      const isDesign = await this.fetchMyDesign(payload.id, user);
+      isDesign.contributors = isDesign.contributors.filter(
+        (contributor: string) => {
+          if (
+            !payload.emails.includes(contributor) ||
+            user.email === contributor
+          ) {
+            return contributor;
+          }
+        },
+      );
+      await this.designRepository.save(isDesign);
+      return new SuccessResponse(
+        payload.emails,
+        'Contributor(s) removed from design',
+      );
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
@@ -173,8 +256,10 @@ export class DesignService {
       if (!design) {
         throw new NotFoundException(`Design for current user does not exist`);
       }
-      if (design.published==true) {
-        throw new NotFoundException(`You cannot delete an already published  design`);
+      if (design.published == true) {
+        throw new NotFoundException(
+          `You cannot delete an already published  design`,
+        );
       }
       design.remove();
       return new SuccessResponse(
@@ -192,11 +277,11 @@ export class DesignService {
       if (!design) {
         throw new NotFoundException(`Design with id ${id} does not exist `);
       }
-       if (design.published == true) {
-         throw new NotFoundException(
-           `Design already published as a product and might be present in pending orders`,
-         );
-       }
+      if (design.published == true) {
+        throw new NotFoundException(
+          `Design already published as a product and might be present in pending orders`,
+        );
+      }
       return new SuccessResponse(
         design,
         `Design with id ${id} deleted successfully `,
@@ -224,15 +309,14 @@ export class DesignService {
           name: payload.title,
           price: payload.price,
           description: payload.description,
-          categoryId:category_id,
+          categoryId: category_id,
         },
         user,
       );
-      
-      product.isPublished=true,
-      design.product=product;
+
+      (product.isPublished = true), (design.product = product);
       design.published = true;
-      
+
       await this.designRepository.save(design);
       return product;
     } catch (err) {
@@ -253,7 +337,7 @@ export class DesignService {
     | undefined
   > {
     try {
-      const product = await this.publishDesign(user, payload, id,category_id);
+      const product = await this.publishDesign(user, payload, id, category_id);
       //   save product to cart
       await this.cartService.createCartItem(
         { product: product.id, quantity: payload.quantity },

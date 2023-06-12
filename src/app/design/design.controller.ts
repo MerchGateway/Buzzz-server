@@ -63,7 +63,10 @@ export class DesignController {
 
   @Public()
   @Get('view-design/:id')
-  fetchSingleDesign(@Param('id', ParseUUIDPipe) id: string) {
+  fetchSingleDesign(
+    @Param('id', ParseUUIDPipe) id: string,
+    
+  ) {
     return this.designService.fetchSingleDesign(id);
   }
 
@@ -80,6 +83,29 @@ export class DesignController {
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     return this.designService.deleteDesignForCurrentUser(user, id);
+  }
+
+  @Put('add-contributors/:id')
+  addContributors(
+    @CurrentUser() user: User,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() payload: { emails: string[] },
+  ) {
+    return this.designService.addContributorsToDesign(
+      { emails: payload.emails, id },
+      user,
+    );
+  }
+  @Put('remove-contributors/:id')
+  removeContributors(
+    @CurrentUser() user: User,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() payload: { emails: string[] },
+  ) {
+    return this.designService.removeContributorsToDesign(
+      { emails: payload.emails, id },
+      user,
+    );
   }
 
   @Post('publish-design/:id')
@@ -107,6 +133,11 @@ export class DesignController {
     @Param('id', ParseUUIDPipe) id: string,
     @Query('category-id', ParseUUIDPipe) category_id: string,
   ) {
-    return this.designService.publishDesignAndCheckout(user, payload, id,category_id);
+    return this.designService.publishDesignAndCheckout(
+      user,
+      payload,
+      id,
+      category_id,
+    );
   }
 }
