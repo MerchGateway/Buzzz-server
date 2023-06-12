@@ -12,9 +12,7 @@ export class PublishDesignDto {
   @IsOptional()
   description: string;
 
-  @IsUUID()
-  @IsNotEmpty()
-  categoryId: string;
+
 }
 export class PublishDesignAndCheckoutDto {
   @IsString()
@@ -32,7 +30,4 @@ export class PublishDesignAndCheckoutDto {
   @IsOptional()
   description: string;
 
-  @IsUUID()
-  @IsNotEmpty()
-  categoryId: string;
 }

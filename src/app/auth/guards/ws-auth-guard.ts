@@ -11,19 +11,23 @@ import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class WsGuard implements CanActivate {
+ 
   constructor(
     private userService: UsersService,
     private configService: ConfigService,
     private jwtService: JwtService,
-  ) {}
+  ) {
+    console.log('wsguard triggered');
+  }
 
   canActivate(
     context: ExecutionContext,
-  ): boolean | any | Promise<boolean | any> | Observable<boolean | any> {
+  ): boolean |  Promise<boolean> {
     //   extend client
     class ExtendedSocket extends Socket {
       user: User;
     }
+
     const client: ExtendedSocket = context
       .switchToWs()
       .getClient<ExtendedSocket>();
@@ -40,11 +44,11 @@ export class WsGuard implements CanActivate {
       }
 
       const user: any = this.userService.findOne(decoded.sub);
-
+      console.log(user);
       //  add user to socket header
       client.user = user;
       //   context.switchToHttp().getRequest().user = user;
-
+     
       return Boolean(user);
     } catch (err) {
       throw new WsException(err.message);

@@ -15,10 +15,12 @@ import { CloudinaryProvider } from 'src/providers/cloudinary.provider';
 import { JWT } from 'src/constant';
 import { JwtModule } from '@nestjs/jwt';
 import configuration from 'src/config/configuration';
+import { UsersModule } from '../users/users.module';
 import { PolyMailerContent } from '../order/entities/polymailer_content.entity';
 
 @Module({
   imports: [
+    UsersModule,
     TypeOrmModule.forFeature([Design, PolyMailerContent]),
     JwtModule.register({
       secret: configuration().jwt.secret,

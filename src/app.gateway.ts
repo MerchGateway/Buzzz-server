@@ -15,6 +15,7 @@ import { User } from './app/users/entities/user.entity';
 import { WsGuard } from './app/auth/guards/ws-auth-guard';
 import { JWT } from './constant';
 import { Jwt } from './providers/jwt.provider';
+import { UsersService } from './app/users/users.service';
 
 class ExtendedSocket extends Socket {
   user: User;
@@ -30,19 +31,26 @@ export class AppGateway
 {
   constructor(
     private readonly designService: DesignService,
+     private readonly userService:UsersService,
     @Inject(JWT)
     private readonly jwtService: Jwt,
+
   ) {}
 
   @WebSocketServer() server: Server;
 
-  @UseGuards(WsGuard)
-  @SubscribeMessage('update-design')
+  // @UseGuards(WsGuard)
+  @SubscribeMessage('design-merch')
   async handleDesign(client: ExtendedSocket, payload: any): Promise<void> {
-    const user: User = client.user;
-    console.log(user);
+    // const user: User = client.user;
+     const response = await this.jwtService.verifyToken(
+       client.handshake.headers.authorization.split(' ')[1],
+     );
+     
+     const user:User= await this.userService.findOne(response.sub)
     await this.designService.design(user, payload);
-    client.to(user.id).emit('updated-design', payload);
+    client.to(user.id).emit('design-merch', payload);
+
   }
 
   afterInit(server: Server) {

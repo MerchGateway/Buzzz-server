@@ -10,6 +10,7 @@ import {
   Put,
   HttpStatus,
   Param,
+  Query,
 } from '@nestjs/common';
 import {
   PublishDesignDto,
@@ -34,7 +35,6 @@ export class DesignController {
   @UseGuards(RolesGuard)
   @Get('polymailer-contents')
   fetchPolyMailerContents(): Promise<PolyMailerContent[] | undefined> {
-    console.log('passed  controller');
     return this.designService.fetchPolymailerContents();
   }
 
@@ -62,7 +62,7 @@ export class DesignController {
   }
 
   @Public()
-  @Get('/:id')
+  @Get('view-design/:id')
   fetchSingleDesign(@Param('id', ParseUUIDPipe) id: string) {
     return this.designService.fetchSingleDesign(id);
   }
@@ -74,16 +74,39 @@ export class DesignController {
     return this.designService.deleteSingleDesign(id);
   }
 
-  @Post('publish-design')
-  publishDesign(@Body() payload: PublishDesignDto, @CurrentUser() user: User) {
-    return this.designService.publishRecentDesign(user, payload);
+  @Delete(':id')
+  deleteDesign(
+    @CurrentUser() user: User,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.designService.deleteDesignForCurrentUser(user, id);
   }
 
-  @Post('publish-design-and-checkout')
+  @Post('publish-design/:id')
+  publishDesign(
+    @Body() payload: PublishDesignDto,
+    @CurrentUser() user: User,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query('category-id', ParseUUIDPipe) category_id: string,
+  ) {
+    return this.designService.publishDesign(user, payload, id, category_id);
+  }
+
+  @Get('fetch-my-design/:id')
+  fetchMyDesign(
+    @CurrentUser() user: User,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.designService.fetchMyDesign(id, user);
+  }
+
+  @Post('publish-design-and-checkout/:id')
   publishDesignAndCheckout(
     @Body() payload: PublishDesignAndCheckoutDto,
     @CurrentUser() user: User,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query('category-id', ParseUUIDPipe) category_id: string,
   ) {
-    return this.designService.publishRecentDesignAndCheckout(user, payload);
+    return this.designService.publishDesignAndCheckout(user, payload, id,category_id);
   }
 }

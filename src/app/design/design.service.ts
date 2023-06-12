@@ -1,6 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
+  ConflictException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -18,6 +19,12 @@ import { User } from '../users/entities/user.entity';
 import { SuccessResponse } from 'src/utils/response';
 import { Product } from '../product/product.entity';
 import { PolyMailerContent } from '../order/entities/polymailer_content.entity';
+import { Inject } from '@nestjs/common';
+import { CLOUDINARY } from 'src/constant';
+import { CloudinaryProvider } from 'src/providers/cloudinary.provider';
+import { TEXT_TYPE, IMAGE_TYPE } from 'src/constant';
+import { WsException } from '@nestjs/websockets/errors';
+import { UserRecord } from 'firebase-admin/lib/auth/user-record';
 @Injectable()
 export class DesignService {
   constructor(
@@ -26,6 +33,8 @@ export class DesignService {
     private readonly cartService: CartService,
     private readonly productService: ProductService,
     private readonly paystackBrokerService: PaystackBrokerService,
+    @Inject(CLOUDINARY)
+    private readonly imageStorage: CloudinaryProvider,
     @InjectRepository(PolyMailerContent)
     private readonly polyMailerContentRepository: Repository<PolyMailerContent>,
   ) {}
@@ -38,41 +47,116 @@ export class DesignService {
   }
   async fetchLatestDesignForCurrentUser(
     user: User,
-  ): Promise<Design | undefined> {
+  ): Promise<{ design: Design }> {
     try {
-      const design = await this.designRepository.find({
+      const design = await this.designRepository.findOne({
         where: { owner: { id: user.id }, published: false },
-        order: {
-          created_at: 'DESC',
-        },
-      })[0];
+      });
 
+      console.log(design);
+      return { design: design };
+    } catch (err) {
+      throw new HttpException(err.message, err.status);
+    }
+  }
+  async fetchSingleDesign(id: string): Promise<Design> {
+    try {
+      const design = await this.designRepository.findOne({ where: { id } });
       if (!design) {
-        throw new NotFoundException('Current user has not  made any design');
+        throw new NotFoundException(
+          `design with id ${id}  does  not exist or  deleted`,
+        );
       }
       return design;
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
   }
-  async fetchSingleDesign(id: string) {
+  private async sortAssets(design: Design, payload: any) {
+    // save updated assets
     try {
-      return await this.designRepository.findOne({ where: { id } });
-    } catch (err) {
-      throw new HttpException(err.message, err.status);
+      for (let i in payload.objects) {
+        if (payload.objects[i].type === TEXT_TYPE) {
+          design.texts = [...design.texts, payload.objects[i].text];
+        } else if (payload.objects[i].type === IMAGE_TYPE) {
+          const image = await this.imageStorage.uploadPhoto(
+            payload.objects[i].src,
+            {
+              asset_folder: design.owner.username,
+              public_id_prefix: design.owner.username,
+            },
+          );
+
+          design.images.push({
+            public_id: image.public_id,
+            url: image.secure_url,
+          });
+          // update image scr from design with online link  to be saved
+          payload.objects[i].src = image.secure_url;
+        } else {
+          console.log('another kind of asset');
+        }
+      }
+      design.design_data = payload;
+
+      return design;
+    } catch (error) {
+      throw new WsException(error.message);
     }
   }
   async design(user: User, payload: any) {
     try {
       const isDesignExist = await this.fetchLatestDesignForCurrentUser(user);
-      if (!isDesignExist) {
-        const newDesign = this.designRepository.create();
+
+      if (!isDesignExist.design) {
+        console.log('creating new design');
+        const newDesign = this.designRepository.create({
+          owner: user,
+          texts: [],
+          images: [],
+        });
+
+        const updatedDesign = await this.sortAssets(newDesign, payload);
+        console.log('came back here', updatedDesign);
+        return await this.designRepository.save(updatedDesign);
+      } else {
+        console.log('updating old design');
+        isDesignExist.design.images = [];
+        isDesignExist.design.texts = [];
+
+        // delete old images from cloudinary
+        await this.imageStorage.deletePhotosByPrefix(
+          isDesignExist.design.owner.username,
+        );
+        let updatedDesign = await this.sortAssets(
+          isDesignExist.design,
+          payload,
+        );
+
+        updatedDesign = await this.designRepository.save(updatedDesign);
+        console.log(updatedDesign);
+        return updatedDesign;
       }
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
   }
 
+  async fetchMyDesign(id: string, user: User): Promise<Design> {
+    try {
+      const design = await this.designRepository.findOne({
+        where: { id, owner: { id: user.id } },
+      });
+      if (!design) {
+        throw new NotFoundException(
+          `design with id ${id}  does  not exist or  deleted`,
+        );
+      }
+      return design;
+    } catch (err) {
+      throw new HttpException(err.message, err.status);
+    }
+  }
   async deleteDesignForCurrentUser(
     user: User,
     id: string,
@@ -88,6 +172,9 @@ export class DesignService {
       });
       if (!design) {
         throw new NotFoundException(`Design for current user does not exist`);
+      }
+      if (design.published==true) {
+        throw new NotFoundException(`You cannot delete an already published  design`);
       }
       design.remove();
       return new SuccessResponse(
@@ -105,6 +192,11 @@ export class DesignService {
       if (!design) {
         throw new NotFoundException(`Design with id ${id} does not exist `);
       }
+       if (design.published == true) {
+         throw new NotFoundException(
+           `Design already published as a product and might be present in pending orders`,
+         );
+       }
       return new SuccessResponse(
         design,
         `Design with id ${id} deleted successfully `,
@@ -115,32 +207,43 @@ export class DesignService {
     }
   }
 
-  async publishRecentDesign(
+  async publishDesign(
     user: User,
     payload: PublishDesignDto,
+    id: string,
+    category_id: string,
   ): Promise<Product | undefined> {
     try {
-      const design = await this.fetchLatestDesignForCurrentUser(user);
+      const design = await this.fetchMyDesign(id, user);
       console.log(design);
+      if (design.published == true) {
+        throw new ConflictException('design already published');
+      }
       const product = await this.productService.createProduct(
         {
           name: payload.title,
           price: payload.price,
           description: payload.description,
-          categoryId: payload.categoryId,
+          categoryId:category_id,
         },
         user,
       );
-      this.design[0].published = true;
-      await this.designRepository.save(design[0]);
+      
+      product.isPublished=true,
+      design.product=product;
+      design.published = true;
+      
+      await this.designRepository.save(design);
       return product;
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
   }
-  async publishRecentDesignAndCheckout(
+  async publishDesignAndCheckout(
     user: User,
     payload: PublishDesignAndCheckoutDto,
+    id: string,
+    category_id: string,
   ): Promise<
     | {
         authorization_url: string;
@@ -150,19 +253,7 @@ export class DesignService {
     | undefined
   > {
     try {
-      const design = await this.fetchLatestDesignForCurrentUser(user);
-      const product = await this.productService.createProduct(
-        {
-          name: payload.title,
-          price: payload.price,
-          description: payload.description,
-          categoryId: payload.categoryId,
-        },
-        user,
-      );
-      //   set  design to published
-      this.design[0].published = true;
-      await this.designRepository.save(design[0]);
+      const product = await this.publishDesign(user, payload, id,category_id);
       //   save product to cart
       await this.cartService.createCartItem(
         { product: product.id, quantity: payload.quantity },
