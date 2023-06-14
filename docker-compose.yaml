@@ -1,0 +1,17 @@
+
+services:
+  redis:
+    image: 'redislabs/redismod'
+    container_name: redis
+    ports:
+      - '6379'
+  buzzz:
+    restart: always
+    build: ./
+    container_name: buzzz
+    hostname: buzzz
+    ports:
+      - '81:5000'
+    depends_on:
+    - redis
+    

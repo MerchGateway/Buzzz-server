@@ -11,3 +11,5 @@ export const IMAGE_TYPE="image"
 export const TEXT_TYPE="i-text"
 export const JWT = 'JWT';
 export const APP_GATEWAY = 'APP_GATEWAY';
+export const EVENT_QUEUE="event_queue"
+export const DESIGN_MERCH="design_merch"

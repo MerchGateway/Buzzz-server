@@ -10,8 +10,6 @@ import { ConfigService } from '@nestjs/config';
 import { AppGateway } from 'src/app.gateway';
 import {APP_GATEWAY } from 'src/constant';
 import { Jwt } from 'src/providers/jwt.provider';
-import { CLOUDINARY } from 'src/constant';
-import { CloudinaryProvider } from 'src/providers/cloudinary.provider';
 import { JWT } from 'src/constant';
 import { JwtModule } from '@nestjs/jwt';
 import configuration from 'src/config/configuration';
@@ -37,13 +35,7 @@ import { PolyMailerContent } from '../order/entities/polymailer_content.entity';
       provide: APP_GATEWAY,
       useClass: AppGateway,
     },
-    {
-      provide: CLOUDINARY,
-      useFactory: (configService: ConfigService) => {
-        return new CloudinaryProvider(configService);
-      },
-      inject: [ConfigService],
-    },
+   
     {
       provide: JWT,
       useClass: Jwt,

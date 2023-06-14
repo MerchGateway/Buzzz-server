@@ -12,6 +12,8 @@ import {
   PublishDesignDto,
   PublishDesignAndCheckoutDto,
 } from './dto/design.dto';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 import { CartService } from '../cart/cart.service';
 import { ProductService } from '../product/product.service';
 import { PaystackBrokerService } from '../payment/paystack/paystack.service';
@@ -20,7 +22,7 @@ import { SuccessResponse } from 'src/utils/response';
 import { Product } from '../product/product.entity';
 import { PolyMailerContent } from '../order/entities/polymailer_content.entity';
 import { Inject } from '@nestjs/common';
-import { CLOUDINARY } from 'src/constant';
+import { CLOUDINARY, EVENT_QUEUE,DESIGN_MERCH } from 'src/constant';
 import { CloudinaryProvider } from 'src/providers/cloudinary.provider';
 import { TEXT_TYPE, IMAGE_TYPE } from 'src/constant';
 import { WsException } from '@nestjs/websockets/errors';
@@ -28,6 +30,8 @@ import { UserRecord } from 'firebase-admin/lib/auth/user-record';
 @Injectable()
 export class DesignService {
   constructor(
+    @InjectQueue(EVENT_QUEUE)
+    private readonly queue: Queue,
     @InjectRepository(Design)
     private readonly designRepository: Repository<Design>,
     private readonly cartService: CartService,
@@ -37,7 +41,9 @@ export class DesignService {
     private readonly imageStorage: CloudinaryProvider,
     @InjectRepository(PolyMailerContent)
     private readonly polyMailerContentRepository: Repository<PolyMailerContent>,
-  ) {}
+  ) {
+    
+  }
   async viewAllDesigns(): Promise<Design[] | undefined> {
     try {
       return await this.designRepository.find();
@@ -72,7 +78,7 @@ export class DesignService {
       throw new HttpException(err.message, err.status);
     }
   }
-  private async sortAssets(design: Design, payload: any) {
+   async sortAssets(design: Design, payload: any) {
     // save updated assets
     try {
       for (let i in payload.objects) {
@@ -136,51 +142,9 @@ export class DesignService {
   // }
 
   async design(user: User, payload: any, id?: string) {
-    try {
-      let isDesignExist: { design: Design };
-      if (id) {
-        isDesignExist = { design: await this.fetchSingleDesign(id) };
-        if (
-          !isDesignExist.design.contributors.includes(user.email)
-        ) {
-          throw new WsException('You are not an authorized contributor');
-        }
-      } else {
-        isDesignExist = await this.fetchLatestDesignForCurrentUser(user);
-      }
+   await this.queue.add(DESIGN_MERCH,{user,payload,id})
 
-      if (!isDesignExist.design) {
-        console.log('creating new design');
-        const newDesign = this.designRepository.create({
-          owner: user,
-          texts: [],
-          images: [],
-        });
 
-        const updatedDesign = await this.sortAssets(newDesign, payload);
-        console.log('came back here', updatedDesign);
-        return await this.designRepository.save(updatedDesign);
-      } else {
-        console.log('updating old design');
-        isDesignExist.design.images = [];
-        isDesignExist.design.texts = [];
-
-        // delete old images from cloudinary
-        await this.imageStorage.deletePhotosByPrefix(
-          isDesignExist.design.owner.username,
-        );
-        let updatedDesign = await this.sortAssets(
-          isDesignExist.design,
-          payload,
-        );
-
-        updatedDesign = await this.designRepository.save(updatedDesign);
-        console.log(updatedDesign);
-        return updatedDesign;
-      }
-    } catch (err) {
-      throw new WsException(err.message);
-    }
   }
 
   async fetchMyDesign(id: string, user: User): Promise<Design> {
