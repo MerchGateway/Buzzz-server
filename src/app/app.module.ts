@@ -19,7 +19,7 @@ import { CLOUDINARY } from 'src/constant';
 import { CloudinaryProvider } from 'src/providers/cloudinary.provider';
 import { PaymentModule } from './payment/payment.module';
 import { ContactModule } from './contact/contact.module';
-import { EVENT_QUEUE } from '../constant';
+
 import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
 import { CustomersModule } from './customers/customers.module';
 import { AnalyticsModule } from './analytics/analytics.module';
@@ -29,21 +29,8 @@ import { NotificationModule } from './notification/notification.module';
 import { DesignController } from './design/design.controller';
 import { DesignModule } from './design/design.module';
 import { JwtModule } from '@nestjs/jwt';
-import { BullModule } from '@nestjs/bull';
-import { ConfigService } from '@nestjs/config';
-import { MessageConsumer } from 'src/message.consumer';
-
 @Module({
   imports: [
-    BullModule.forRoot({
-      redis: {
-        host: 'localhost',
-        port: 6379,
-      },
-    }),
-    BullModule.registerQueue({
-      name: EVENT_QUEUE,
-    }),
     ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
     JwtModule.register({
       secret: configuration().jwt.secret,
@@ -70,7 +57,6 @@ import { MessageConsumer } from 'src/message.consumer';
   providers: [
     AppService,
     WinstonLoggerService,
-    MessageConsumer,
     {
       provide: APP_INTERCEPTOR,
       useClass: RequestLoggingInterceptor,
@@ -79,13 +65,7 @@ import { MessageConsumer } from 'src/message.consumer';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
-    {
-      provide: CLOUDINARY,
-      useFactory: (configService: ConfigService) => {
-        return new CloudinaryProvider(configService);
-      },
-      inject: [ConfigService],
-    },
+    
     {
       provide: APP_INTERCEPTOR,
       useClass: ErrorsInterceptor,

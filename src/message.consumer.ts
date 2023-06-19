@@ -67,7 +67,6 @@ export class MessageConsumer {
           isDesignExist.design,
           jobData.payload,
         );
-
         updatedDesign = await this.designRepository.save(updatedDesign);
         console.log(updatedDesign);
         return updatedDesign;

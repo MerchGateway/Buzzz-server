@@ -2,10 +2,7 @@
 # BUILD FOR LOCAL DEVELOPMENT
 ###################
 
-FROM node:16-alpine As development
-LABEL version="1"
-
-
+FROM node:16-alpine
 
 # Copy application dependency manifests to the container image.
 # A wildcard is used to ensure copying both package.json AND package-lock.json (when available).
@@ -63,9 +60,10 @@ ENV CLOUDINARY_URL=cloudinary://287241113588159:x_gCfnDAWufLrUlziXdxVqbbAYY@eddy
 COPY --chown=node:node . .
 
 # Use the node user from the image (instead of the root user)
-USER node
+# USER node
+
 # install dependencies
-RUN yarn 
+RUN npm  install
 
 
 # From here we load our application's code in, therefore the previous docker
@@ -76,7 +74,7 @@ COPY .  /usr/buzzz-server/
 
 EXPOSE 5000
 # run app
-CMD yarn start:dev
+CMD npm run start:dev
 
 
 
