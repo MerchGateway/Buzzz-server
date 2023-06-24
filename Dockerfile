@@ -59,10 +59,10 @@ ENV CLOUD_API_KEY=287241113588159
 ENV CLOUD_API_SECRET=x_gCfnDAWufLrUlziXdxVqbbAYY 
 ENV CLOUDINARY_URL=cloudinary://287241113588159:x_gCfnDAWufLrUlziXdxVqbbAYY@eddymadu          
 # Bundle app source
-COPY --chown=node:node . .
+# COPY --chown=node:node . .
 
 # install dependencies 
-RUN yarn
+RUN yarn --network-timeout 600000
 
 # set user to be non root user for security reason
 USER node
@@ -73,7 +73,7 @@ COPY .  .
 EXPOSE 5000
 # HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD ["executable"]
 # # run app
- CMD  ["yarn","start:dev"]
+CMD  ["yarn","start:dev"]
 
 
 

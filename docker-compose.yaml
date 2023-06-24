@@ -26,8 +26,8 @@ services:
     build: ./
     container_name: buzzz
     hostname: buzzz
-    # volumes:
-    #   - .:/usr/src/buzzz-server/
+    volumes:
+      - .:/usr/buzzz-server/
     ports:
       - '5001:5000'
     depends_on:
