@@ -34,6 +34,19 @@ $ npm install
 
 ## Running the app
 
+install redis and mysql globally on machine. Follow the steps stated in the links below on how to install mysql and redis on your various machines
+
+<a href="https://redis.io/docs/getting-started/installation/install-redis-on-linux
+  ">Redis for linux</a>
+
+<a href="https://redis.io/docs/getting-started/installation/install-redis-on-mac-os/">Redis for macos</a>
+
+<a href="https://redis.io/docs/getting-started/installationinstall-redis-on-windows/">Redis for windows </a>
+
+<a href="https://www.apachefriends.org/download.html">Mysql</a>
+
+Type the following commands to run the app after redis and mysql must have started running.
+
 ```bash
 # development
 $ npm run start
@@ -43,6 +56,12 @@ $ npm run start:dev
 
 # production mode
 $ npm run start:prod
+```
+
+## Installing and running the app using docker
+
+```bash
+$ docker compose up
 ```
 
 ## Test

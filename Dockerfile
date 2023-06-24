@@ -3,6 +3,8 @@
 ###################
 
 FROM node:16-alpine
+# Create app directory
+WORKDIR /usr/buzzz-server/
 
 # Copy application dependency manifests to the container image.
 # A wildcard is used to ensure copying both package.json AND package-lock.json (when available).
@@ -59,22 +61,19 @@ ENV CLOUDINARY_URL=cloudinary://287241113588159:x_gCfnDAWufLrUlziXdxVqbbAYY@eddy
 # Bundle app source
 COPY --chown=node:node . .
 
-# Use the node user from the image (instead of the root user)
-# USER node
+# install dependencies 
+RUN yarn
 
-# install dependencies
-RUN npm  install
-
+# set user to be non root user for security reason
+USER node
 
 # From here we load our application's code in, therefore the previous docker
-# "layer" thats been cached will be used if possible
-# Create app directory
-WORKDIR /usr/buzzz-server/
-COPY .  /usr/buzzz-server/
+COPY .  .
 
 EXPOSE 5000
-# run app
-CMD npm run start:dev
+# HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD ["executable"]
+# # run app
+ CMD  ["yarn","start:dev"]
 
 
 

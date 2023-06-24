@@ -50,7 +50,6 @@ export class CreatePrintingAdminDto {
   @IsEmail()
   email: string;
 
-
   @IsString()
   password: string;
 }
