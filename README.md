@@ -34,6 +34,7 @@ $ npm install
 
 ## Running the app
 
+
 install redis and mysql globally on machine. Follow the steps stated in the links below on how to install mysql and redis on your various machines
 
 <a href="https://redis.io/docs/getting-started/installation/install-redis-on-linux

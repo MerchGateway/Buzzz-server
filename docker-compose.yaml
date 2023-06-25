@@ -3,7 +3,7 @@ services:
   redis: 
     image:  redis:7.0-alpine
     ports:
-      - '5003:6379'
+      - '6379:6379'
     restart: always
     volumes:
       - redis_data:/var/lib/redis
@@ -13,7 +13,7 @@ services:
     cap_add:
       - SYS_NICE
     ports:
-      - '5002:3306'    
+      - '3306:3306'    
     restart: always
     environment:
       - MYSQL_DATABASE=buzzzz
@@ -29,7 +29,7 @@ services:
     volumes:
       - .:/usr/buzzz-server/
     ports:
-      - '5001:5000'
+      - '5000:5000'
     depends_on:
     - redis
     - db
