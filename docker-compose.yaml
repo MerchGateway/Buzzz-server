@@ -16,8 +16,10 @@ services:
       - '3306:3306'    
     restart: always
     environment:
-      - MYSQL_DATABASE=buzzzz
+      - MYSQL_DATABASE= buzzzz
+      - MYSQL_USER= docker
       - MYSQL_ALLOW_EMPTY_PASSWORD= 1
+      - MYSQL_PASSWORD= docker123
     volumes:
       - mysql_data:/var/lib/mysql
   
@@ -27,7 +29,8 @@ services:
     container_name: buzzz
     hostname: buzzz
     volumes:
-      - .:/usr/buzzz-server/
+      - /usr/src/buzzz-server/node_modules
+      - .:/usr/src/buzzz-server/
     ports:
       - '5000:5000'
     depends_on:

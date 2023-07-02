@@ -3,34 +3,36 @@
 ###################
 
 FROM node:16-alpine
+
+# grant complete read and write authority to /usr/src/buzzz-server
+RUN mkdir -p '/usr/src/buzzz-server'
+RUN chown -R node:node '/usr/src/buzzz-server'
+
 # Create app directory
-WORKDIR /usr/buzzz-server/
+WORKDIR /usr/src/buzzz-server/
 
 # Copy application dependency manifests to the container image.
 # A wildcard is used to ensure copying both package.json AND package-lock.json (when available).
-
-COPY --chown=node:node package*.json ./
-COPY --chown=node:node tsconfig.build.json ./
-COPY --chown=node:node tsconfig.json ./
+ADD --chown=node:node package*.json ./
+ADD --chown=node:node tsconfig.build.json ./
+ADD --chown=node:node tsconfig.json ./ 
 
 # add env
 ENV PAYSTACK_SECRET_KEY=sk_test_bbd29282a8f850f15feaccafd188d2d5da35e803
 ENV TYPEORM_CONNECTION=mysql
 ENV TYPEORM_URL=
-ENV TYPEORM_HOST=localhost
-ENV TYPEORM_PORT=3306
+ENV TYPEORM_HOST=host.docker.internal
 ENV TYPEORM_DATABASE=buzzzz
-ENV TYPEORM_USERNAME=root
-ENV TYPEORM_PASSWORD=
+ENV TYPEORM_USERNAME=docker
+ENV TYPEORM_PASSWORD=docker123
+ENV TYPEORM_PORT=3306
 ENV TYPEORM_SYNCHRONIZE=true
 ENV TYPEORM_ENTITIES=dist/*/.entity.js
 ENV TYPEORM_MIGRATIONS=dist/database/migrations/*.js
 ENV TYPEORM_MIGRATIONS_DIR=src/database/migrations
-
 ENV JWT_SECRET=jwt-secret//g/
 ENV JWT_EXPIRE=3d
 ENV JWT_COOKIE_EXPIRE=3d
-
 ENV OAUTH_GOOGLE_ID=
 ENV OAUTH_GOOGLE_SECRET=
 ENV OAUTH_TWITTER_CONSUMER_KEY=
@@ -52,23 +54,22 @@ ENV AUTH_URI=https://accounts.google.com/o/oauth2/auth
 ENV TOKEN_URI=https://oauth2.googleapis.com/token
 ENV AUTH_PROVIDER_X509_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
 ENV CLIENT_X509_CERT_URL=https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-q00my%40buzzz-37d26.iam.gserviceaccount.com
-
 # cloudinary
 ENV CLOUD_NAME=eddymadu
 ENV CLOUD_API_KEY=287241113588159
 ENV CLOUD_API_SECRET=x_gCfnDAWufLrUlziXdxVqbbAYY 
-ENV CLOUDINARY_URL=cloudinary://287241113588159:x_gCfnDAWufLrUlziXdxVqbbAYY@eddymadu          
-# Bundle app source
-# COPY --chown=node:node . .
+ENV CLOUDINARY_URL=cloudinary://287241113588159:x_gCfnDAWufLrUlziXdxVqbbAYY@eddymadu    
 
-# install dependencies 
-RUN yarn --network-timeout 600000
+# Bundle app source
+COPY --chown=node:node . .
 
 # set user to be non root user for security reason
 USER node
+# install dependencies 
+RUN yarn --network-timeout 600000
 
 # From here we load our application's code in, therefore the previous docker
-COPY .  .
+ADD .  .
 
 EXPOSE 5000
 # HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD ["executable"]
@@ -83,7 +84,8 @@ CMD  ["yarn","start:dev"]
 
 # FROM node:16-alpine As build
 
-# WORKDIR /usr/src/app
+# Create app directory
+# WORKDIR /usr/buzzz-server/
 
 # COPY --chown=node:node package*.json ./
 
