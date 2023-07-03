@@ -30,6 +30,7 @@ export class MessageConsumer {
           design: await this.designService.fetchSingleDesign(jobData.id),
         };
         if (!isDesignExist.design.contributors.includes(jobData.user.email)) {
+          console.log('unautorized to design')
           throw new WsException('You are not an authorized contributor');
         }
       } else {

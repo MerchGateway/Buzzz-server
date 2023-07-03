@@ -13,3 +13,5 @@ export const JWT = 'JWT';
 export const APP_GATEWAY = 'APP_GATEWAY';
 export const EVENT_QUEUE="event_queue"
 export const DESIGN_MERCH="design_merch"
+export const DESIGN_ERROR = 'design_error';
+export const SOCKET_CONNECT = 'socket_connect';

@@ -13,7 +13,7 @@ import { Socket, Server } from 'socket.io';
 import { DesignService } from './app/design/design.service';
 import { User } from './app/users/entities/user.entity';
 import { WsGuard } from './app/auth/guards/ws-auth-guard';
-import {DESIGN_MERCH} from "./constant"
+import { DESIGN_MERCH, DESIGN_ERROR, SOCKET_CONNECT } from './constant';
 import { JWT } from './constant';
 import { Jwt } from './providers/jwt.provider';
 import { UsersService } from './app/users/users.service';
@@ -42,19 +42,30 @@ export class AppGateway
   // @UseGuards(WsGuard)
   @SubscribeMessage(DESIGN_MERCH)
   async handleDesign(client: ExtendedSocket, payload: any): Promise<void> {
-    console.log("entered socket file")
+    console.log('entered socket file');
     // const user: User = client.user;
-    const response = await this.jwtService.verifyToken(
-      client.handshake.headers.authorization.split(' ')[1],
-    );
+    let user: User;
+    try {
+      const response = await this.jwtService.verifyToken(
+        client.handshake.headers.authorization.split(' ')[1],
+      );
 
-    const user: User = await this.userService.findOne(response.sub);
-    await this.designService.design(
-      user,
-      payload,
-      client.handshake.query.id as string,
-    );
-    client.to(user.id).emit(DESIGN_MERCH, payload);
+      user = await this.userService.findOne(response.sub);
+      await this.designService.design(
+        user,
+        payload,
+        client.handshake.query.id as string,
+      );
+      this.server.to(user.id).emit(DESIGN_MERCH, payload);
+    } catch (error) {
+      console.log('error from socket', error);
+      this.server
+        .to(user.id)
+        .emit(
+          DESIGN_ERROR,
+          error.message ? error.message : 'Could not create or update design',
+        );
+    }
   }
 
   // @UseGuards(WsGuard)
@@ -78,7 +89,7 @@ export class AppGateway
   // }
 
   afterInit(server: Server) {
-    console.log('server initialized', server);
+    console.log('server initialized');
   }
 
   handleDisconnect(client: Socket) {
@@ -92,7 +103,9 @@ export class AppGateway
       );
       // join private room
       client.join(payload?.sub);
+      console.log(client.rooms);
       console.log(`Connected ${client.id}`);
+      this.server.to(payload.sub).emit(SOCKET_CONNECT, { connected: true });
     } catch (error) {
       client.disconnect(true);
     }
