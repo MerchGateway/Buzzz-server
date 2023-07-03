@@ -13,6 +13,7 @@ import { Socket, Server } from 'socket.io';
 import { DesignService } from './app/design/design.service';
 import { User } from './app/users/entities/user.entity';
 import { WsGuard } from './app/auth/guards/ws-auth-guard';
+import {DESIGN_MERCH} from "./constant"
 import { JWT } from './constant';
 import { Jwt } from './providers/jwt.provider';
 import { UsersService } from './app/users/users.service';
@@ -39,7 +40,7 @@ export class AppGateway
   @WebSocketServer() server: Server;
 
   // @UseGuards(WsGuard)
-  @SubscribeMessage('design-merch')
+  @SubscribeMessage(DESIGN_MERCH)
   async handleDesign(client: ExtendedSocket, payload: any): Promise<void> {
     // const user: User = client.user;
     const response = await this.jwtService.verifyToken(
