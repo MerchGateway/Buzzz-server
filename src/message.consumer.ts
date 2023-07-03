@@ -45,6 +45,7 @@ export class MessageConsumer {
           owner: jobData.user,
           texts: [],
           images: [],
+          contributors:[]
         });
 
         let updatedDesign = await this.designService.sortAssets(

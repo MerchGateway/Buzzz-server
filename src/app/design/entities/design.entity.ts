@@ -40,7 +40,8 @@ export class Design extends BaseEntity {
   @Column({ type: 'simple-json' })
   design_data: any;
 
-  @Column({ type: 'simple-json' })
+  @Column({ type: 'simple-array',nullable:true })
+  @IsOptional()
   contributors: String[];
 
   @Column({
@@ -58,11 +59,12 @@ export class Design extends BaseEntity {
 
   @UpdateDateColumn()
   updated_at: Date;
+
   @BeforeInsert()
   @BeforeUpdate()
   private async() {
     if (!this.contributors[0]) {
-      this.contributors.push(this.owner.email);
+           this.contributors.push(this.owner.email);
     }
   }
 }

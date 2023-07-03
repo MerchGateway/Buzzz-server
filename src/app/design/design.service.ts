@@ -105,10 +105,11 @@ export class DesignService {
       }
       design.design_data = payload;
       console.log(design)
-      design= await design.save();
+      design= await this.designRepository.save(design);
       console.log(design)
       return design
     } catch (error) {
+      console.log(error)
       throw new WsException(error.message);
     }
   }
@@ -117,10 +118,12 @@ export class DesignService {
 
   async design(user: User, payload: any, id?: string) {
     console.log("entered design")
+    try{
    await this.queue.add(DESIGN_MERCH,{user,payload,id})
-   console.log("added to queue")
-
-
+   console.log("added to queue")}
+    catch (error) {
+      throw new WsException(error.message);
+    }
   }
 
   async fetchMyDesign(id: string, user: User): Promise<Design> {
