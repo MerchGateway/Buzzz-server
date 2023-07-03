@@ -45,6 +45,7 @@ export class AppGateway
     console.log('entered socket file');
     // const user: User = client.user;
     let user: User;
+    
     try {
       const response = await this.jwtService.verifyToken(
         client.handshake.headers.authorization.split(' ')[1],
@@ -57,7 +58,7 @@ export class AppGateway
         client.handshake.query.id as string,
       );
       this.server.to(user.id).emit(DESIGN_MERCH, payload);
-    } catch (error) {
+    }catch(error) {
       console.log('error from socket', error);
       this.server
         .to(user.id)
@@ -66,6 +67,7 @@ export class AppGateway
           error.message ? error.message : 'Could not create or update design',
         );
     }
+
   }
 
   // @UseGuards(WsGuard)
@@ -110,4 +112,5 @@ export class AppGateway
       client.disconnect(true);
     }
   }
+
 }

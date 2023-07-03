@@ -62,20 +62,20 @@ $ npm run start:prod
 ## Installing and running the app using docker
 
 ```bash
-$ docker compose up
+$ yarn docker:start
 ```
 
 ## Test
 
 ```bash
 # unit tests
-$ npm run test
+$ yarn test
 
 # e2e tests
-$ npm run test:e2e
+$ yarn test:e2e
 
 # test coverage
-$ npm run test:cov
+$ yarn test:cov
 ```
 
 ## Support
