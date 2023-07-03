@@ -104,45 +104,21 @@ export class DesignService {
         }
       }
       design.design_data = payload;
-
-      return design;
+      console.log(design)
+      design= await design.save();
+      console.log(design)
+      return design
     } catch (error) {
       throw new WsException(error.message);
     }
   }
 
-  // async contributeToDesign(user: User, payload: any, id: string) {
-  //   try {
-  //     const isDesignExist = await this.fetchSingleDesign(id);
-
-  //     if (!isDesignExist) {
-  //       throw new WsException('Design to contribute does not exist');
-  //     }
-
-  //     if (!isDesignExist.contributors.includes(user.email)) {
-  //       throw new WsException('You are not an authorized contributor');
-  //     }
-
-  //     console.log('updating  design');
-  //     isDesignExist.images = [];
-  //     isDesignExist.texts = [];
-
-  //     // delete old images from cloudinary
-  //     await this.imageStorage.deletePhotosByPrefix(
-  //       isDesignExist.owner.username,
-  //     );
-  //     let updatedDesign = await this.sortAssets(isDesignExist, payload);
-
-  //     updatedDesign = await this.designRepository.save(updatedDesign);
-  //     console.log(updatedDesign);
-  //     return updatedDesign;
-  //   } catch (err) {
-  //     throw new WsException(err.message);
-  //   }
-  // }
+  
 
   async design(user: User, payload: any, id?: string) {
+    console.log("entered design")
    await this.queue.add(DESIGN_MERCH,{user,payload,id})
+   console.log("added to queue")
 
 
   }

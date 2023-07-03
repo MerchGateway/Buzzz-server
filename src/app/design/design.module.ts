@@ -23,8 +23,8 @@ import { BullModule } from '@nestjs/bull';
   imports: [
     BullModule.forRoot({
       redis: {
-        host: 'localhost',
-        port: 6379,
+        host: configuration().database.host,
+        port: configuration().redis.port
       },
     }),
     BullModule.registerQueue({

@@ -67,6 +67,9 @@ export default () => ({
     cloud_api_secret: process.env.CLOUD_API_SECRET,
     cloundinary_url: process.env.CLOUDINARY_URL,
   },
+  redis: {
+    port: parseInt(process.env.REDIS_PORT,10)||6379,
+  },
 
   firebaseDatabaseUrl: process.env.FIREBASE_DATABASE_URL,
   smtpHost: process.env.SMTP_HOST,

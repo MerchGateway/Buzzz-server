@@ -22,10 +22,9 @@ export class MessageConsumer {
   @Process(DESIGN_MERCH)
   async readOperationJob(job: Job<unknown>) {
     let jobData: any = job.data;
-    console.log(job.data);
+    let isDesignExist: { design: Design };
 
     try {
-      let isDesignExist: { design: Design };
       if (jobData.id) {
         isDesignExist = {
           design: await this.designService.fetchSingleDesign(jobData.id),
@@ -48,12 +47,12 @@ export class MessageConsumer {
           images: [],
         });
 
-        const updatedDesign = await this.designService.sortAssets(
+        let updatedDesign = await this.designService.sortAssets(
           newDesign,
           jobData.payload,
         );
         console.log('came back here', updatedDesign);
-        return await this.designRepository.save(updatedDesign);
+         return updatedDesign;
       } else {
         console.log('updating old design');
         isDesignExist.design.images = [];
@@ -67,7 +66,7 @@ export class MessageConsumer {
           isDesignExist.design,
           jobData.payload,
         );
-        updatedDesign = await this.designRepository.save(updatedDesign);
+
         console.log(updatedDesign);
         return updatedDesign;
       }

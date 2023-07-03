@@ -1,7 +1,7 @@
 import { StorageProvider } from '../types/cloudinary';
 import { v2 } from 'cloudinary';
 import { ConfigService } from '@nestjs/config';
-import { HttpException } from '@nestjs/common';
+
 
 export class CloudinaryProvider implements StorageProvider {
 
@@ -22,7 +22,7 @@ export class CloudinaryProvider implements StorageProvider {
       return image;
     } catch (err) {
       console.log('the error fired back here');
-      console.log('err:', err.message);
+      console.log('err:', err);
       throw err;
     }
   }

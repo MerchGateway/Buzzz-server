@@ -42,6 +42,7 @@ export class AppGateway
   // @UseGuards(WsGuard)
   @SubscribeMessage(DESIGN_MERCH)
   async handleDesign(client: ExtendedSocket, payload: any): Promise<void> {
+    console.log("entered socket file")
     // const user: User = client.user;
     const response = await this.jwtService.verifyToken(
       client.handshake.headers.authorization.split(' ')[1],
@@ -53,7 +54,7 @@ export class AppGateway
       payload,
       client.handshake.query.id as string,
     );
-    client.to(user.id).emit('design-merch', payload);
+    client.to(user.id).emit(DESIGN_MERCH, payload);
   }
 
   // @UseGuards(WsGuard)
