@@ -15,3 +15,4 @@ export const EVENT_QUEUE="event_queue"
 export const DESIGN_MERCH="design_merch"
 export const DESIGN_ERROR = 'design_error';
 export const SOCKET_CONNECT = 'socket_connect';
+export const BASE_URL='http://localhost:5000'

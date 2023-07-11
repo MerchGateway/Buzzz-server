@@ -1,5 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Pagination, IPaginationOptions } from 'nestjs-typeorm-paginate';
+import { paginate } from 'nestjs-typeorm-paginate';
 import {
   Injectable,
   HttpException,
@@ -107,37 +109,66 @@ export class OrderService {
     }
   }
 
-  public async getAllOrders(): Promise<Order[] | undefined> {
+  public async getAllOrders({
+    limit,
+    page,
+    route,
+  }: IPaginationOptions): Promise<Pagination<Order>> {
     try {
-      const Orders = await this.orderRepository.find();
-      return Orders;
+      // const Orders = await this.orderRepository.find();
+      // return Orders;
+      const orders = this.orderRepository.createQueryBuilder('order');
+      return paginate<Order>(orders, { limit, page, route });
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
   }
 
-  public async getOrders(user: User): Promise<Order[] | undefined> {
+  public async getOrders(
+    user: User,
+    pagination?: IPaginationOptions,
+  ): Promise<Pagination<Order> | Order[]> {
+    const { limit, page, route } = pagination;
     try {
-      const Orders = await this.orderRepository.find({
-        where: {
-          user: { id: user.id },
-        },
-      });
-      return Orders;
+      if (!pagination) {
+        const Orders = await this.orderRepository.find({
+          where: {
+            user: { id: user.id },
+          },
+        });
+        return Orders;
+      }
+
+      const orders = this.orderRepository
+        .createQueryBuilder('order')
+        .leftJoin('order.user', 'user')
+        .where('user.id=:user', { user: user.id });
+
+      return paginate<Order>(orders, { limit, page, route });
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
   }
 
-  public async getActiveOrders(id: string): Promise<Order[] | undefined> {
+  public async getActiveOrders(
+    id: string,
+    { limit, page, route }: IPaginationOptions,
+  ): Promise<Pagination<Order>> {
     try {
-      const Orders = await this.orderRepository.find({
-        where: {
-          user: { id },
-          status: Status.PAID,
-        },
-      });
-      return Orders;
+      // const Orders = await this.orderRepository.find({
+      //   where: {
+      //     user: { id },
+      //     status: Status.PAID,
+      //   },
+      // });
+      // return Orders;
+      const orders = this.orderRepository
+        .createQueryBuilder('order')
+        .leftJoin('order.user', 'user')
+        .where('user.id=:user', { user: id })
+        .andWhere('order.status=:status', { status: Status.PAID });
+
+      return paginate<Order>(orders, { limit, page, route });
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }

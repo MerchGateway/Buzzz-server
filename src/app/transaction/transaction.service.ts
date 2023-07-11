@@ -1,5 +1,6 @@
 import { Injectable, HttpException, NotFoundException } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/transaction.dto';
+import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThanOrEqual, Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
@@ -15,7 +16,7 @@ import { PolyMailerContent } from '../order/entities/polymailer_content.entity';
 import { Status } from 'src/types/transaction';
 import { CustomersService } from '../customers/customers.service';
 import { ProductService } from '../product/product.service';
-
+import { paginate } from 'nestjs-typeorm-paginate';
 @Injectable()
 export class TransactionService {
   axiosConnection: AxiosInstance;
@@ -47,9 +48,7 @@ export class TransactionService {
         orders,
       });
 
-     return await this.transactionRepository.save(transaction);
-     
-  
+      return await this.transactionRepository.save(transaction);
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
@@ -57,24 +56,37 @@ export class TransactionService {
 
   public async getTransactionsForAuthUser(
     user: User,
-  ): Promise<Transaction[] | undefined> {
-    try {
-      const transactions = await this.transactionRepository.find({
-        where: {
-          user: { id: user.id },
-        },
-      });
-      return transactions;
+    { limit, page, route }: IPaginationOptions,
+  ): Promise<Pagination<Transaction>> {
+  try {
+      // const transactions = await this.transactionRepository.find({
+      //   where: {
+      //     user: { id: user.id },
+      //   },
+      // });
+      const transactions = this.transactionRepository
+        .createQueryBuilder('transaction')
+        .leftJoin('transaction.user', 'user')
+        .where('user.id=:user', { user: user.id });
+
+      return paginate<Transaction>(transactions, { limit, page, route });
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
   }
-  public async getTransactions(): Promise<Transaction[] | undefined> {
+  public async getTransactions({
+    limit,
+    page,
+    route,
+  }: IPaginationOptions): Promise<Pagination<Transaction>> {
     try {
-      const transactions = await this.transactionRepository.find({
-        relations: ['user'],
-      });
-      return transactions;
+      const transactions = this.transactionRepository
+        .createQueryBuilder('transaction')
+        .leftJoin('transaction.user', 'user');
+      // const transactions = await this.transactionRepository.find({
+      //   relations: ['user'],
+      // });
+      return paginate<Transaction>(transactions, { limit, page, route });
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
@@ -137,7 +149,9 @@ export class TransactionService {
                   await this.polyMailerContentRepository.find();
 
                 // get a random polymailer content
-                const random =Math.floor( Math.random() * polymailerContents.length);
+                const random = Math.floor(
+                  Math.random() * polymailerContents.length,
+                );
                 console.log(
                   random,
                   order.user.name.split(' ')[0],
@@ -148,7 +162,7 @@ export class TransactionService {
                 order.polymailer_details = {
                   to: order.user.name.split(' ')[0],
                   from: order.product.seller.name.split(' ')[0],
-                  content:  polymailerContents[random].content
+                  content: polymailerContents[random].content,
                 };
                 console.log(order);
                 await order.save();
