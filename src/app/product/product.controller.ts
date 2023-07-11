@@ -13,6 +13,7 @@ import {
   DefaultValuePipe,
   ParseIntPipe,
 } from '@nestjs/common';
+import {BASE_URL} from "../../constant"
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { CreateProductDto, EditProductDto } from './product.dto';
@@ -33,14 +34,14 @@ export class ProductController {
     private readonly service: ProductService,
   ) {}
 
-  @Post('create-new')
-  public async createProduct(
-    @CurrentUser() user: User,
-    @Body() body: CreateProductDto,
-  ): Promise<Product> {
-    await this.categoryService.getCategory(body.categoryId);
-    return this.service.createProduct(body, user);
-  }
+  // @Post('create-new')
+  // public async createProduct(
+  //   @CurrentUser() user: User,
+  //   @Body() body: CreateProductDto,
+  // ): Promise<Product> {
+  //   await this.categoryService.getCategory(body.categoryId);
+  //   return this.service.createProduct(body, user);
+  // }
 
   @Post('upload')
   @UseInterceptors(
@@ -89,7 +90,7 @@ export class ProductController {
       {
         limit,
         page,
-        route: 'http://localhost:5000/product/search',
+        route: `${BASE_URL}/product/search`,
       },
       searchQuery,
     );
@@ -107,12 +108,12 @@ export class ProductController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
   ): Promise<Pagination<Product>> {
-    limit = limit > 100 ? 100 : limit;
+       limit = limit > 100 ? 100 : limit < 10 ? 10 : limit;
 
     return this.service.handleGetAllProducts({
       page,
       limit,
-      route: 'http://localhost:5000/product',
+      route: `${BASE_URL}/product`,
     });
   }
 

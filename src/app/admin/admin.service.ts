@@ -371,30 +371,33 @@ export class AdminService {
         status: Status.ENABLED,
       });
 
+      if (!printingPartner) {
+        throw new NotFoundException(
+          `printing  partner with id ${data.printingPartner} does  not exist or  disabled`,
+        );
+      }
+
       const orders: Order[] = await Promise.all(
         data.orders.map(async (id) => {
           const isOrderPaid = await this.orderRepository.findOneBy({
             id,
             status: OrderStatus.PAID,
           });
-          console.log(isOrderPaid);
-          return isOrderPaid;
+
+          if (isOrderPaid) {
+            isOrderPaid.printing_partner = printingPartner;
+            return await this.orderRepository.save(isOrderPaid);
+          }
         }),
       );
 
-      if (!printingPartner) {
-        throw new NotFoundException(
-          `printing  partner with id ${data.printingPartner} does  not exist or  disabled`,
-        );
-      }
       if (!orders[0]) {
         throw new BadRequestException(
-          'order(s)  have not been paid for  or does not exist',
+          'order(s) have not been paid for  or does not exist',
         );
       }
 
-      printingPartner.orders = [...printingPartner.orders, ...orders];
-      return await this.printingPartnerRepository.save(printingPartner);
+      return orders;
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
@@ -409,7 +412,11 @@ export class AdminService {
         id: data.logisticsPartner,
         status: Status.ENABLED,
       });
-
+      if (!logisticsPartner) {
+        throw new NotFoundException(
+          `logistics with id ${data.logisticsPartner} does  not exist or  disabled`,
+        );
+      }
       const orders: Order[] = await Promise.all(
         data.orders.map(async (id) => {
           const isOrderPrinted = await this.orderRepository.findOneBy({
@@ -417,24 +424,20 @@ export class AdminService {
             status: OrderStatus.PRINTED,
           });
           console.log(isOrderPrinted);
-          return isOrderPrinted;
+          if (isOrderPrinted) {
+            isOrderPrinted.logistics_partner = logisticsPartner;
+            return await this.orderRepository.save(isOrderPrinted);
+          }
         }),
       );
-
-      if (!logisticsPartner) {
-        throw new NotFoundException(
-          `logistics with id ${data.logisticsPartner} does  not exist or  disabled`,
-        );
-      }
 
       if (!orders[0]) {
         throw new BadRequestException(
           'order(s)  have not been printed  or does not exist',
         );
       }
-      logisticsPartner.orders = [...logisticsPartner.orders, ...orders];
 
-      return await this.logisticsPartnerRepository.save(logisticsPartner);
+      return orders;
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }

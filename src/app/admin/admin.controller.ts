@@ -136,7 +136,7 @@ export class AdminController {
   removeLogisticsPartner(@Param('id', ParseUUIDPipe) id: string) {
     return this.adminService.deleteLogisticsPartner(id);
   }
-
+ 
   @Roles(Role.SUPER_ADMIN)
   @Post('create-logistics-admin/:id')
   createLogisticsAdmin(

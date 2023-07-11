@@ -1,14 +1,8 @@
 import {
   Controller,
-  Post,
   Body,
-  UseGuards,
-  HttpCode,
   Get,
   Patch,
-  Res,
-  HttpStatus,
-  HttpException,
   Param,
   ParseUUIDPipe,
 } from '@nestjs/common';
@@ -30,9 +24,12 @@ export class PrintingPartnerController {
     return this.printingService.getOrders(user);
   }
   @Roles(Role.PRINTING_ADMIN)
-  @Get('/view-packaging-content')
-  viewPackagingContent(@CurrentUser() user: User) {
-    return this.printingService.viewPackagingContent(user);
+  @Get('/view-packaging-content/:id')
+  viewPackagingContent(
+    @CurrentUser() user: User,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.printingService.viewPackagingContent(user,id);
   }
 
   @Roles(Role.PRINTING_ADMIN)

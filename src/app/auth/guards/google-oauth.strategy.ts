@@ -13,6 +13,7 @@ export class GoogleOauthStrategy extends PassportStrategy(Strategy, 'google') {
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
   ) {
+    
     super({
       clientID: configService.get<string>('oauth.googleClientId'),
       clientSecret: configService.get<string>('oauth.googleClientSecret'),

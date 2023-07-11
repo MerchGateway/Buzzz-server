@@ -10,7 +10,10 @@ import {
   UseGuards,
   Query,
 } from '@nestjs/common';
-
+import { BASE_URL } from '../../constant';
+import { ParseIntPipe } from '@nestjs/common';
+import { DefaultValuePipe } from '@nestjs/common';
+import { Pagination } from 'nestjs-typeorm-paginate';
 import { TransactionService } from './transaction.service';
 import { Transaction } from './entities/transaction.entity';
 import { Roles } from 'src/decorators/roles.decorator';
@@ -40,16 +43,29 @@ export class TransactionController {
   @UseGuards(RolesGuard)
   @Get('/all')
   private getAllTransactions(
-   
-  ): Promise<Transaction[] | undefined> {
-    return this.transactionService.getTransactions();
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
+  ): Promise<Pagination<Transaction>> {
+    limit = limit > 100 ? 100 : limit < 10 ? 10 : limit;
+    return this.transactionService.getTransactions({
+      page,
+      limit,
+      route: `${BASE_URL}/transaction/all`,
+    });
   }
 
   @Get('')
   private getTransactions(
     @CurrentUser() user: User,
-  ): Promise<Transaction[] | undefined> {
-    return this.transactionService.getTransactionsForAuthUser(user);
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
+  ): Promise<Pagination<Transaction>> {
+    limit = limit > 100 ? 100 : limit < 10 ? 10 : limit;
+    return this.transactionService.getTransactionsForAuthUser(user, {
+      page,
+      limit,
+      route: `${BASE_URL}/transaction`,
+    });
   }
 
   @Roles(Role.SUPER_ADMIN)

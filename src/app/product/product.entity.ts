@@ -7,13 +7,14 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   JoinColumn,
+  OneToOne,
   PrimaryColumn,
 } from 'typeorm';
 import { Category } from '../category/entities/category.entity';
 // import { Order } from '../order/entities/order.entity';
 import { PaymentReceipt } from '../payment/entities/payment.entity';
 import { User } from '../users/entities/user.entity';
-
+import { Design } from '../design/entities/design.entity';
 @Entity({ name: 'product', schema: 'public' })
 export class Product extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -22,13 +23,16 @@ export class Product extends BaseEntity {
   @Column({ unique: false })
   name: string;
 
+  @Column({ type: 'varchar', nullable: true, default: 'noimage.png' })
+  thumbnail: string;
+
   @Column({ default: false })
   inStock: boolean;
 
   @Column({ type: 'numeric' })
   price: number;
 
-  @Column({ type:"varchar", nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   description: string;
 
   @Column({ default: false })
@@ -38,7 +42,7 @@ export class Product extends BaseEntity {
   @PrimaryColumn()
   categoryId: string;
 
-  @ManyToOne(() => Category, (category) => category.products)
+  @ManyToOne(() => Category, (category) => category.products,{eager:true})
   @JoinColumn()
   category: Category;
 
@@ -48,7 +52,7 @@ export class Product extends BaseEntity {
   @Column({ default: false })
   purchased: boolean;
 
-  @Column({ nullable: true})
+  @Column({ nullable: true })
   bio: string;
 
   @ManyToOne(() => PaymentReceipt, (paymentReceipt) => paymentReceipt.product)
@@ -58,9 +62,16 @@ export class Product extends BaseEntity {
   @Column({ default: null })
   sellerId: string;
 
-  @ManyToOne(() => User, (user) => user.products)
+  @ManyToOne(() => User, (user) => user.products, { eager: true })
   @JoinColumn()
   seller: User;
+
+  @OneToOne(() => Design, (design) => design.product, {
+    eager: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  design: Design;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

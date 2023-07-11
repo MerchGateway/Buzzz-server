@@ -9,9 +9,13 @@ import {
   ParseUUIDPipe,
   HttpCode,
   HttpStatus,
+  Query,
   UseGuards,
 } from '@nestjs/common';
-
+import { BASE_URL } from '../../constant';
+import { ParseIntPipe } from '@nestjs/common';
+import { DefaultValuePipe } from '@nestjs/common';
+import { Pagination } from 'nestjs-typeorm-paginate';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/order.dto';
 import { Order } from './entities/order.entity';
@@ -33,14 +37,6 @@ export class OrderController {
   ): Promise<Order[] | undefined> {
     return this.orderService.createOrder(payload, user);
   }
-
-  // @Put('/:orderId')
-  // private updateOrder(
-  //   @Body() payload: UpdateOrderDto,
-  //   @Param('orderId', ParseUUIDPipe) orderId: string,
-  // ): Promise<Order | undefined> {
-  //   return this.orderService.updateOrder(payload, orderId);
-  // }
 
   @Roles(Role.SUPER_ADMIN)
   @UseGuards(RolesGuard)
@@ -65,9 +61,15 @@ export class OrderController {
   @UseGuards(RolesGuard)
   @Get('/all')
   private getAllOrders(
-    
-  ): Promise<Order[] | undefined> {
-    return this.orderService.getAllOrders();
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
+  ): Promise<Pagination<Order>> {
+    limit = limit > 100 ? 100 : limit < 10 ? 10 : limit;
+    return this.orderService.getAllOrders({
+      page,
+      limit,
+      route: `${BASE_URL}/order/all`,
+    });
   }
   @Get('/:orderId')
   private getOrder(
@@ -78,16 +80,32 @@ export class OrderController {
   }
 
   @Get('')
-  private getOrders(@CurrentUser() user: User): Promise<Order[] | undefined> {
-    return this.orderService.getOrders(user);
+  private getOrders(
+    @CurrentUser() user: User,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
+  ): Promise<Pagination<Order>|Order[]> {
+    limit = limit > 100 ? 100 : limit < 10 ? 10 : limit;
+    return this.orderService.getOrders(user, {
+      page,
+      limit,
+      route: `${BASE_URL}/order/`,
+    });
   }
 
   @Roles(Role.SUPER_ADMIN)
   @UseGuards(RolesGuard)
   @Get('/:userId/active')
   private getActiveOrders(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
     @Param('userId', ParseUUIDPipe) id: string,
-  ): Promise<Order[] | undefined> {
-    return this.orderService.getActiveOrders(id);
+  ): Promise<Pagination<Order>> {
+    limit = limit > 100 ? 100 : limit < 10 ? 10 : limit;
+    return this.orderService.getActiveOrders(id, {
+      page,
+      limit,
+      route: `${BASE_URL}/:userId/active`,
+    });
   }
 }

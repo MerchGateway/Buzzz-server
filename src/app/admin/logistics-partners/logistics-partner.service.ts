@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { LogisticsPartner } from '../logistics-partners/entities/logistics-partner.entity';
 import { User } from 'src/app/users/entities/user.entity';
 import { HttpException } from '@nestjs/common';
@@ -29,11 +29,22 @@ export class LogisticsPartnerService {
         relations: ['logistics_partner'],
       });
 
-      const partner = await this.logisticsPartnerRepository.findOneBy({
-        id: userWithLogisticsRelation.logistics_partner.id,
-      });
-
-      return partner.orders;
+      // const partner = await this.logisticsPartnerRepository.findOneBy({
+      //   id: userWithLogisticsRelation.logistics_partner.id,
+      // });
+      const orders = await this.orderRepository
+        .createQueryBuilder('order')
+        .leftJoin('order.logistics_partner', 'logistics_partner')
+        .leftJoinAndSelect('order.product', 'product')
+        .select('product.thumbnail')
+        .addSelect('shipping_details')
+        .addSelect('quantity')
+        .addSelect('status')
+        .where('logistics_partner.id=:logistics_partner', {
+          logistics_partner: userWithLogisticsRelation.logistics_partner.id,
+        })
+        .getRawMany();
+      return orders;
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
@@ -62,7 +73,8 @@ export class LogisticsPartnerService {
 
       if (
         !order.logistics_partner ||
-        order.logistics_partner.id !== userWithLogisticsRelation.logistics_partner.id
+        order.logistics_partner.id !==
+          userWithLogisticsRelation.logistics_partner.id
       ) {
         throw new UnauthorizedException(
           'This order hasnt been assigned to you',
@@ -94,9 +106,13 @@ export class LogisticsPartnerService {
           ` order with id ${id} does  not  exist or isnt asigned to you`,
         );
       }
-      return order;
+      return {
+        status: order.status,
+        thumbnail: order.product.thumbnail,
+        quantity: order.quantity,
+        shipping_details: order.shipping_details,
+      };
     } catch (err) {
-      user;
       throw new HttpException(err.message, err.status);
     }
   }

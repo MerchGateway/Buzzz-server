@@ -15,7 +15,8 @@ import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { CartModule } from './cart/cart.module';
-
+import { CLOUDINARY } from 'src/constant';
+import { CloudinaryProvider } from 'src/providers/cloudinary.provider';
 import { PaymentModule } from './payment/payment.module';
 import { ContactModule } from './contact/contact.module';
 
@@ -27,10 +28,14 @@ import { WalletTransactionsModule } from './wallet-transactions/wallet-transacti
 import { NotificationModule } from './notification/notification.module';
 import { DesignController } from './design/design.controller';
 import { DesignModule } from './design/design.module';
-
+import { JwtModule } from '@nestjs/jwt';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
+    JwtModule.register({
+      secret: configuration().jwt.secret,
+      signOptions: { expiresIn: configuration().jwt.expiresIn },
+    }),
     DatabaseModule,
     AuthModule,
     UsersModule,
@@ -60,6 +65,7 @@ import { DesignModule } from './design/design.module';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
+    
     {
       provide: APP_INTERCEPTOR,
       useClass: ErrorsInterceptor,

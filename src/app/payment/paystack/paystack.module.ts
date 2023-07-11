@@ -19,5 +19,6 @@ import { TransactionModule } from 'src/app/transaction/transaction.module';
   ],
   controllers: [PaystackBrokerController],
   providers: [PaystackBrokerService],
+  exports: [PaystackBrokerService],
 })
 export class PaystackBrokerModule {}

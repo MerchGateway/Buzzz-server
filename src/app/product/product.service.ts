@@ -78,7 +78,6 @@ export class ProductService {
   ) {
     const searchResult = this.productRepository
       .createQueryBuilder('product')
-      .leftJoinAndSelect('product.seller', 'seller')
       .where(
         'product.name = :name OR product.price = :price OR product.sellerId= :sellerId OR seller.username= :username ',
         {
@@ -96,8 +95,6 @@ export class ProductService {
       const product = await this.productRepository.findOne({
         where: { id },
         relations: {
-          seller: true,
-          category: true,
           receipt: true,
         },
       });
