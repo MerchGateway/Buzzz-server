@@ -45,13 +45,13 @@ export class Design extends BaseEntity {
   contributors: String[];
 
   @Column({
-    type: 'json',
-    nullable: true,
+    type: 'json'
   })
   @IsOptional()
   images?: ImageBody[];
 
-  @Column('simple-array', { nullable: true })
+  @Column('simple-array')
+  @IsOptional()
   texts?: String[];
 
   @CreateDateColumn()
