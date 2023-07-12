@@ -69,6 +69,7 @@ export default () => ({
   },
   redis: {
     port: parseInt(process.env.REDIS_PORT,10)||6379,
+    redis_url:process.env.REDIS_URL
   },
 
   firebaseDatabaseUrl: process.env.FIREBASE_DATABASE_URL,

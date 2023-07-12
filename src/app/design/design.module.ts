@@ -22,7 +22,7 @@ import { BullModule } from '@nestjs/bull';
 @Module({
   imports: [
     BullModule.forRoot({
-      redis: {
+      redis:configuration().redis.redis_url ?  configuration().redis_url:  {
         host: configuration().database.host,
         port: configuration().redis.port
       },
