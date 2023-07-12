@@ -45,12 +45,12 @@ export class Design extends BaseEntity {
   contributors: String[];
 
   @Column({
-    type: 'json'
+    type: 'json',nullable:true
   })
   @IsOptional()
   images?: ImageBody[];
 
-  @Column('simple-array')
+  @Column({type:'simple-array',nullable:true })
   @IsOptional()
   texts?: String[];
 
