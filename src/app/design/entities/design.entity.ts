@@ -50,7 +50,8 @@ export class Design extends BaseEntity {
   })
   images: ImageBody[];
 
-  @Column('simple-array', { nullable: true })
+  @Column({ type: 'simple-array', nullable: true })
+  @IsOptional()
   texts: string[];
 
   @CreateDateColumn()
