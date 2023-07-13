@@ -40,17 +40,18 @@ export class Design extends BaseEntity {
   @Column({ type: 'simple-json' })
   design_data: any;
 
-  @Column({ type: 'simple-array',nullable:true })
+  @Column({ type: 'simple-array', nullable: true })
   @IsOptional()
-  contributors: String[];
+  contributors: string[];
 
   @Column({
-    type: 'json'
+    type: 'json',
+    nullable: true,
   })
   images: ImageBody[];
-  
-  @Column({type:'simple-array' })
-  texts: String[];
+
+  @Column('simple-array', { nullable: true })
+  texts: string[];
 
   @CreateDateColumn()
   created_at: Date;
@@ -62,7 +63,7 @@ export class Design extends BaseEntity {
   @BeforeUpdate()
   private async() {
     if (!this.contributors[0]) {
-           this.contributors.push(this.owner.email);
+      this.contributors.push(this.owner.email);
     }
   }
 }
