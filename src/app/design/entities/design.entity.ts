@@ -45,7 +45,7 @@ export class Design extends BaseEntity {
   contributors: string[];
 
   @Column({
-    type: 'json',
+    type: 'simple-json',
     nullable: true,
   })
   images: ImageBody[];
