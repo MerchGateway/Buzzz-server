@@ -47,10 +47,10 @@ export class Design extends BaseEntity {
   @Column({
     type: 'json'
   })
-  images?: ImageBody[];
-
+  images: ImageBody[];
+  
   @Column({type:'simple-array' })
-  texts?: String[];
+  texts: String[];
 
   @CreateDateColumn()
   created_at: Date;
