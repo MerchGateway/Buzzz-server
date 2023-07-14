@@ -128,7 +128,7 @@ export class OrderService {
     user: User,
     pagination?: IPaginationOptions,
   ): Promise<Pagination<Order> | Order[]> {
-    const { limit, page, route } = pagination;
+   
     try {
       if (!pagination) {
         const Orders = await this.orderRepository.find({
@@ -138,7 +138,8 @@ export class OrderService {
         });
         return Orders;
       }
-
+      
+     const { limit, page, route } = pagination;
       const orders = this.orderRepository
         .createQueryBuilder('order')
         .leftJoin('order.user', 'user')
