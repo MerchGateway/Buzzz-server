@@ -65,7 +65,7 @@ export default () => ({
     cloud_name: process.env.CLOUD_NAME,
     cloud_api_key: process.env.CLOUD_API_KEY,
     cloud_api_secret: process.env.CLOUD_API_SECRET,
-    cloundinary_url: process.env.CLOUDINARY_URL,
+    cloudinary_url: process.env.CLOUDINARY_URL,
   },
   redis: {
     port: parseInt(process.env.REDIS_PORT,10)||6379,
