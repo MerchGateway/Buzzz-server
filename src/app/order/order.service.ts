@@ -128,7 +128,6 @@ export class OrderService {
     user: User,
     pagination?: IPaginationOptions,
   ): Promise<Pagination<Order> | Order[]> {
-    const { limit, page, route } = pagination;
     try {
       if (!pagination) {
         const Orders = await this.orderRepository.find({
@@ -138,10 +137,11 @@ export class OrderService {
         });
         return Orders;
       }
-
+      const { limit, page, route } = pagination;
       const orders = this.orderRepository
         .createQueryBuilder('order')
-        .leftJoin('order.user', 'user')
+        .leftJoinAndSelect('order.user', 'user')
+        .leftJoinAndSelect('order.product', 'product')
         .where('user.id=:user', { user: user.id });
 
       return paginate<Order>(orders, { limit, page, route });
@@ -164,7 +164,8 @@ export class OrderService {
       // return Orders;
       const orders = this.orderRepository
         .createQueryBuilder('order')
-        .leftJoin('order.user', 'user')
+        .leftJoinAndSelect('order.user', 'user')
+        .leftJoinAndSelect('order.product', 'product')
         .where('user.id=:user', { user: id })
         .andWhere('order.status=:status', { status: Status.PAID });
 
