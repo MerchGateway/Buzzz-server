@@ -46,7 +46,6 @@ export class AuthService {
   }
 
   async validateUser(email: string, enteredPassword: string) {
-
     const user = await this.userRepository
       .createQueryBuilder('user')
       .where('user.email = :email', { email })
@@ -59,7 +58,7 @@ export class AuthService {
     }
 
     const isMatch = await user.matchPassword(enteredPassword);
- console.log(isMatch)
+    console.log(isMatch);
     if (!isMatch) {
       return null;
     }
@@ -86,7 +85,7 @@ export class AuthService {
   }
 
   async postAdminSignin(user: User) {
-    console.log("this is the user",user)
+    console.log('this is the user', user);
     const payload: JwtPayload = { sub: user.id, role: user.role };
     user.password && delete user.password;
     return {
@@ -264,6 +263,4 @@ export class AuthService {
     const data = await this.postAdminSignin(user);
     return new SuccessResponse(data, 'Signin successful');
   }
-
- 
 }

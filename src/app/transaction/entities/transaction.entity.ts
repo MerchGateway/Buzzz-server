@@ -7,7 +7,6 @@ import {
   JoinColumn,
   UpdateDateColumn,
   PrimaryGeneratedColumn,
-  // BeforeInsert,
   OneToMany,
   // TableColumn,
 } from 'typeorm';
@@ -17,7 +16,6 @@ import { User } from '../../users/entities/user.entity';
 import connection from 'src/app/payment/paystack/utils/connection';
 import { Status } from 'src/types/transaction';
 import { Order } from 'src/app/order/entities/order.entity';
-import { AxiosInstance } from 'axios';
 
 @Entity('transaction')
 export class Transaction extends BaseEntity {

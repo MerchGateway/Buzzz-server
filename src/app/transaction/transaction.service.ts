@@ -82,7 +82,8 @@ export class TransactionService {
     try {
       const transactions = this.transactionRepository
         .createQueryBuilder('transaction')
-        .leftJoin('transaction.user', 'user');
+         .leftJoinAndSelect('order.user', 'user')
+        .leftJoinAndSelect('order.product', 'product')
       // const transactions = await this.transactionRepository.find({
       //   relations: ['user'],
       // });
