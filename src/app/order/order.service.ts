@@ -128,6 +128,10 @@ export class OrderService {
     user: User,
     pagination?: IPaginationOptions,
   ): Promise<Pagination<Order> | Order[]> {
+<<<<<<< HEAD
+=======
+   
+>>>>>>> 378250bea496de6a185ff66f2d85602ea13c2f82
     try {
       if (!pagination) {
         const Orders = await this.orderRepository.find({
