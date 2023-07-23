@@ -2,7 +2,7 @@ import { Injectable, HttpException, NotFoundException } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/transaction.dto';
 import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThanOrEqual, Repository } from 'typeorm';
+import { FindOptionsUtils, MoreThanOrEqual, Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
 import connection from '../payment/paystack/utils/connection';
 import { Status as orderStatus } from '../../types/order';
@@ -58,18 +58,19 @@ export class TransactionService {
     user: User,
     { limit, page, route }: IPaginationOptions,
   ): Promise<Pagination<Transaction>> {
-  try {
+    try {
       // const transactions = await this.transactionRepository.find({
       //   where: {
       //     user: { id: user.id },
       //   },
       // });
-      const transactions = this.transactionRepository
-        .createQueryBuilder('transaction')
-        .leftJoin('transaction.user', 'user')
+
+      const qb = this.transactionRepository.createQueryBuilder('transaction');
+      FindOptionsUtils.joinEagerRelations(qb, qb.alias, this.transactionRepository.metadata);
+  qb.leftJoin('transaction.user', 'user')
         .where('user.id=:user', { user: user.id });
 
-      return paginate<Transaction>(transactions, { limit, page, route });
+      return paginate<Transaction>(qb, { limit, page, route });
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
@@ -80,14 +81,14 @@ export class TransactionService {
     route,
   }: IPaginationOptions): Promise<Pagination<Transaction>> {
     try {
-      const transactions = this.transactionRepository
-        .createQueryBuilder('transaction')
-         .leftJoinAndSelect('order.user', 'user')
-        .leftJoinAndSelect('order.product', 'product')
+      const qb = this.transactionRepository.createQueryBuilder('transaction');
+      FindOptionsUtils.joinEagerRelations(qb, qb.alias, this.transactionRepository.metadata);
+      qb.leftJoinAndSelect('transaction.user', 'user');
+
       // const transactions = await this.transactionRepository.find({
       //   relations: ['user'],
       // });
-      return paginate<Transaction>(transactions, { limit, page, route });
+      return paginate<Transaction>(qb, { limit, page, route });
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }

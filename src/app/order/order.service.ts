@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsUtils, Repository } from 'typeorm';
 import { Pagination, IPaginationOptions } from 'nestjs-typeorm-paginate';
 import { paginate } from 'nestjs-typeorm-paginate';
 import {
@@ -128,10 +128,7 @@ export class OrderService {
     user: User,
     pagination?: IPaginationOptions,
   ): Promise<Pagination<Order> | Order[]> {
-<<<<<<< HEAD
-=======
    
->>>>>>> 378250bea496de6a185ff66f2d85602ea13c2f82
     try {
       if (!pagination) {
         const Orders = await this.orderRepository.find({
@@ -142,13 +139,12 @@ export class OrderService {
         return Orders;
       }
       const { limit, page, route } = pagination;
-      const orders = this.orderRepository
-        .createQueryBuilder('order')
-        .leftJoinAndSelect('order.user', 'user')
-        .leftJoinAndSelect('order.product', 'product')
+       const qb = this.orderRepository.createQueryBuilder('order');
+       FindOptionsUtils.joinEagerRelations(qb, qb.alias, this.orderRepository.metadata);
+      qb
         .where('user.id=:user', { user: user.id });
 
-      return paginate<Order>(orders, { limit, page, route });
+      return paginate<Order>(qb, { limit, page, route });
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
@@ -166,14 +162,13 @@ export class OrderService {
       //   },
       // });
       // return Orders;
-      const orders = this.orderRepository
-        .createQueryBuilder('order')
-        .leftJoinAndSelect('order.user', 'user')
-        .leftJoinAndSelect('order.product', 'product')
-        .where('user.id=:user', { user: id })
+      
+      const qb=this.orderRepository.createQueryBuilder('order')
+      FindOptionsUtils.joinEagerRelations(qb,qb.alias,this.orderRepository.metadata);
+     qb.where('user.id=:user', { user: id })
         .andWhere('order.status=:status', { status: Status.PAID });
 
-      return paginate<Order>(orders, { limit, page, route });
+      return paginate<Order>(qb, { limit, page, route });
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
