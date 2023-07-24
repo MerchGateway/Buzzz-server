@@ -66,9 +66,14 @@ export class TransactionService {
       // });
 
       const qb = this.transactionRepository.createQueryBuilder('transaction');
-      FindOptionsUtils.joinEagerRelations(qb, qb.alias, this.transactionRepository.metadata);
-  qb.leftJoin('transaction.user', 'user')
-        .where('user.id=:user', { user: user.id });
+      FindOptionsUtils.joinEagerRelations(
+        qb,
+        qb.alias,
+        this.transactionRepository.metadata,
+      );
+      qb.leftJoinAndSelect('transaction.user', 'user').where('user.id=:user', {
+        user: user.id,
+      });
 
       return paginate<Transaction>(qb, { limit, page, route });
     } catch (err: any) {
@@ -82,7 +87,11 @@ export class TransactionService {
   }: IPaginationOptions): Promise<Pagination<Transaction>> {
     try {
       const qb = this.transactionRepository.createQueryBuilder('transaction');
-      FindOptionsUtils.joinEagerRelations(qb, qb.alias, this.transactionRepository.metadata);
+      FindOptionsUtils.joinEagerRelations(
+        qb,
+        qb.alias,
+        this.transactionRepository.metadata,
+      );
       qb.leftJoinAndSelect('transaction.user', 'user');
 
       // const transactions = await this.transactionRepository.find({
