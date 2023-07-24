@@ -128,7 +128,6 @@ export class OrderService {
     user: User,
     pagination?: IPaginationOptions,
   ): Promise<Pagination<Order> | Order[]> {
-   
     try {
       if (!pagination) {
         const Orders = await this.orderRepository.find({
@@ -139,10 +138,15 @@ export class OrderService {
         return Orders;
       }
       const { limit, page, route } = pagination;
-       const qb = this.orderRepository.createQueryBuilder('order');
-       FindOptionsUtils.joinEagerRelations(qb, qb.alias, this.orderRepository.metadata);
-      qb
-        .where('user.id=:user', { user: user.id });
+      const qb = this.orderRepository.createQueryBuilder('order');
+      FindOptionsUtils.joinEagerRelations(
+        qb,
+        qb.alias,
+        this.orderRepository.metadata,
+      );
+      qb.leftJoinAndSelect('order.user', 'user').where('user.id=:user', {
+        user: user.id,
+      });
 
       return paginate<Order>(qb, { limit, page, route });
     } catch (err: any) {
@@ -162,11 +166,18 @@ export class OrderService {
       //   },
       // });
       // return Orders;
-      
-      const qb=this.orderRepository.createQueryBuilder('order')
-      FindOptionsUtils.joinEagerRelations(qb,qb.alias,this.orderRepository.metadata);
-     qb.where('user.id=:user', { user: id })
-        .andWhere('order.status=:status', { status: Status.PAID });
+
+      const qb = this.orderRepository.createQueryBuilder('order');
+      FindOptionsUtils.joinEagerRelations(
+        qb,
+        qb.alias,
+        this.orderRepository.metadata,
+      );
+      qb.leftJoinAndSelect('order.user', 'user')
+        .where('user.id=:user', { user: id })
+        .andWhere('order.status=:status', {
+          status: Status.PAID,
+        });
 
       return paginate<Order>(qb, { limit, page, route });
     } catch (err: any) {
