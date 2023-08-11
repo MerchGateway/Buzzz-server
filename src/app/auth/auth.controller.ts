@@ -35,7 +35,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('signin')
   @HttpCode(200)
-  signin(@Body() localSignin: LocalSigninDto, @CurrentUser() user: User) {
+  signin(@CurrentUser() user: User) {
     return this.authService.signin(user);
   }
 
@@ -44,7 +44,6 @@ export class AuthController {
   @Post('admin-signin')
   @HttpCode(200)
   superAdminSignin(
-    @Body() localSignin: LocalSigninDto,
     @CurrentUser() user: User,
   ) {
     return this.authService.adminSignin(user);

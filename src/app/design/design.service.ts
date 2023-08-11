@@ -296,13 +296,15 @@ export class DesignService {
     }
   }
   public async createPolymailerContent(
-    payload: string,
-  ): Promise<PolyMailerContent | undefined> {
+    payload: {content:string}[],
+  ): Promise<PolyMailerContent[] | undefined> {
     try {
-      const polymailer = this.polyMailerContentRepository.create({
-        content: payload,
-      });
-      return await polymailer.save();
+      
+      const polymailers = this.polyMailerContentRepository.create(
+        payload,
+      );
+      console.log(polymailers)
+      return  polymailers
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }

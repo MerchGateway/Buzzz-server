@@ -124,8 +124,10 @@ export class Order extends BaseEntity {
   }
 
   public async updateStatus(value: string) {
+
     this.status = value;
     if (this.status === Status.PAID) {
+  
       // delete this.cart;
       if (this.cart) {
         Cart.remove(this.cart);

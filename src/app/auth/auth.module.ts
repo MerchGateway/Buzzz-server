@@ -38,6 +38,7 @@ import { TwoFactorAuthModule } from '../2fa/twoFactorAuth.module';
     LoggerModule,
     WalletModule,
   ],
+  
   controllers: [AuthController],
   providers: [
     LocalStrategy,

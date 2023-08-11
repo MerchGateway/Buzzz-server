@@ -11,6 +11,7 @@ export class RolesGuard extends JwtAuthGuard {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+  
     const isAuthenticated = await super.canActivate(context);
 
     if (!isAuthenticated) {
@@ -27,6 +28,7 @@ export class RolesGuard extends JwtAuthGuard {
     }
 
     const { user } = context.switchToHttp().getRequest();
+
     return requiredRoles.some((role) => user.role === role);
   }
 }

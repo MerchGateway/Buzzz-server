@@ -138,6 +138,7 @@ export class TransactionService {
       await this.axiosConnection
         .get(`/transaction/verify/${reference}`)
         .then(async (res: any) => {
+
           if (
             res.data &&
             res.data.data.status === 'success' &&
@@ -150,6 +151,7 @@ export class TransactionService {
             isTransaction.message = 'Transaction successful';
             isTransaction.status = Status.SUCCESS;
 
+      
             // set the status of order to paid on successful payment verification
             await Promise.all(
               isTransaction.orders.map(async (order) => {
