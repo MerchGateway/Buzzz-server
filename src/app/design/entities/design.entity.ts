@@ -24,6 +24,7 @@ export class Design extends BaseEntity {
 
   @OneToOne(() => Product, (product: Product) => product.design, {
     onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
   })
   product: Product;
 
@@ -64,7 +65,7 @@ export class Design extends BaseEntity {
   @BeforeUpdate()
   private async() {
     if (!this.contributors[0]) {
-      this.contributors.push(this.owner.email);
+      this.owner && this.contributors.push(this.owner.email);
     }
   }
 }

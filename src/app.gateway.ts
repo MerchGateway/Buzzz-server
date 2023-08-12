@@ -42,32 +42,41 @@ export class AppGateway
   // @UseGuards(WsGuard)
   @SubscribeMessage(DESIGN_MERCH)
   async handleDesign(client: ExtendedSocket, payload: any): Promise<void> {
+    let tke = client.handshake.headers.authorization
+      ? client.handshake.headers.authorization.split(' ')[1]
+      : null;
     console.log('entered socket file');
     // const user: User = client.user;
     let user: User;
-    
-    try {
-      const response = await this.jwtService.verifyToken(
-        client.handshake.headers.authorization.split(' ')[1],
-      );
 
-      user = await this.userService.findOne(response.sub);
-      await this.designService.design(
-        user,
-        payload,
-        client.handshake.query.id as string,
-      );
-      this.server.to(user.id).emit(DESIGN_MERCH, payload);
-    }catch(error) {
+    try {
+      if (tke) {
+        const jwtRes = await this.jwtService.verifyToken(tke);
+
+        user = await this.userService.findOne(jwtRes.sub);
+      const response=  await this.designService.design(
+          payload,
+          user,
+          client.handshake.query.id as string,
+        );
+        this.server.to(user.id).emit(DESIGN_MERCH, payload);
+      } else {
+        this.designService.design(
+          payload,
+          null,
+          client.handshake.query.id as string,
+        );
+        this.server.to(client.id).emit(DESIGN_MERCH, payload);
+      }
+    } catch (error) {
       console.log('error from socket', error);
       this.server
-        .to(user.id)
+        .to(client.id)
         .emit(
           DESIGN_ERROR,
           error.message ? error.message : 'Could not create or update design',
         );
     }
-
   }
 
   // @UseGuards(WsGuard)
@@ -100,17 +109,21 @@ export class AppGateway
 
   async handleConnection(client: ExtendedSocket, ...args: any[]) {
     try {
-      const payload = await this.jwtService.verifyToken(
-        client.handshake.headers.authorization.split(' ')[1],
-      );
-      // join private room
-      client.join(payload?.sub);
-      console.log(client.rooms);
-      console.log(`Connected ${client.id}`);
-      this.server.to(payload.sub).emit(SOCKET_CONNECT, { connected: true });
+      let tke = client.handshake.headers.authorization
+        ? client.handshake.headers.authorization.split(' ')[1]
+        : null;
+      if (tke) {
+        const payload = await this.jwtService.verifyToken(tke);
+        // join private room
+        client.join(payload?.sub);
+        console.log(client.rooms);
+        console.log(`Connected ${client.id}`);
+        this.server.to(payload.sub).emit(SOCKET_CONNECT, { connected: true });
+      } else {
+        this.server.to(client.id).emit(SOCKET_CONNECT, { connected: true });
+      }
     } catch (error) {
       client.disconnect(true);
     }
   }
-
 }

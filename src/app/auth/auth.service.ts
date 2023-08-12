@@ -17,7 +17,7 @@ import { IdentityProvider } from '../../types/user';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { WinstonLoggerService } from 'src/logger/winston-logger/winston-logger.service';
 import { EmailProvider } from '../../types/email';
-
+import { DesignService } from '../design/design.service';
 import { PasswordReset } from './entities/password-reset.entity';
 import { EMAIL_PROVIDER, PASSWORD_RESET_TOKEN_EXPIRY } from '../../constant';
 
@@ -31,6 +31,7 @@ import { TwoFactorAuthService } from '../2fa/twoFactorAuth.service';
 export class AuthService {
   constructor(
     private jwtService: JwtService,
+    private designService: DesignService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectRepository(PasswordReset)
@@ -113,8 +114,16 @@ export class AuthService {
     };
   }
 
-  async signin(user: User) {
+  async signin(user: User, designId?: string) {
     const data = await this.postSignin(user);
+
+    if (designId) {
+      // associate design with user
+      const design = await this.designService.fetchSingleDesign(designId);
+      design.owner = user;
+      await design.save();
+      console.log(design)
+    }
 
     if (user.allow2fa == true) {
       // always reset two factor verify status to false on login

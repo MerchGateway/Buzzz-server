@@ -20,11 +20,13 @@ import { WalletModule } from '../wallet/wallet.module';
 import { AdminModule } from '../admin/admin.module';
 import { NotificationModule } from '../notification/notification.module';
 import { TwoFactorAuthModule } from '../2fa/twoFactorAuth.module';
+import { DesignModule } from '../design/design.module';
 
 
 @Module({
   imports: [
     TwoFactorAuthModule,
+    DesignModule,
     PassportModule,
     AdminModule,
     JwtModule.register({
