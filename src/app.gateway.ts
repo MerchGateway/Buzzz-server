@@ -17,6 +17,8 @@ import { DESIGN_MERCH, DESIGN_ERROR, SOCKET_CONNECT } from './constant';
 import { JWT } from './constant';
 import { Jwt } from './providers/jwt.provider';
 import { UsersService } from './app/users/users.service';
+import { Job } from 'bull';
+import { Design } from './app/design/entities/design.entity';
 
 class ExtendedSocket extends Socket {
   user: User;
@@ -48,25 +50,26 @@ export class AppGateway
     console.log('entered socket file');
     // const user: User = client.user;
     let user: User;
+    let response: Job<Design>;
 
     try {
       if (tke) {
         const jwtRes = await this.jwtService.verifyToken(tke);
 
         user = await this.userService.findOne(jwtRes.sub);
-      const response=  await this.designService.design(
+        response = await this.designService.design(
           payload,
           user,
           client.handshake.query.id as string,
         );
-        this.server.to(user.id).emit(DESIGN_MERCH, payload);
+        this.server.to(user.id).emit(DESIGN_MERCH, await response.finished());
       } else {
-        this.designService.design(
+        response = await this.designService.design(
           payload,
           null,
           client.handshake.query.id as string,
         );
-        this.server.to(client.id).emit(DESIGN_MERCH, payload);
+        this.server.to(client.id).emit(DESIGN_MERCH, await response.finished());
       }
     } catch (error) {
       console.log('error from socket', error);
