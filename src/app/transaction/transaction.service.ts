@@ -10,7 +10,10 @@ import { User } from '../users/entities/user.entity';
 import { OrderService } from '../order/order.service';
 import moment from 'moment';
 import { AxiosInstance } from 'axios';
-import { PAYSTACK_SUCCESS_MESSAGE } from '../../constant';
+import {
+  DEFAULT_POLYMAILER_CONTENT,
+  PAYSTACK_SUCCESS_MESSAGE,
+} from '../../constant';
 import { Order } from '../order/entities/order.entity';
 import { PolyMailerContent } from '../order/entities/polymailer_content.entity';
 import { Status } from 'src/types/transaction';
@@ -138,7 +141,6 @@ export class TransactionService {
       await this.axiosConnection
         .get(`/transaction/verify/${reference}`)
         .then(async (res: any) => {
-
           if (
             res.data &&
             res.data.data.status === 'success' &&
@@ -151,7 +153,6 @@ export class TransactionService {
             isTransaction.message = 'Transaction successful';
             isTransaction.status = Status.SUCCESS;
 
-      
             // set the status of order to paid on successful payment verification
             await Promise.all(
               isTransaction.orders.map(async (order) => {
@@ -175,7 +176,9 @@ export class TransactionService {
                 order.polymailer_details = {
                   to: order.user.name.split(' ')[0],
                   from: order.product.seller.name.split(' ')[0],
-                  content: polymailerContents[random].content,
+                  content: polymailerContents[0]
+                    ? polymailerContents[random].content
+                    : DEFAULT_POLYMAILER_CONTENT,
                 };
                 console.log(order);
                 await order.save();
