@@ -33,7 +33,6 @@ export class TransactionController {
 
   @Public()
   @Get('verify/')
-  @Redirect(FRONTEND_URL)
   @HttpCode(HttpStatus.ACCEPTED)
   private verifyTransaction(
     @Query('reference') reference: string,
