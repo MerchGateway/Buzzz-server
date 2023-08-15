@@ -17,6 +17,7 @@ import { User } from '../../users/entities/user.entity';
 
 import { Order } from '../../order/entities/order.entity';
 import { Product } from '../../product/product.entity';
+import { Size } from 'src/types/size';
 
 @Entity('cart_item')
 export class Cart extends BaseEntity {
@@ -47,6 +48,9 @@ export class Cart extends BaseEntity {
 
   @Column({ type: 'integer' })
   total: number;
+
+  @Column({ type: 'enum', enum: Size, nullable: true })
+  size: Size;
 
   @BeforeInsert()
   @BeforeUpdate()
