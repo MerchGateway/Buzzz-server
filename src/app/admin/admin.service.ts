@@ -49,6 +49,7 @@ export class AdminService {
     }
   }
   async createLogisticPartner(data: CreateLogisticsPartnerDto) {
+  
     try {
       const logisticsPartner = this.logisticsPartnerRepository.create(data);
 

@@ -36,6 +36,7 @@ import { LogisticsPartner } from './logistics-partners/entities/logistics-partne
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
+
   @Roles(Role.SUPER_ADMIN)
   @Post('create-printing-partner')
   createPrintingPartner(@Body() data: CreatePrintingPartnerDto) {

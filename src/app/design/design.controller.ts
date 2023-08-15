@@ -42,8 +42,8 @@ export class DesignController {
   @UseGuards(RolesGuard)
   @Post('create-polymailer-content')
   createPolyMailerContent(
-    @Body('content') payload: string,
-  ): Promise<PolyMailerContent | undefined> {
+    @Body() payload: {content:string}[],
+  ): Promise<PolyMailerContent[] | undefined> {
     return this.designService.createPolymailerContent(payload);
   }
 

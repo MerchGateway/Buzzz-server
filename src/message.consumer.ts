@@ -29,24 +29,30 @@ export class MessageConsumer {
         isDesignExist = {
           design: await this.designService.fetchSingleDesign(jobData.id),
         };
-        if (!isDesignExist.design.contributors.includes(jobData.user.email)) {
-          console.log('unautorized to design')
+
+        if (
+          jobData.user &&
+          isDesignExist.design &&
+          !isDesignExist.design.contributors.includes(jobData.user.email)
+        ) {
+          console.log('unauthorized to design');
           throw new WsException('You are not an authorized contributor');
         }
       } else {
-        isDesignExist =
-          await this.designService.fetchLatestDesignForCurrentUser(
-            jobData.user,
-          );
+        isDesignExist = jobData.user
+          ? await this.designService.fetchLatestDesignForCurrentUser(
+              jobData.user,
+            )
+          : { design: null };
       }
-
+      console.log(isDesignExist);
       if (!isDesignExist.design) {
         console.log('creating new design');
         const newDesign = this.designRepository.create({
           owner: jobData.user,
           texts: [],
           images: [],
-          contributors:[]
+          contributors: [],
         });
 
         let updatedDesign = await this.designService.sortAssets(
@@ -54,7 +60,7 @@ export class MessageConsumer {
           jobData.payload,
         );
         console.log('came back here', updatedDesign);
-         return updatedDesign;
+        return updatedDesign;
       } else {
         console.log('updating old design');
         isDesignExist.design.images = [];
@@ -62,7 +68,9 @@ export class MessageConsumer {
 
         // delete old images from cloudinary
         await this.imageStorage.deletePhotosByPrefix(
-          isDesignExist.design.owner.username,
+          isDesignExist.design.owner
+            ? isDesignExist.design.owner.username
+            : 'no_auth',
         );
         let updatedDesign = await this.designService.sortAssets(
           isDesignExist.design,

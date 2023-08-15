@@ -117,8 +117,13 @@ export class OrderService {
     try {
       // const Orders = await this.orderRepository.find();
       // return Orders;
-      const orders = this.orderRepository.createQueryBuilder('order');
-      return paginate<Order>(orders, { limit, page, route });
+          const qb = this.orderRepository.createQueryBuilder('order');
+       FindOptionsUtils.joinEagerRelations(
+        qb,
+        qb.alias,
+        this.orderRepository.metadata,
+      );
+      return paginate<Order>(qb, { limit, page, route });
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }

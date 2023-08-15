@@ -22,7 +22,7 @@ import { SuccessResponse } from 'src/utils/response';
 import { Product } from '../product/product.entity';
 import { PolyMailerContent } from '../order/entities/polymailer_content.entity';
 import { Inject } from '@nestjs/common';
-import { CLOUDINARY, EVENT_QUEUE,DESIGN_MERCH } from 'src/constant';
+import { CLOUDINARY, EVENT_QUEUE, DESIGN_MERCH } from 'src/constant';
 import { CloudinaryProvider } from 'src/providers/cloudinary.provider';
 import { TEXT_TYPE, IMAGE_TYPE } from 'src/constant';
 import { WsException } from '@nestjs/websockets/errors';
@@ -41,9 +41,7 @@ export class DesignService {
     private readonly imageStorage: CloudinaryProvider,
     @InjectRepository(PolyMailerContent)
     private readonly polyMailerContentRepository: Repository<PolyMailerContent>,
-  ) {
-    
-  }
+  ) {}
   async viewAllDesigns(): Promise<Design[] | undefined> {
     try {
       return await this.designRepository.find();
@@ -78,7 +76,7 @@ export class DesignService {
       throw new HttpException(err.message, err.status);
     }
   }
-   async sortAssets(design: Design, payload: any) {
+  async sortAssets(design: Design, payload: any) {
     // save updated assets
     try {
       for (let i in payload.objects) {
@@ -88,8 +86,10 @@ export class DesignService {
           const image = await this.imageStorage.uploadPhoto(
             payload.objects[i].src,
             {
-              asset_folder: design.owner.username,
-              public_id_prefix: design.owner.username,
+              asset_folder: design.owner ? design.owner.username : 'no_auth',
+              public_id_prefix: design.owner
+                ? design.owner.username
+                : 'no_auth',
             },
           );
 
@@ -104,24 +104,21 @@ export class DesignService {
         }
       }
       design.design_data = payload;
-      console.log(design)
-      design= await this.designRepository.save(design);
-      console.log(design)
-      return design
+      console.log(design);
+      design = await this.designRepository.save(design);
+      console.log(design);
+      return design;
     } catch (error) {
-      console.log(error)
+      console.log(error);
       throw new WsException(error.message);
     }
   }
 
-  
-
-  async design(user: User, payload: any, id?: string) {
-    console.log("entered design")
-    try{
-   await this.queue.add(DESIGN_MERCH,{user,payload,id})
-   console.log("added to queue")}
-    catch (error) {
+  async design(payload: any, user?: User, id?: string) {
+    console.log('entered design');
+    try {
+    return  await this.queue.add(DESIGN_MERCH, { user, payload, id })
+    } catch (error) {
       throw new WsException(error.message);
     }
   }
@@ -296,13 +293,12 @@ export class DesignService {
     }
   }
   public async createPolymailerContent(
-    payload: string,
-  ): Promise<PolyMailerContent | undefined> {
+    payload: { content: string }[],
+  ): Promise<PolyMailerContent[] | undefined> {
     try {
-      const polymailer = this.polyMailerContentRepository.create({
-        content: payload,
-      });
-      return await polymailer.save();
+      const polymailers = this.polyMailerContentRepository.create(payload);
+      console.log(polymailers);
+      return polymailers;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }

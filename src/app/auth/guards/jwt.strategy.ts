@@ -17,20 +17,21 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private configService: ConfigService,
     private readonly usersService: UsersService,
   ) {
+   
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: configService.get('jwt.secret'),
       passReqToCallback: true,
     });
+    
   }
 
   async validate(req: Request, payload: JwtPayload) {
     let user: User;
-
     
     try {
       user = await this.usersService.findOne(payload.sub);
-      console.log(user)
+      
       if (
         user.allow2fa == true &&
         user.isTwoFactorVerified == false &&

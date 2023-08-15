@@ -7,6 +7,7 @@ import {
   Get,
   Patch,
   Res,
+  Query,
   HttpStatus,
 } from '@nestjs/common';
 import { Public } from '../../decorators/public.decorator';
@@ -31,12 +32,13 @@ export class AuthController {
     private readonly twoFactorAuthService: TwoFactorAuthService,
   ) {}
 
+  
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('signin')
   @HttpCode(200)
-  signin(@Body() localSignin: LocalSigninDto, @CurrentUser() user: User) {
-    return this.authService.signin(user);
+  signin(@CurrentUser() user: User,@Query("designId") designId:string) {
+    return this.authService.signin(user,designId);
   }
 
   @Public()
@@ -44,7 +46,6 @@ export class AuthController {
   @Post('admin-signin')
   @HttpCode(200)
   superAdminSignin(
-    @Body() localSignin: LocalSigninDto,
     @CurrentUser() user: User,
   ) {
     return this.authService.adminSignin(user);
