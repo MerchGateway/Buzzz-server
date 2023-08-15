@@ -9,8 +9,9 @@ import {
   Delete,
   UseGuards,
   Query,
+  Redirect,
 } from '@nestjs/common';
-import { BASE_URL } from '../../constant';
+import { BASE_URL, FRONTEND_URL } from '../../constant';
 import { ParseIntPipe } from '@nestjs/common';
 import { DefaultValuePipe } from '@nestjs/common';
 import { Pagination } from 'nestjs-typeorm-paginate';
@@ -32,7 +33,8 @@ export class TransactionController {
 
   @Public()
   @Get('verify/')
-  @HttpCode(HttpStatus.CREATED)
+  @Redirect(FRONTEND_URL)
+  @HttpCode(HttpStatus.ACCEPTED)
   private verifyTransaction(
     @Query('reference') reference: string,
   ): Promise<Transaction | undefined> {
