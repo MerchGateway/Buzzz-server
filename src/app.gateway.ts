@@ -43,7 +43,7 @@ export class AppGateway
 
   // @UseGuards(WsGuard)
   @SubscribeMessage(DESIGN_MERCH)
-  async handleDesign(client: ExtendedSocket, payload: any): Promise<void> {
+  async handleDesign(client: ExtendedSocket, payload: any[]): Promise<void> {
     let tke = client.handshake.headers.authorization
       ? client.handshake.headers.authorization.split(' ')[1]
       : null;
@@ -58,14 +58,14 @@ export class AppGateway
 
         user = await this.userService.findOne(jwtRes.sub);
         response = await this.designService.design(
-          payload,
+          payload[0],
           user,
-          client.handshake.query.id as string,
+          payload[1] && (payload[1] as string),
         );
         this.server.to(user.id).emit(DESIGN_MERCH, await response.finished());
       } else {
         response = await this.designService.design(
-          payload,
+          payload[0],
           null,
           client.handshake.query.id as string,
         );

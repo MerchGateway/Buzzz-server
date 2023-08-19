@@ -3,7 +3,5 @@ export enum Size {
   L = 'L',
   XL = 'XL',
   S = 'S',
-  XS = 'XS',
-  XXL = 'XXL',
-  XXS = 'XXS'
+  XXL = 'XXL'
 }
