@@ -59,14 +59,12 @@ export class Cart extends BaseEntity {
   @BeforeInsert()
   @BeforeUpdate()
   private async calculateTotal(): Promise<void> {
-    console.log('this calculate total ran after');
     this.total = this.product.price * Math.abs(this.quantity);
   }
 
   @BeforeInsert()
   @BeforeUpdate()
   private async addColor(): Promise<void> {
-    console.log('add color ran', this.product.design.design_data.background);
     !this.color &&
       this.product &&
       (this.color = this.product.design.design_data.background);
