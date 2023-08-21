@@ -50,10 +50,10 @@ export class Cart extends BaseEntity {
   @Column({ type: 'integer' })
   total: number;
 
-  @Column({ type: 'enum', enum: Size, default: Size.M })
+  @Column({ type: 'enum', enum: Size, nullable: true ,default:Size.M})
   size: Size;
 
-  @Column({ type: 'enum', enum: Color, nullable: true })
+  @Column({ type: 'enum', enum: Color,nullable:true })
   color: Color;
 
   @BeforeInsert()
