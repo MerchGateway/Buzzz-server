@@ -36,7 +36,7 @@ export class TransactionController {
   @HttpCode(HttpStatus.ACCEPTED)
   private verifyTransaction(
     @Query('reference') reference: string,
-  ): Promise<Transaction | undefined> {
+  ): Promise<string> {
     return this.transactionService.verifyTransaction(reference);
   }
 

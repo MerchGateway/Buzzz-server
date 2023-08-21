@@ -123,7 +123,7 @@ export class TransactionService {
 
   public async verifyTransaction(
     reference: string,
-  ): Promise<Transaction | undefined> {
+  ): Promise<string> {
     // create connection instance of axios
     this.axiosConnection = connection();
     try {
@@ -190,7 +190,7 @@ export class TransactionService {
             isTransaction.channel = res.data.data.channel;
             isTransaction.amount = res.data.data.amount;
             isTransaction.status = Status.FAILED;
-            isTransaction.message = 'Transaction could not be verified';
+            isTransaction.message = 'Transaction verification failed';
             await Promise.all(
               isTransaction.orders.map(async (order) => {
                 await order.updateStatus(orderStatus.CANCELLED);
@@ -221,7 +221,8 @@ export class TransactionService {
       // console.log(res)
       // add user to customer list
       await this.customerService.create(product.seller.id, res.user);
-      return res;
+      // return res;
+      return   isTransaction.message;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
