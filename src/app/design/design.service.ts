@@ -117,7 +117,7 @@ export class DesignService {
   async design(payload: any, user?: User, id?: string) {
     console.log('entered design');
     try {
-    return  await this.queue.add(DESIGN_MERCH, { user, payload, id })
+      return await this.queue.add(DESIGN_MERCH, { user, payload, id });
     } catch (error) {
       throw new WsException(error.message);
     }
@@ -280,7 +280,12 @@ export class DesignService {
       const product = await this.publishDesign(user, payload, id, category_id);
       //   save product to cart
       await this.cartService.createCartItem(
-        { product: product.id, quantity: payload.quantity },
+        {
+          product: product.id,
+          quantity: payload.quantity,
+          color: payload?.color,
+          size: payload?.size,
+        },
         user,
       );
       //   initialize payment

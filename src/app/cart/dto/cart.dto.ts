@@ -1,4 +1,5 @@
 import { IsEnum, IsNumber, IsOptional, IsUUID } from 'class-validator';
+import { Color } from 'src/types/color';
 import { Size } from 'src/types/size';
 
 export class CreateCartDto {
@@ -11,9 +12,12 @@ export class CreateCartDto {
   @IsEnum(Size)
   @IsOptional()
   public readonly size?: Size;
+
+  @IsEnum(Color)
+  @IsOptional()
+  public readonly color: Color;
 }
 export class UpdateCartDto {
- 
   @IsNumber()
   @IsOptional()
   public readonly quantity?: number;
@@ -21,4 +25,7 @@ export class UpdateCartDto {
   @IsEnum(Size)
   @IsOptional()
   public readonly size?: Size;
+  @IsEnum(Color)
+  @IsOptional()
+  public readonly color?: Color;
 }

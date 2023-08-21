@@ -1,5 +1,6 @@
-import { IsNumber, IsOptional, IsString, IsNotEmpty,IsUUID } from 'class-validator';
-
+import { IsNumber,IsEnum, IsOptional, IsString, IsNotEmpty,IsUUID } from 'class-validator';
+import { Color } from 'src/types/color';
+import { Size } from 'src/types/size';
 export class PublishDesignDto {
   @IsString()
   title: string;
@@ -29,5 +30,12 @@ export class PublishDesignAndCheckoutDto {
   @IsString()
   @IsOptional()
   description: string;
+  @IsEnum(Size)
+  @IsOptional()
+  public readonly size?: Size;
+
+  @IsEnum(Color)
+  @IsOptional()
+  public readonly color: Color;
 
 }
