@@ -47,11 +47,10 @@ export class DesignController {
     return this.designService.createPolymailerContent(payload);
   }
 
-  @Roles(Role.SUPER_ADMIN)
-  @UseGuards(RolesGuard)
+ 
   @Get('all')
-  viewAllDesigns() {
-    return this.designService.viewAllDesigns();
+  viewAllDesigns( @CurrentUser() user: User,) {
+    return this.designService.viewAllDesigns(user);
   }
 
   @Roles(Role.USER)
