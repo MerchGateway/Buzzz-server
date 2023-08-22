@@ -9,7 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DesignController } from './design.controller';
 import { ConfigService } from '@nestjs/config';
 import { AppGateway } from 'src/app.gateway';
-import { APP_GATEWAY,CLOUDINARY, JWT, EVENT_QUEUE } from 'src/constant';
+import { APP_GATEWAY, CLOUDINARY, JWT, EVENT_QUEUE } from 'src/constant';
 import { Jwt } from 'src/providers/jwt.provider';
 import { CloudinaryProvider } from 'src/providers/cloudinary.provider';
 import { JwtModule } from '@nestjs/jwt';
@@ -17,13 +17,14 @@ import configuration from 'src/config/configuration';
 import { UsersModule } from '../users/users.module';
 import { PolyMailerContent } from '../order/entities/polymailer_content.entity';
 import { BullModule } from '@nestjs/bull';
-console.log(configuration().redis.redis_url)
+import { getRedisConfiguration } from 'src/config/redis-configuration';
 @Module({
   imports: [
-    BullModule.forRoot({
-      redis:configuration().redis.redis_url ?  configuration().redis.redis_url:  {
-        host: configuration().database.host,
-        port: configuration().redis.port
+    BullModule.forRootAsync({
+      useFactory(configService: ConfigService) {
+        return {
+          redis: getRedisConfiguration(configService),
+        };
       },
     }),
     BullModule.registerQueue({
