@@ -1,7 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 export const getRedisConfiguration = (configService: ConfigService) => {
   
-    const redisUrl = configService.get('REDIS_URL');
+    const redisUrl = configService.get('redis.redis_url');
   console.log(redisUrl);
   if (redisUrl) {
     const parsedUrl = new URL(redisUrl);
