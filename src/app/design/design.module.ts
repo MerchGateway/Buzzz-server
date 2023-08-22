@@ -17,6 +17,7 @@ import configuration from 'src/config/configuration';
 import { UsersModule } from '../users/users.module';
 import { PolyMailerContent } from '../order/entities/polymailer_content.entity';
 import { BullModule } from '@nestjs/bull';
+console.log(configuration().redis.redis_url)
 @Module({
   imports: [
     BullModule.forRoot({
