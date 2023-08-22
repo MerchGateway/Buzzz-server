@@ -42,9 +42,11 @@ export class DesignService {
     @InjectRepository(PolyMailerContent)
     private readonly polyMailerContentRepository: Repository<PolyMailerContent>,
   ) {}
-  async viewAllDesigns(): Promise<Design[] | undefined> {
+  async viewAllDesigns(user: User): Promise<Design[] | undefined> {
     try {
-      return await this.designRepository.find();
+      return await this.designRepository.find({
+        where: { owner: { id: user.id } },
+      });
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }

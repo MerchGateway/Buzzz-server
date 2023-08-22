@@ -21,6 +21,7 @@ export class MessageConsumer {
 
   @Process(DESIGN_MERCH)
   async readOperationJob(job: Job<unknown>) {
+    console.log("entered queue")
     let jobData: any = job.data;
     let isDesignExist: { design: Design };
 
