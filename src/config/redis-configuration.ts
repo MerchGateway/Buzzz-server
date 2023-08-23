@@ -1,7 +1,7 @@
-import { ConfigService } from '@nestjs/config';
-export const getRedisConfiguration = (configService: ConfigService) => {
-  
-    const redisUrl = configService.get('redis.redis_url');
+import { ConfigObject } from '@nestjs/config';
+
+export const getRedisConfiguration = (config: ConfigObject) => {
+  const redisUrl = config.redis.redis_url;
   console.log(redisUrl);
   if (redisUrl) {
     const parsedUrl = new URL(redisUrl);
@@ -14,7 +14,7 @@ export const getRedisConfiguration = (configService: ConfigService) => {
   }
 
   return {
-    host: configService.get<string>('database.host'),
-    port: Number(configService.get<string>('redis.port')),
+    host: config.database.host,
+    port: config.redis.port,
   };
 };
