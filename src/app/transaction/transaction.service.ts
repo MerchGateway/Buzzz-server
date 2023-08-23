@@ -20,8 +20,9 @@ import { Status } from 'src/types/transaction';
 import { CustomersService } from '../customers/customers.service';
 import { ProductService } from '../product/product.service';
 import { paginate } from 'nestjs-typeorm-paginate';
-import * as fs from 'fs';
-import path from 'path';
+import {readFileSync} from 'fs';
+import {resolve} from 'path';
+
 @Injectable()
 export class TransactionService {
   axiosConnection: AxiosInstance;
@@ -125,14 +126,13 @@ export class TransactionService {
 
   public async verifyTransaction(reference: string): Promise<string> {
     let response: string;
-
     // read files
-    const transactionSuccess = fs.readFileSync(
-      path.resolve(__dirname, 'src/assets/templates/transaction-success.html'),
+    const transactionSuccess =readFileSync(
+      resolve(__dirname,'..','assets/templates/transaction-success.html'),
       { encoding: 'utf-8' },
     );
-    const transactionFail = fs.readFileSync(
-      path.resolve(__dirname, 'src/assets/templates/transaction-fail.html'),
+    const transactionFail = readFileSync(
+      resolve(__dirname,'..', 'assets/templates/transaction-fail.html'),
       { encoding: 'utf-8' },
     );
 
