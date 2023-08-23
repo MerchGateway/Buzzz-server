@@ -10,6 +10,7 @@ import {
   UseGuards,
   Query,
   Redirect,
+  Res,
 } from '@nestjs/common';
 import { BASE_URL, FRONTEND_URL } from '../../constant';
 import { ParseIntPipe } from '@nestjs/common';
@@ -26,6 +27,7 @@ import { User } from '../users/entities/user.entity';
 
 import { CurrentUser } from 'src/decorators/user.decorator';
 import { Public } from 'src/decorators/public.decorator';
+import { Response } from 'express';
 
 @Controller('transaction')
 export class TransactionController {
@@ -34,10 +36,12 @@ export class TransactionController {
   @Public()
   @Get('verify/')
   @HttpCode(HttpStatus.ACCEPTED)
-  private verifyTransaction(
+  private async verifyTransaction(
     @Query('reference') reference: string,
-  ): Promise<string> {
-    return this.transactionService.verifyTransaction(reference);
+    @Res() res: Response,
+  ) {
+    const response = await this.transactionService.verifyTransaction(reference);
+    return res.render(response);
   }
 
   @Roles(Role.SUPER_ADMIN)

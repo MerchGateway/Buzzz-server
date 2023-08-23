@@ -20,6 +20,8 @@ import { Status } from 'src/types/transaction';
 import { CustomersService } from '../customers/customers.service';
 import { ProductService } from '../product/product.service';
 import { paginate } from 'nestjs-typeorm-paginate';
+import * as fs from 'fs';
+import path from 'path';
 @Injectable()
 export class TransactionService {
   axiosConnection: AxiosInstance;
@@ -121,9 +123,19 @@ export class TransactionService {
     return transaction;
   }
 
-  public async verifyTransaction(
-    reference: string,
-  ): Promise<string> {
+  public async verifyTransaction(reference: string): Promise<string> {
+    let response: string;
+
+    // read files
+    const transactionSuccess = fs.readFileSync(
+      path.resolve(__dirname, 'src/assets/templates/transaction-success.html'),
+      { encoding: 'utf-8' },
+    );
+    const transactionFail = fs.readFileSync(
+      path.resolve(__dirname, 'src/assets/templates/transaction-fail.html'),
+      { encoding: 'utf-8' },
+    );
+
     // create connection instance of axios
     this.axiosConnection = connection();
     try {
@@ -181,9 +193,11 @@ export class TransactionService {
                     : DEFAULT_POLYMAILER_CONTENT,
                 };
                 console.log(order);
+               
                 await order.save();
               }),
             );
+             response = transactionSuccess;
           } else {
             isTransaction.fee = res.data.data.fees;
             isTransaction.currency = res.data.data.currency;
@@ -197,6 +211,7 @@ export class TransactionService {
                 await order.save();
               }),
             );
+            response=transactionFail;
           }
         })
         .catch(async (err: any) => {
@@ -208,6 +223,7 @@ export class TransactionService {
               return await order.save();
             }),
           );
+          response=transactionFail;
         });
       //
 
@@ -222,7 +238,7 @@ export class TransactionService {
       // add user to customer list
       await this.customerService.create(product.seller.id, res.user);
       // return res;
-      return   isTransaction.message;
+      return response;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
