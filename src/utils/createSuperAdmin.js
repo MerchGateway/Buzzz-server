@@ -47,9 +47,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-var user_entity_1 = require("../../../../../../../src/app/users/entities/user.entity");
+var user_entity_1 = require("../app/users/entities/user.entity");
 var superadminJson = require("../assets/data/supper_admin.json");
-var general_1 = require("../../../../../../../src/types/general");
+var general_1 = require("../types/general");
 var createSuperAdmin = function () { return __awaiter(void 0, void 0, void 0, function () {
     var parseSuperAdmin, superadmin, newSuperAdmin, newlyCreatedAdmin;
     return __generator(this, function (_a) {

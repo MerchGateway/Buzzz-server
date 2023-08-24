@@ -38,7 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.Authenticator = void 0;
 var otplib_1 = require("otplib");
-var constant_1 = require("../../../../../../../src/constant");
+var constant_1 = require("../constant");
 var Authenticator = /** @class */ (function () {
     function Authenticator() {
     }

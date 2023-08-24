@@ -8,7 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 exports.__esModule = true;
 exports.UpdateLogisticsAdminDto = exports.CreateLogisticsAdminDto = exports.UpdateLogisticsPartnerDto = exports.CreateLogisticsPartnerDto = void 0;
 var class_validator_1 = require("class-validator");
-var status_1 = require("../../../../../../../../../../src/types/status");
+var status_1 = require("../../../../types/status");
 var CreateLogisticsPartnerDto = /** @class */ (function () {
     function CreateLogisticsPartnerDto() {
     }

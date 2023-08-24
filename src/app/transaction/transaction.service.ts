@@ -128,17 +128,28 @@ export class TransactionService {
     let response: string;
 
     // read files
-    // const transactionSuccess =readFileSync(
-    //   resolve(__dirname,'..','..','transaction-success.html'),
+    // const transactionSuccess = readFileSync(
+    //   resolve(__dirname,'..','..','..','public/transaction-success.html'),
     //   { encoding: 'utf-8' },
     // );
     // const transactionFail = readFileSync(
-    //   resolve(__dirname,'..','..','transaction-fail.html'),
+    //   resolve(__dirname,'..','..','..','public/transaction-fail.html'),
     //   { encoding: 'utf-8' },
     // );
-    const transactionSuccess = 'transaction-success.html';
-    const transactionFail = 'transaction-fail.html';
-
+    const transactionSuccess = resolve(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      'public/transaction-success.html',
+    );
+    const transactionFail = resolve(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      'public/transaction-fail.html',
+    );
     // create connection instance of axios
     this.axiosConnection = connection();
     try {

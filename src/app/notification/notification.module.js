@@ -13,8 +13,8 @@ var notification_controller_1 = require("./notification.controller");
 var typeorm_1 = require("@nestjs/typeorm");
 var notification_entity_1 = require("./entities/notification.entity");
 var config_1 = require("@nestjs/config");
-var firebase_push_notification_provider_1 = require("../../../../../../../../src/providers/firebase-push-notification.provider");
-var constant_1 = require("../../../../../../../../src/constant");
+var firebase_push_notification_provider_1 = require("../../providers/firebase-push-notification.provider");
+var constant_1 = require("../../constant");
 var user_entity_1 = require("../users/entities/user.entity");
 var NotificationModule = /** @class */ (function () {
     function NotificationModule() {

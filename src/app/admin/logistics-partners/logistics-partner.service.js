@@ -49,9 +49,9 @@ exports.LogisticsPartnerService = void 0;
 var common_1 = require("@nestjs/common");
 var typeorm_1 = require("@nestjs/typeorm");
 var logistics_partner_entity_1 = require("../logistics-partners/entities/logistics-partner.entity");
-var user_entity_1 = require("../../../../../../../../../src/app/users/entities/user.entity");
+var user_entity_1 = require("../../users/entities/user.entity");
 var common_2 = require("@nestjs/common");
-var order_entity_1 = require("../../../../../../../../../src/app/order/entities/order.entity");
+var order_entity_1 = require("../../order/entities/order.entity");
 var common_3 = require("@nestjs/common");
 var LogisticsPartnerService = /** @class */ (function () {
     function LogisticsPartnerService(logisticsPartnerRepository, orderRepository, userRepository, orderService) {

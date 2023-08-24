@@ -37,7 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var mail_1 = require("@sendgrid/mail");
-var configuration_1 = require("../../../../../../../src/config/configuration");
+var configuration_1 = require("../config/configuration");
 var config = (0, configuration_1["default"])();
 var SendgridService = /** @class */ (function () {
     function SendgridService() {

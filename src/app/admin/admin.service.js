@@ -62,11 +62,11 @@ var typeorm_1 = require("@nestjs/typeorm");
 var common_2 = require("@nestjs/common");
 var logistics_partner_entity_1 = require("./logistics-partners/entities/logistics-partner.entity");
 var printing_partner_entity_1 = require("./printing-partners/entities/printing-partner.entity");
-var order_1 = require("../../../../../../../../src/types/order");
+var order_1 = require("../../types/order");
 var user_entity_1 = require("../users/entities/user.entity");
 var status_1 = require("../../types/status");
-var response_1 = require("../../../../../../../../src/utils/response");
-var general_1 = require("../../../../../../../../src/types/general");
+var response_1 = require("../../utils/response");
+var general_1 = require("../../types/general");
 var order_entity_1 = require("../order/entities/order.entity");
 var AdminService = /** @class */ (function () {
     function AdminService(printingPartnerRepository, logisticsPartnerRepository, userRepository, orderRepository) {

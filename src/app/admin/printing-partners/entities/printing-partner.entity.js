@@ -22,9 +22,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 exports.__esModule = true;
 exports.PrintingPartner = void 0;
-var order_entity_1 = require("../../../../../../../../../../src/app/order/entities/order.entity");
-var user_entity_1 = require("../../../../../../../../../../src/app/users/entities/user.entity");
-var status_1 = require("../../../../../../../../../../src/types/status");
+var order_entity_1 = require("../../../order/entities/order.entity");
+var user_entity_1 = require("../../../users/entities/user.entity");
+var status_1 = require("../../../../types/status");
 var typeorm_1 = require("typeorm");
 var PrintingPartner = /** @class */ (function (_super) {
     __extends(PrintingPartner, _super);

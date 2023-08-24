@@ -70,12 +70,12 @@ exports.__esModule = true;
 exports.AuthService = void 0;
 var common_1 = require("@nestjs/common");
 var typeorm_1 = require("@nestjs/typeorm");
-var user_entity_1 = require("../../../../../../../../src/app/users/entities/user.entity");
+var user_entity_1 = require("../users/entities/user.entity");
 var typeorm_2 = require("typeorm");
 var response_1 = require("../../utils/response");
 var password_reset_entity_1 = require("./entities/password-reset.entity");
 var constant_1 = require("../../constant");
-var authenticator_1 = require("../../../../../../../../src/types/authenticator");
+var authenticator_1 = require("../../types/authenticator");
 var AuthService = /** @class */ (function () {
     function AuthService(jwtService, designService, userRepository, passwordResetRepository, logger, emailProvider, walletService, twoFactorAuthService) {
         this.jwtService = jwtService;

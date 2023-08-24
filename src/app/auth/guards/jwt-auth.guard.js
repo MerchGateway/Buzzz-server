@@ -24,7 +24,7 @@ exports.__esModule = true;
 exports.JwtAuthGuard = void 0;
 var common_1 = require("@nestjs/common");
 var passport_1 = require("@nestjs/passport");
-var public_decorator_1 = require("../../../../../../../../../src/decorators/public.decorator");
+var public_decorator_1 = require("../../../decorators/public.decorator");
 var JwtAuthGuard = /** @class */ (function (_super) {
     __extends(JwtAuthGuard, _super);
     function JwtAuthGuard(reflector) {

@@ -24,8 +24,8 @@ exports.__esModule = true;
 exports.Transaction = void 0;
 var typeorm_1 = require("typeorm");
 var user_entity_1 = require("../../users/entities/user.entity");
-var transaction_1 = require("../../../../../../../../../src/types/transaction");
-var order_entity_1 = require("../../../../../../../../../src/app/order/entities/order.entity");
+var transaction_1 = require("../../../types/transaction");
+var order_entity_1 = require("../../order/entities/order.entity");
 var Transaction = /** @class */ (function (_super) {
     __extends(Transaction, _super);
     function Transaction() {

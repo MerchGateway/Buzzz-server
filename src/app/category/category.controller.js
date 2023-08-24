@@ -11,9 +11,9 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 exports.__esModule = true;
 exports.CategoryController = void 0;
 var common_1 = require("@nestjs/common");
-var public_decorator_1 = require("../../../../../../../../src/decorators/public.decorator");
-var roles_decorator_1 = require("../../../../../../../../src/decorators/roles.decorator");
-var general_1 = require("../../../../../../../../src/types/general");
+var public_decorator_1 = require("../../decorators/public.decorator");
+var roles_decorator_1 = require("../../decorators/roles.decorator");
+var general_1 = require("../../types/general");
 var roles_guard_1 = require("../auth/guards/roles.guard");
 var CategoryController = /** @class */ (function () {
     function CategoryController(categoryService) {

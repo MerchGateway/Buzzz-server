@@ -13,10 +13,10 @@ var paystack_service_1 = require("./paystack.service");
 var paystack_controller_1 = require("./paystack.controller");
 var payment_entity_1 = require("../entities/payment.entity");
 var typeorm_1 = require("@nestjs/typeorm");
-var product_module_1 = require("../../../../../../../../../src/app/product/product.module");
-var cart_module_1 = require("../../../../../../../../../src/app/cart/cart.module");
-var users_module_1 = require("../../../../../../../../../src/app/users/users.module");
-var transaction_module_1 = require("../../../../../../../../../src/app/transaction/transaction.module");
+var product_module_1 = require("../../product/product.module");
+var cart_module_1 = require("../../cart/cart.module");
+var users_module_1 = require("../../users/users.module");
+var transaction_module_1 = require("../../transaction/transaction.module");
 var PaystackBrokerModule = /** @class */ (function () {
     function PaystackBrokerModule() {
     }

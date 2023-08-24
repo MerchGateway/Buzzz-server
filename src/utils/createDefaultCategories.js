@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-var category_entity_1 = require("../../../../../../../src/app/category/entities/category.entity");
+var category_entity_1 = require("../app/category/entities/category.entity");
 var categoriesJson = require("../assets/data/mock_category_data.json");
 var createDefaultCategories = function () { return __awaiter(void 0, void 0, void 0, function () {
     var parseCategory, categories, newCategories, newlyCreatedCategories;

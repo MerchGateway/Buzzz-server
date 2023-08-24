@@ -14,9 +14,9 @@ var common_1 = require("@nestjs/common");
 var constant_1 = require("../../constant");
 var common_2 = require("@nestjs/common");
 var common_3 = require("@nestjs/common");
-var user_decorator_1 = require("../../../../../../../../src/decorators/user.decorator");
-var roles_decorator_1 = require("../../../../../../../../src/decorators/roles.decorator");
-var general_1 = require("../../../../../../../../src/types/general");
+var user_decorator_1 = require("../../decorators/user.decorator");
+var roles_decorator_1 = require("../../decorators/roles.decorator");
+var general_1 = require("../../types/general");
 var roles_guard_1 = require("../auth/guards/roles.guard");
 var OrderController = /** @class */ (function () {
     function OrderController(orderService) {

@@ -35,7 +35,7 @@ import { join } from 'path';
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'assets/templates'),
+      rootPath: join(__dirname, '..','..', 'public'),
     }),
     JwtModule.register({
       secret: configuration().jwt.secret,

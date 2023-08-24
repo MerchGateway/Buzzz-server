@@ -11,10 +11,10 @@ var common_1 = require("@nestjs/common");
 var logistics_partner_entity_1 = require("../logistics-partners/entities/logistics-partner.entity");
 var logistics_partner_service_1 = require("./logistics-partner.service");
 var logistics_partner_controller_1 = require("./logistics-partner.controller");
-var user_entity_1 = require("../../../../../../../../../src/app/users/entities/user.entity");
-var order_entity_1 = require("../../../../../../../../../src/app/order/entities/order.entity");
+var user_entity_1 = require("../../users/entities/user.entity");
+var order_entity_1 = require("../../order/entities/order.entity");
 var typeorm_1 = require("@nestjs/typeorm");
-var order_module_1 = require("../../../../../../../../../src/app/order/order.module");
+var order_module_1 = require("../../order/order.module");
 var LogisticsPartnerModule = /** @class */ (function () {
     function LogisticsPartnerModule() {
     }

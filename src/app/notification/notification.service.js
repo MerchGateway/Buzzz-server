@@ -62,9 +62,9 @@ var user_entity_1 = require("../users/entities/user.entity");
 var notification_entity_1 = require("./entities/notification.entity");
 var typeorm_1 = require("@nestjs/typeorm");
 var typeorm_2 = require("typeorm");
-var notification_1 = require("../../../../../../../../src/types/notification");
-var response_1 = require("../../../../../../../../src/utils/response");
-var constant_1 = require("../../../../../../../../src/constant");
+var notification_1 = require("../../types/notification");
+var response_1 = require("../../utils/response");
+var constant_1 = require("../../constant");
 var NotificationService = /** @class */ (function () {
     function NotificationService(notificationRepository, userRepository, pushNotificationProvider) {
         this.notificationRepository = notificationRepository;

@@ -50,11 +50,11 @@ var common_1 = require("@nestjs/common");
 var constant_1 = require("../../constant");
 var common_2 = require("@nestjs/common");
 var common_3 = require("@nestjs/common");
-var roles_decorator_1 = require("../../../../../../../../src/decorators/roles.decorator");
-var general_1 = require("../../../../../../../../src/types/general");
+var roles_decorator_1 = require("../../decorators/roles.decorator");
+var general_1 = require("../../types/general");
 var roles_guard_1 = require("../auth/guards/roles.guard");
-var user_decorator_1 = require("../../../../../../../../src/decorators/user.decorator");
-var public_decorator_1 = require("../../../../../../../../src/decorators/public.decorator");
+var user_decorator_1 = require("../../decorators/user.decorator");
+var public_decorator_1 = require("../../decorators/public.decorator");
 var TransactionController = /** @class */ (function () {
     function TransactionController(transactionService) {
         this.transactionService = transactionService;

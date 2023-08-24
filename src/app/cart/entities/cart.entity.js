@@ -62,8 +62,8 @@ var typeorm_1 = require("typeorm");
 var user_entity_1 = require("../../users/entities/user.entity");
 var order_entity_1 = require("../../order/entities/order.entity");
 var product_entity_1 = require("../../product/product.entity");
-var size_1 = require("../../../../../../../../../src/types/size");
-var color_1 = require("../../../../../../../../../src/types/color");
+var size_1 = require("../../../types/size");
+var color_1 = require("../../../types/color");
 var Cart = /** @class */ (function (_super) {
     __extends(Cart, _super);
     function Cart() {

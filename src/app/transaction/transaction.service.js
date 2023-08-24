@@ -55,10 +55,8 @@ var order_1 = require("../../types/order");
 var moment_1 = require("moment");
 var constant_1 = require("../../constant");
 var polymailer_content_entity_1 = require("../order/entities/polymailer_content.entity");
-var transaction_1 = require("../../../../../../../../src/types/transaction");
+var transaction_1 = require("../../types/transaction");
 var nestjs_typeorm_paginate_1 = require("nestjs-typeorm-paginate");
-var fs_1 = require("fs");
-var path_1 = require("path");
 var TransactionService = /** @class */ (function () {
     function TransactionService(transactionRepository, polyMailerContentRepository, orderService, customerService, productService) {
         this.transactionRepository = transactionRepository;
@@ -160,8 +158,8 @@ var TransactionService = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        transactionSuccess = (0, fs_1.readFileSync)((0, path_1.resolve)(__dirname, '..', '..', 'assets/templates/transaction-success.html'), { encoding: 'utf-8' });
-                        transactionFail = (0, fs_1.readFileSync)((0, path_1.resolve)(__dirname, '..', '..', 'assets/templates/transaction-fail.html'), { encoding: 'utf-8' });
+                        transactionSuccess = 'transaction-success.html';
+                        transactionFail = 'transaction-fail.html';
                         // create connection instance of axios
                         this.axiosConnection = (0, connection_1["default"])();
                         _a.label = 1;

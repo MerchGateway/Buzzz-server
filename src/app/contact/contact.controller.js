@@ -11,7 +11,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 exports.__esModule = true;
 exports.ContactController = void 0;
 var common_1 = require("@nestjs/common");
-var public_decorator_1 = require("../../../../../../../../src/decorators/public.decorator");
+var public_decorator_1 = require("../../decorators/public.decorator");
 var ContactController = /** @class */ (function () {
     function ContactController(contactService) {
         this.contactService = contactService;

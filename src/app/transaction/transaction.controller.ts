@@ -1,7 +1,7 @@
 import {
   Body,
   Controller,
-  Post,
+  Render,
   HttpCode,
   HttpStatus,
   Get,
@@ -34,7 +34,6 @@ export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
   @Public()
-  
   @Get('verify/')
   @HttpCode(HttpStatus.ACCEPTED)
   private async verifyTransaction(
@@ -42,7 +41,8 @@ export class TransactionController {
     @Res() res: Response,
   ) {
     const response = await this.transactionService.verifyTransaction(reference);
-     return res.render(response);
+    // res.send(response).end()
+    return res.sendFile(response)
   }
 
   @Roles(Role.SUPER_ADMIN)

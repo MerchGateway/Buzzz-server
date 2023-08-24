@@ -43,6 +43,7 @@ var app_module_1 = require("./app/app.module");
 var createDefaultCategories_1 = require("./utils/createDefaultCategories");
 var createSuperAdmin_1 = require("./utils/createSuperAdmin");
 var path_1 = require("path");
+var express = require("express");
 function bootstrap() {
     return __awaiter(this, void 0, void 0, function () {
         var app;
@@ -56,10 +57,13 @@ function bootstrap() {
                     app.enableCors();
                     // const config: ConfigService = app.get(ConfigService);
                     // const port: number = config.get<number>('port');
-                    app.useStaticAssets((0, path_1.join)(__dirname, 'assets'));
-                    app.setViewEngine('html');
+                    app.use(express.static((0, path_1.join)(__dirname, 'public')));
+                    app.set('view engine', 'html');
+                    app.engine('html', require('ejs').renderFile);
+                    // app.setViewEngine('ejs');
                     return [4 /*yield*/, app.listen(process.env.PORT || 8080)];
                 case 2:
+                    // app.setViewEngine('ejs');
                     _a.sent();
                     // create default categories after all routes must have loaded
                     (0, createDefaultCategories_1["default"])();

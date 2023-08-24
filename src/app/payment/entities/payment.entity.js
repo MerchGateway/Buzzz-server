@@ -22,7 +22,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 exports.__esModule = true;
 exports.PaymentReceipt = void 0;
-var product_entity_1 = require("../../../../../../../../../src/app/product/product.entity");
+var product_entity_1 = require("../../product/product.entity");
 var typeorm_1 = require("typeorm");
 var PaymentReceipt = /** @class */ (function (_super) {
     __extends(PaymentReceipt, _super);

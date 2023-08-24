@@ -49,9 +49,9 @@ exports.PrintingPartnerService = void 0;
 var common_1 = require("@nestjs/common");
 var typeorm_1 = require("@nestjs/typeorm");
 var printing_partner_entity_1 = require("./entities/printing-partner.entity");
-var user_entity_1 = require("../../../../../../../../../src/app/users/entities/user.entity");
+var user_entity_1 = require("../../users/entities/user.entity");
 var common_2 = require("@nestjs/common");
-var order_entity_1 = require("../../../../../../../../../src/app/order/entities/order.entity");
+var order_entity_1 = require("../../order/entities/order.entity");
 var PrintingPartnerService = /** @class */ (function () {
     function PrintingPartnerService(printingPartnerRepository, orderRepository, userRepository, orderService) {
         this.printingPartnerRepository = printingPartnerRepository;

@@ -51,7 +51,7 @@ var constant_1 = require("../../constant");
 var platform_express_1 = require("@nestjs/platform-express");
 var product_service_1 = require("./product.service");
 var category_service_1 = require("../category/category.service");
-var public_decorator_1 = require("../../../../../../../../src/decorators/public.decorator");
+var public_decorator_1 = require("../../decorators/public.decorator");
 var ProductController = /** @class */ (function () {
     function ProductController(categoryService, service) {
         this.categoryService = categoryService;

@@ -58,14 +58,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 exports.Order = void 0;
-var product_entity_1 = require("../../../../../../../../../src/app/product/product.entity");
-var transaction_entity_1 = require("../../../../../../../../../src/app/transaction/entities/transaction.entity");
+var product_entity_1 = require("../../product/product.entity");
+var transaction_entity_1 = require("../../transaction/entities/transaction.entity");
 var typeorm_1 = require("typeorm");
 var order_1 = require("../../../types/order");
 var cart_entity_1 = require("../../cart/entities/cart.entity");
 var user_entity_1 = require("../../users/entities/user.entity");
-var printing_partner_entity_1 = require("../../../../../../../../../src/app/admin/printing-partners/entities/printing-partner.entity");
-var logistics_partner_entity_1 = require("../../../../../../../../../src/app/admin/logistics-partners/entities/logistics-partner.entity");
+var printing_partner_entity_1 = require("../../admin/printing-partners/entities/printing-partner.entity");
+var logistics_partner_entity_1 = require("../../admin/logistics-partners/entities/logistics-partner.entity");
 var Order = /** @class */ (function (_super) {
     __extends(Order, _super);
     function Order() {

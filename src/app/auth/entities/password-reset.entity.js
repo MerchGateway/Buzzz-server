@@ -8,7 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 exports.__esModule = true;
 exports.PasswordReset = void 0;
 var bcrypt = require("bcrypt");
-var user_entity_1 = require("../../../../../../../../../src/app/users/entities/user.entity");
+var user_entity_1 = require("../../users/entities/user.entity");
 var typeorm_1 = require("typeorm");
 var PasswordReset = /** @class */ (function () {
     function PasswordReset() {

@@ -23,8 +23,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 exports.__esModule = true;
 exports.Design = void 0;
 var typeorm_1 = require("typeorm");
-var product_entity_1 = require("../../../../../../../../../src/app/product/product.entity");
-var user_entity_1 = require("../../../../../../../../../src/app/users/entities/user.entity");
+var product_entity_1 = require("../../product/product.entity");
+var user_entity_1 = require("../../users/entities/user.entity");
 var class_validator_1 = require("class-validator");
 var Design = /** @class */ (function (_super) {
     __extends(Design, _super);

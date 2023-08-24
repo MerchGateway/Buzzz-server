@@ -52,7 +52,7 @@ var dotenv_1 = require("dotenv");
 // import { CreatePayRefDto, PaymentReceiptDto } from '../dto/create-pay-ref-dto';
 var payment_entity_1 = require("../entities/payment.entity");
 var typeorm_1 = require("@nestjs/typeorm");
-var connection_1 = require("../../../../../../../../../src/app/payment/paystack/utils/connection");
+var connection_1 = require("./utils/connection");
 // import { UpdateUserDto } from 'src/app/users/dto/update-user.dto';
 (0, dotenv_1.config)();
 var PaystackBrokerService = /** @class */ (function () {

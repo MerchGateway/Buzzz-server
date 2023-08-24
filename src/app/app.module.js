@@ -26,7 +26,7 @@ var transaction_module_1 = require("./transaction/transaction.module");
 var cart_module_1 = require("./cart/cart.module");
 var payment_module_1 = require("./payment/payment.module");
 var contact_module_1 = require("./contact/contact.module");
-var error_interceptor_1 = require("../../../../../../../src/interceptor/error.interceptor");
+var error_interceptor_1 = require("../interceptor/error.interceptor");
 var customers_module_1 = require("./customers/customers.module");
 var analytics_module_1 = require("./analytics/analytics.module");
 var wallet_module_1 = require("./wallet/wallet.module");
@@ -35,6 +35,8 @@ var notification_module_1 = require("./notification/notification.module");
 var design_controller_1 = require("./design/design.controller");
 var design_module_1 = require("./design/design.module");
 var jwt_1 = require("@nestjs/jwt");
+var serve_static_1 = require("@nestjs/serve-static");
+var path_1 = require("path");
 var AppModule = /** @class */ (function () {
     function AppModule() {
     }
@@ -42,6 +44,9 @@ var AppModule = /** @class */ (function () {
         (0, common_1.Module)({
             imports: [
                 config_1.ConfigModule.forRoot({ isGlobal: true, load: [configuration_1["default"]] }),
+                serve_static_1.ServeStaticModule.forRoot({
+                    rootPath: (0, path_1.join)(__dirname, '..', '..', 'public')
+                }),
                 jwt_1.JwtModule.register({
                     secret: (0, configuration_1["default"])().jwt.secret,
                     signOptions: { expiresIn: (0, configuration_1["default"])().jwt.expiresIn }

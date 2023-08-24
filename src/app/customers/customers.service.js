@@ -49,7 +49,7 @@ exports.CustomersService = void 0;
 var common_1 = require("@nestjs/common");
 var typeorm_1 = require("@nestjs/typeorm");
 var customer_entity_1 = require("./entities/customer.entity");
-var response_1 = require("../../../../../../../../src/utils/response");
+var response_1 = require("../../utils/response");
 var CustomersService = /** @class */ (function () {
     function CustomersService(customerRepository, userRepository, orderRepository) {
         this.customerRepository = customerRepository;

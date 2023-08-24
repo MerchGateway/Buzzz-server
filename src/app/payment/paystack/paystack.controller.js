@@ -49,9 +49,9 @@ exports.PaystackBrokerController = void 0;
 var common_1 = require("@nestjs/common");
 // import { CreatePayRefDto, PaymentReceiptDto } from '../dto/create-pay-ref-dto';
 var paystack_service_1 = require("./paystack.service");
-var product_service_1 = require("../../../../../../../../../src/app/product/product.service");
+var product_service_1 = require("../../product/product.service");
 // import { PaymentReceipt } from '../entities/payment.entity';
-var user_decorator_1 = require("../../../../../../../../../src/decorators/user.decorator");
+var user_decorator_1 = require("../../../decorators/user.decorator");
 // import { UpdateUserDto } from 'src/app/users/dto/update-user.dto';
 //TODO: link payment with transactionentity
 var PaystackBrokerController = /** @class */ (function () {

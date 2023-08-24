@@ -8,7 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 exports.__esModule = true;
 exports.UpdatePasswordDto = void 0;
 var class_validator_1 = require("class-validator");
-var match_decorator_1 = require("../../../../../../../../../src/decorators/match.decorator");
+var match_decorator_1 = require("../../../decorators/match.decorator");
 var UpdatePasswordDto = /** @class */ (function () {
     function UpdatePasswordDto() {
     }

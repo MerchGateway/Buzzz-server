@@ -12,11 +12,11 @@ exports.__esModule = true;
 exports.DesignController = void 0;
 var common_1 = require("@nestjs/common");
 var common_2 = require("@nestjs/common");
-var general_1 = require("../../../../../../../../src/types/general");
+var general_1 = require("../../types/general");
 var roles_guard_1 = require("../auth/guards/roles.guard");
-var roles_decorator_1 = require("../../../../../../../../src/decorators/roles.decorator");
-var user_decorator_1 = require("../../../../../../../../src/decorators/user.decorator");
-var public_decorator_1 = require("../../../../../../../../src/decorators/public.decorator");
+var roles_decorator_1 = require("../../decorators/roles.decorator");
+var user_decorator_1 = require("../../decorators/user.decorator");
+var public_decorator_1 = require("../../decorators/public.decorator");
 var DesignController = /** @class */ (function () {
     function DesignController(designService) {
         this.designService = designService;

@@ -8,8 +8,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 exports.__esModule = true;
 exports.UpdateCartDto = exports.CreateCartDto = void 0;
 var class_validator_1 = require("class-validator");
-var color_1 = require("../../../../../../../../../src/types/color");
-var size_1 = require("../../../../../../../../../src/types/size");
+var color_1 = require("../../../types/color");
+var size_1 = require("../../../types/size");
 var CreateCartDto = /** @class */ (function () {
     function CreateCartDto() {
     }

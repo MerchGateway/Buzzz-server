@@ -59,11 +59,11 @@ var typeorm_1 = require("@nestjs/typeorm");
 var common_1 = require("@nestjs/common");
 var design_entity_1 = require("./entities/design.entity");
 var bull_1 = require("@nestjs/bull");
-var response_1 = require("../../../../../../../../src/utils/response");
+var response_1 = require("../../utils/response");
 var polymailer_content_entity_1 = require("../order/entities/polymailer_content.entity");
 var common_2 = require("@nestjs/common");
-var constant_1 = require("../../../../../../../../src/constant");
-var constant_2 = require("../../../../../../../../src/constant");
+var constant_1 = require("../../constant");
+var constant_2 = require("../../constant");
 var errors_1 = require("@nestjs/websockets/errors");
 var DesignService = /** @class */ (function () {
     function DesignService(queue, designRepository, cartService, productService, paystackBrokerService, imageStorage, polyMailerContentRepository) {

@@ -53,7 +53,7 @@ var common_1 = require("@nestjs/common");
 var common_2 = require("@nestjs/common");
 var order_entity_1 = require("./entities/order.entity");
 var cart_service_1 = require("../cart/cart.service");
-var order_1 = require("../../../../../../../../src/types/order");
+var order_1 = require("../../types/order");
 var OrderService = /** @class */ (function () {
     function OrderService(orderRepository, cartService) {
         this.orderRepository = orderRepository;

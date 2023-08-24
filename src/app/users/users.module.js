@@ -13,8 +13,8 @@ var users_controller_1 = require("./users.controller");
 var typeorm_1 = require("@nestjs/typeorm");
 var user_entity_1 = require("./entities/user.entity");
 var wallet_module_1 = require("../wallet/wallet.module");
-var usernameGenerator_provider_1 = require("../../../../../../../../src/providers/usernameGenerator.provider");
-var constant_1 = require("../../../../../../../../src/constant");
+var usernameGenerator_provider_1 = require("../../providers/usernameGenerator.provider");
+var constant_1 = require("../../constant");
 var UsersModule = /** @class */ (function () {
     function UsersModule() {
     }

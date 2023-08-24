@@ -11,9 +11,9 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 exports.__esModule = true;
 exports.CustomersController = void 0;
 var common_1 = require("@nestjs/common");
-var user_decorator_1 = require("../../../../../../../../src/decorators/user.decorator");
-var roles_decorator_1 = require("../../../../../../../../src/decorators/roles.decorator");
-var general_1 = require("../../../../../../../../src/types/general");
+var user_decorator_1 = require("../../decorators/user.decorator");
+var roles_decorator_1 = require("../../decorators/roles.decorator");
+var general_1 = require("../../types/general");
 var roles_guard_1 = require("../auth/guards/roles.guard");
 var common_2 = require("@nestjs/common");
 // import { CustomerParams } from '../../../dist/app/customers/customers.service';

@@ -50,7 +50,7 @@ var typeorm_1 = require("@nestjs/typeorm");
 var constant_1 = require("../../constant");
 var common_1 = require("@nestjs/common");
 var contact_entity_1 = require("./entities/contact.entity");
-var configuration_1 = require("../../../../../../../../src/config/configuration");
+var configuration_1 = require("../../config/configuration");
 var ContactService = /** @class */ (function () {
     function ContactService(contactRepository, emailProvider) {
         this.contactRepository = contactRepository;

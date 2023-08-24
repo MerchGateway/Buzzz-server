@@ -61,10 +61,10 @@ var common_1 = require("@nestjs/common");
 var typeorm_1 = require("@nestjs/typeorm");
 var twoFactorAuth_entity_1 = require("./entities/twoFactorAuth.entity");
 var user_entity_1 = require("../users/entities/user.entity");
-var constant_1 = require("../../../../../../../../src/constant");
+var constant_1 = require("../../constant");
 var constant_2 = require("../../constant");
-var response_1 = require("../../../../../../../../src/utils/response");
-var authenticator_1 = require("../../../../../../../../src/types/authenticator");
+var response_1 = require("../../utils/response");
+var authenticator_1 = require("../../types/authenticator");
 var TwoFactorAuthService = /** @class */ (function () {
     function TwoFactorAuthService(twoFactorAuthRepository, userRepository, authenticator, qrcode, emailProvider) {
         this.twoFactorAuthRepository = twoFactorAuthRepository;

@@ -20,7 +20,7 @@ exports.__esModule = true;
 exports.DatabaseModule = void 0;
 var common_1 = require("@nestjs/common");
 var typeorm_1 = require("@nestjs/typeorm");
-var ormconfig_1 = require("../../../../../../../src/database/ormconfig");
+var ormconfig_1 = require("./ormconfig");
 var DatabaseModule = /** @class */ (function () {
     function DatabaseModule() {
     }

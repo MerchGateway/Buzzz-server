@@ -12,9 +12,9 @@ var printing_partner_entity_1 = require("./entities/printing-partner.entity");
 var typeorm_1 = require("@nestjs/typeorm");
 var printing_partner_controller_1 = require("./printing-partner.controller");
 var printing_partner_service_1 = require("./printing-partner.service");
-var user_entity_1 = require("../../../../../../../../../src/app/users/entities/user.entity");
-var order_entity_1 = require("../../../../../../../../../src/app/order/entities/order.entity");
-var order_module_1 = require("../../../../../../../../../src/app/order/order.module");
+var user_entity_1 = require("../../users/entities/user.entity");
+var order_entity_1 = require("../../order/entities/order.entity");
+var order_module_1 = require("../../order/order.module");
 var PrintingPartnerModule = /** @class */ (function () {
     function PrintingPartnerModule() {
     }

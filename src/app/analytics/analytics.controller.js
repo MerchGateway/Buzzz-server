@@ -11,7 +11,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 exports.__esModule = true;
 exports.AnalyticsController = void 0;
 var common_1 = require("@nestjs/common");
-var user_decorator_1 = require("../../../../../../../../src/decorators/user.decorator");
+var user_decorator_1 = require("../../decorators/user.decorator");
 var AnalyticsController = /** @class */ (function () {
     function AnalyticsController(analyticsService) {
         this.analyticsService = analyticsService;

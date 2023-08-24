@@ -11,8 +11,8 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 exports.__esModule = true;
 exports.PrintingPartnerController = void 0;
 var common_1 = require("@nestjs/common");
-var general_1 = require("../../../../../../../../../src/types/general");
-var roles_decorator_1 = require("../../../../../../../../../src/decorators/roles.decorator");
+var general_1 = require("../../../types/general");
+var roles_decorator_1 = require("../../../decorators/roles.decorator");
 var user_decorator_1 = require("../../../decorators/user.decorator");
 var PrintingPartnerController = /** @class */ (function () {
     function PrintingPartnerController(printingService) {
