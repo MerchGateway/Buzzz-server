@@ -34,6 +34,7 @@ export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
   @Public()
+  
   @Get('verify/')
   @HttpCode(HttpStatus.ACCEPTED)
   private async verifyTransaction(
@@ -41,7 +42,7 @@ export class TransactionController {
     @Res() res: Response,
   ) {
     const response = await this.transactionService.verifyTransaction(reference);
-    return res.render(response);
+     return res.render(response);
   }
 
   @Roles(Role.SUPER_ADMIN)

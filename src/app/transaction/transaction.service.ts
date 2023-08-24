@@ -20,8 +20,8 @@ import { Status } from 'src/types/transaction';
 import { CustomersService } from '../customers/customers.service';
 import { ProductService } from '../product/product.service';
 import { paginate } from 'nestjs-typeorm-paginate';
-import {readFileSync} from 'fs';
-import {resolve} from 'path';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 
 @Injectable()
 export class TransactionService {
@@ -126,15 +126,18 @@ export class TransactionService {
 
   public async verifyTransaction(reference: string): Promise<string> {
     let response: string;
+
     // read files
-    const transactionSuccess =readFileSync(
-      resolve(__dirname,'..','assets/templates/transaction-success.html'),
-      { encoding: 'utf-8' },
-    );
-    const transactionFail = readFileSync(
-      resolve(__dirname,'..', 'assets/templates/transaction-fail.html'),
-      { encoding: 'utf-8' },
-    );
+    // const transactionSuccess =readFileSync(
+    //   resolve(__dirname,'..','..','transaction-success.html'),
+    //   { encoding: 'utf-8' },
+    // );
+    // const transactionFail = readFileSync(
+    //   resolve(__dirname,'..','..','transaction-fail.html'),
+    //   { encoding: 'utf-8' },
+    // );
+    const transactionSuccess = 'transaction-success.html';
+    const transactionFail = 'transaction-fail.html';
 
     // create connection instance of axios
     this.axiosConnection = connection();
@@ -193,11 +196,11 @@ export class TransactionService {
                     : DEFAULT_POLYMAILER_CONTENT,
                 };
                 console.log(order);
-               
+
                 await order.save();
               }),
             );
-             response = transactionSuccess;
+            response = transactionSuccess;
           } else {
             isTransaction.fee = res.data.data.fees;
             isTransaction.currency = res.data.data.currency;
@@ -211,7 +214,7 @@ export class TransactionService {
                 await order.save();
               }),
             );
-            response=transactionFail;
+            response = transactionFail;
           }
         })
         .catch(async (err: any) => {
@@ -223,7 +226,7 @@ export class TransactionService {
               return await order.save();
             }),
           );
-          response=transactionFail;
+          response = transactionFail;
         });
       //
 
