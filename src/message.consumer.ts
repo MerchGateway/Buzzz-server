@@ -40,11 +40,13 @@ export class MessageConsumer {
           throw new WsException('You are not an authorized contributor');
         }
       } else {
-        isDesignExist = jobData.user
-          ? await this.designService.fetchLatestDesignForCurrentUser(
-              jobData.user,
-            )
-          : { design: null };
+        // isDesignExist = jobData.user
+        //   ? await this.designService.fetchLatestDesignForCurrentUser(
+        //       jobData.user,
+        //     )
+        //   : { design: null };
+
+        isDesignExist = { design: null };
       }
       console.log(isDesignExist);
       if (!isDesignExist.design) {

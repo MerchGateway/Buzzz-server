@@ -27,6 +27,7 @@ import { CloudinaryProvider } from 'src/providers/cloudinary.provider';
 import { TEXT_TYPE, IMAGE_TYPE } from 'src/constant';
 import { WsException } from '@nestjs/websockets/errors';
 import { UserRecord } from 'firebase-admin/lib/auth/user-record';
+import { Role } from 'src/types/general';
 @Injectable()
 export class DesignService {
   constructor(
@@ -122,6 +123,32 @@ export class DesignService {
       return await this.queue.add(DESIGN_MERCH, { user, payload, id });
     } catch (error) {
       throw new WsException(error.message);
+    }
+  }
+
+  async fetchTemplates(): Promise<Design[]> {
+    try {
+      let authRoles = [Role.ADMIN, Role.SUPER_ADMIN, Role.PUBLISHER];
+      return await this.designRepository.find({
+        where: {
+          owner: { role: Role.ADMIN || Role.SUPER_ADMIN || Role.PUBLISHER },
+        },
+      });
+    } catch (err) {
+      throw new HttpException(err.message, err.status);
+    }
+  }
+
+  async useTemplate(id: string, user: User): Promise<Design> {
+    try {
+      const template = await this.fetchSingleDesign(id);
+      let formatedTemplate = { ...template, owner: user };
+      delete formatedTemplate.id;
+      console.log(formatedTemplate);
+      const newDesign = this.designRepository.create(formatedTemplate);
+      return await this.designRepository.save(newDesign);
+    } catch (err) {
+      throw new HttpException(err.message, err.status);
     }
   }
 

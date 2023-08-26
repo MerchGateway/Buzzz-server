@@ -29,9 +29,14 @@ import { NotificationModule } from './notification/notification.module';
 import { DesignController } from './design/design.controller';
 import { DesignModule } from './design/design.module';
 import { JwtModule } from '@nestjs/jwt';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..','..', 'public'),
+    }),
     JwtModule.register({
       secret: configuration().jwt.secret,
       signOptions: { expiresIn: configuration().jwt.expiresIn },

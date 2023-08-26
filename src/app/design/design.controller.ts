@@ -42,14 +42,27 @@ export class DesignController {
   @UseGuards(RolesGuard)
   @Post('create-polymailer-content')
   createPolyMailerContent(
-    @Body() payload: {content:string}[],
+    @Body() payload: { content: string }[],
   ): Promise<PolyMailerContent[] | undefined> {
     return this.designService.createPolymailerContent(payload);
   }
 
- 
+  @Get('use-template')
+  async useTemplate(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: User,
+  ): Promise<Design | undefined> {
+    return await this.designService.useTemplate(id, user);
+  }
+
+  @Public()
+  @Get('templates')
+  fetchTemplates() {
+    return this.designService.fetchTemplates();
+  }
+
   @Get('all')
-  viewAllDesigns( @CurrentUser() user: User,) {
+  viewAllDesigns(@CurrentUser() user: User) {
     return this.designService.viewAllDesigns(user);
   }
 
@@ -62,10 +75,7 @@ export class DesignController {
 
   @Public()
   @Get('view-design/:id')
-  fetchSingleDesign(
-    @Param('id', ParseUUIDPipe) id: string,
-    
-  ) {
+  fetchSingleDesign(@Param('id', ParseUUIDPipe) id: string) {
     return this.designService.fetchSingleDesign(id);
   }
 

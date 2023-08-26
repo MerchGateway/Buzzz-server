@@ -43,7 +43,7 @@ export class AppGateway
 
   // @UseGuards(WsGuard)
   @SubscribeMessage(DESIGN_MERCH)
-  async handleDesign(client: ExtendedSocket, payload: any[]): Promise<void> {
+  async handleDesign(client: ExtendedSocket, payload: any): Promise<void> {
     let tke = client.handshake.headers.authorization
       ? client.handshake.headers.authorization.split(' ')[1]
       : null;
@@ -60,7 +60,7 @@ export class AppGateway
         response = await this.designService.design(
           payload[0],
           user,
-          payload[1] && (payload[1] as string),
+          client.handshake.query.id as string,
         );
         this.server.to(user.id).emit(DESIGN_MERCH, await response.finished());
       } else {
