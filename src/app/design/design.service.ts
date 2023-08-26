@@ -1,5 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
+import { ArrayContains } from 'typeorm';
 import {
   ConflictException,
   HttpException,
@@ -131,7 +132,7 @@ export class DesignService {
       let authRoles = [Role.ADMIN, Role.SUPER_ADMIN, Role.PUBLISHER];
       return await this.designRepository.find({
         where: {
-          owner: { role: Role.ADMIN || Role.SUPER_ADMIN || Role.PUBLISHER },
+          owner: { role: In([...authRoles]) },
         },
       });
     } catch (err) {
@@ -140,8 +141,10 @@ export class DesignService {
   }
 
   async useTemplate(id: string, user: User): Promise<Design> {
+    console.log('use template fired ');
     try {
       const template = await this.fetchSingleDesign(id);
+      console.log(template);
       let formatedTemplate = { ...template, owner: user };
       delete formatedTemplate.id;
       console.log(formatedTemplate);
