@@ -58,14 +58,14 @@ export class AppGateway
 
         user = await this.userService.findOne(jwtRes.sub);
         response = await this.designService.design(
-          payload[0],
+          payload,
           user,
           client.handshake.query.id as string,
         );
         this.server.to(user.id).emit(DESIGN_MERCH, await response.finished());
       } else {
         response = await this.designService.design(
-          payload[0],
+          payload,
           null,
           client.handshake.query.id as string,
         );
