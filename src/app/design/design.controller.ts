@@ -48,11 +48,11 @@ export class DesignController {
   }
 
   @Get('use-template')
-  async useTemplate(
+   useTemplate(
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: User,
   ): Promise<Design | undefined> {
-    return await this.designService.useTemplate(id, user);
+    return  this.designService.useTemplate(id, user);
   }
 
   @Public()
