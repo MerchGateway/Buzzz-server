@@ -47,7 +47,7 @@ export class DesignController {
     return this.designService.createPolymailerContent(payload);
   }
 
-  @Get('use-templateA')
+  @Get('use-template')
    useTemplate(
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: User,

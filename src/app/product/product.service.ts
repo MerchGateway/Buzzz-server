@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsUtils, Repository } from 'typeorm';
 import {
   paginate,
   Pagination,
@@ -110,10 +110,16 @@ export class ProductService {
   async handleGetAllProducts(
     options: IPaginationOptions,
   ): Promise<Pagination<Product>> {
-    const fetch = this.productRepository.createQueryBuilder('p');
-    fetch.orderBy('p.createdAt', 'ASC');
+    
+    const qb = this.productRepository.createQueryBuilder('p');
+    FindOptionsUtils.joinEagerRelations(
+      qb,
+      qb.alias,
+      this.productRepository.metadata,
+    );
+    qb.orderBy('p.createdAt', 'ASC');
 
-    return paginate<Product>(fetch, options);
+    return paginate<Product>(qb, options);
   }
 
   async handleDeleteAProduct(id: string) {
