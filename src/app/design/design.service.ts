@@ -56,11 +56,9 @@ export class DesignService {
   async fetchLatestDesignForCurrentUser(
     user: User,
   ): Promise<{ design: Design }> {
-    try {
-      const design = await this.designRepository.findOne({
-        where: { owner: { id: user.id }, published: false },
-      });
-
+    try { 
+      const design=await this.viewAllDesign(user)
+      design=design[design.length-1]
       console.log(design);
       return { design: design };
     } catch (err) {
