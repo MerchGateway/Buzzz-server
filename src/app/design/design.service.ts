@@ -57,12 +57,11 @@ export class DesignService {
     user: User,
   ): Promise<{ design: Design }> {
     try {
-      const design = await this.designRepository.findOne({
-        where: { owner: { id: user.id }, published: false },
-      });
+      let design = await this.viewAllDesigns(user);
+      let latestDesign = design[design.length - 1];
 
       console.log(design);
-      return { design: design };
+      return { design: latestDesign };
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
