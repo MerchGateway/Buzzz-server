@@ -58,11 +58,11 @@ export class DesignService {
     user: User,
   ): Promise<{ design: Design }> {
     try {
-      let design = await this.viewAllDesigns(user)[0];
-    
+      let design = await this.viewAllDesigns(user);
+      let latestDesign = design[0];
 
       console.log(design);
-      return { design };
+      return { design: latestDesign };
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
