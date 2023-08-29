@@ -48,6 +48,7 @@ export class DesignService {
     try {
       return await this.designRepository.find({
         where: { owner: { id: user.id } },
+        order:{updated_at:"DESC"}
       });
     } catch (err) {
       throw new HttpException(err.message, err.status);
@@ -57,11 +58,11 @@ export class DesignService {
     user: User,
   ): Promise<{ design: Design }> {
     try {
-      let design = await this.viewAllDesigns(user);
-      let latestDesign = design[design.length - 1];
+      let design = await this.viewAllDesigns(user)[0];
+    
 
       console.log(design);
-      return { design: latestDesign };
+      return { design };
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }

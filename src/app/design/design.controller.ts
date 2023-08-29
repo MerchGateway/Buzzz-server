@@ -40,7 +40,7 @@ export class DesignController {
 
   @Roles(Role.SUPER_ADMIN, Role.PRINTING_ADMIN)
   @UseGuards(RolesGuard)
-  @Post('create-polymailer-content')
+  @Post('create-polymailer-content') 
   createPolyMailerContent(
     @Body() payload: { content: string }[],
   ): Promise<PolyMailerContent[] | undefined> {
