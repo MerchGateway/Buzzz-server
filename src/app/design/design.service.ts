@@ -57,7 +57,7 @@ export class DesignService {
     user: User,
   ): Promise<{ design: Design }> {
     try { 
-      let design=await this.viewAllDesign(user)
+      let design=await this.viewAllDesigns(user)
       design=design[design.length-1]
       console.log(design);
       return { design: design };
