@@ -48,7 +48,7 @@ export class DesignService {
     try {
       return await this.designRepository.find({
         where: { owner: { id: user.id } },
-        order:{updated_at:"DESC"}
+        order:{updated_at:"ASC",}
       });
     } catch (err) {
       throw new HttpException(err.message, err.status);
@@ -81,12 +81,14 @@ export class DesignService {
     }
   }
   async sortAssets(design: Design, payload: any) {
+  
     // save updated assets
     try {
       for (let i in payload.objects) {
         if (payload.objects[i].type === TEXT_TYPE) {
           design.texts = [...design.texts, payload.objects[i].text];
         } else if (payload.objects[i].type === IMAGE_TYPE) {
+          
           const image = await this.imageStorage.uploadPhoto(
             payload.objects[i].src,
             {
