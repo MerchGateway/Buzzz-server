@@ -60,7 +60,7 @@ export class DesignService {
     try {
       let design = await this.viewAllDesigns(user);
       let latestDesign = design[0];
-
+      
       console.log(design);
       return { design: latestDesign };
     } catch (err) {
