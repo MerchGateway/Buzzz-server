@@ -48,7 +48,7 @@ export class DesignService {
     try {
       return await this.designRepository.find({
         where: { owner: { id: user.id } },
-        order:{updated_at:"ASC",}
+        order:{updated_at:"ASC",created_at:"ASC"}
       });
     } catch (err) {
       throw new HttpException(err.message, err.status);
@@ -60,7 +60,7 @@ export class DesignService {
     try {
       let design = await this.viewAllDesigns(user);
       let latestDesign = design[0];
-      
+
       console.log(design);
       return { design: latestDesign };
     } catch (err) {
