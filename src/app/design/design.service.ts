@@ -48,7 +48,7 @@ export class DesignService {
     try {
       return await this.designRepository.find({
         where: { owner: { id: user.id } },
-        order:{updated_at:"DESC",created_at:"DESC"}
+        order:{updated_at:"DESC"}
       });
     } catch (err) {
       throw new HttpException(err.message, err.status);
