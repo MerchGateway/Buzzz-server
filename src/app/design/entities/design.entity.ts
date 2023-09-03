@@ -23,7 +23,6 @@ export class Design extends BaseEntity {
   id: string;
 
   @OneToOne(() => Product, (product: Product) => product.design, {
-    onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   product: Product;

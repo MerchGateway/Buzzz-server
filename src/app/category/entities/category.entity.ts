@@ -25,7 +25,7 @@ export class Category extends BaseEntity {
   })
   description: string;
 
-  @OneToMany(() => Product, (products) => products.category)
+  @OneToMany(() => Product, (products) => products.category,{onDelete:"SET NULL"})
   products: Product[];
 
 @CreateDateColumn()

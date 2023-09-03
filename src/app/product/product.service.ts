@@ -110,25 +110,23 @@ export class ProductService {
   async handleGetAllProducts(
     options: IPaginationOptions,
   ): Promise<Pagination<Product>> {
-    
     const qb = this.productRepository.createQueryBuilder('p');
     FindOptionsUtils.joinEagerRelations(
       qb,
       qb.alias,
       this.productRepository.metadata,
     );
-    qb.orderBy('p.createdAt', 'ASC');
+    qb.orderBy('p.createdAt', 'DESC');
 
     return paginate<Product>(qb, options);
   }
 
-  async handleDeleteAProduct(id: string) {
+  async updateAvailability(id: string, { inStock }) {
     try {
       const product = await this.handleGetAProduct(id);
-      if (product) {
-        const deleteProd = await this.productRepository.remove(product);
-        return deleteProd;
-      }
+
+      product.inStock = inStock;
+      return await product.save();
     } catch (err) {
       throw err;
     }

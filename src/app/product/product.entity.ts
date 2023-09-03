@@ -26,7 +26,7 @@ export class Product extends BaseEntity {
   @Column({ type: 'varchar', nullable: true, default: 'noimage.png' })
   thumbnail: string;
 
-  @Column({ default: false })
+  @Column({ default: true })
   inStock: boolean;
 
   @Column({ type: 'numeric' })
@@ -42,7 +42,7 @@ export class Product extends BaseEntity {
   @PrimaryColumn()
   categoryId: string;
 
-  @ManyToOne(() => Category, (category) => category.products,{eager:true})
+  @ManyToOne(() => Category, (category) => category.products,{eager:true,onDelete:"CASCADE"})
   @JoinColumn()
   category: Category;
 
