@@ -9,5 +9,9 @@ export enum Color {
   BROWN = 'Brown',
   PINK='Pink',
   PURPLE='Purple',
-  ASH='Ash'
+  ASH='Ash',
+  FFFFFF="#ffffff",
+  
+  
+  
 }

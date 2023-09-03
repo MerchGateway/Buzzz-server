@@ -13,7 +13,7 @@ import {
   DefaultValuePipe,
   ParseIntPipe,
 } from '@nestjs/common';
-import {BASE_URL} from "../../constant"
+import { BASE_URL } from '../../constant';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { CreateProductDto, EditProductDto } from './product.dto';
@@ -23,6 +23,7 @@ import { CategoryService } from '../category/category.service';
 import { Public } from 'src/decorators/public.decorator';
 import { User } from '../users/entities/user.entity';
 import { CurrentUser } from 'src/decorators/user.decorator';
+import { Patch } from '@nestjs/common';
 
 @Controller('product')
 export class ProductController {
@@ -76,8 +77,6 @@ export class ProductController {
     return this.service.handleEditProduct(body, id);
   }
 
-  
-
   //seach or filter product by price || name || or any other field that would be added
   @Public()
   @Get('search')
@@ -108,7 +107,7 @@ export class ProductController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
   ): Promise<Pagination<Product>> {
-       limit = limit > 100 ? 100 : limit < 10 ? 10 : limit;
+    limit = limit > 100 ? 100 : limit < 10 ? 10 : limit;
 
     return this.service.handleGetAllProducts({
       page,
@@ -117,8 +116,11 @@ export class ProductController {
     });
   }
 
-  @Delete(':id')
-  public deleteAProduct(@Param('id') id: string): Promise<Product | string> {
-    return this.service.handleDeleteAProduct(id);
+  @Patch('availability:id')
+  public updateProductAvailability(
+    @Param('id') id: string,
+    @Body() data: { inStock: boolean },
+  ): Promise<Product | string> {
+    return this.service.updateAvailability(id,data);
   }
 }
