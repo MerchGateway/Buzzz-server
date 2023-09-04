@@ -75,6 +75,9 @@ export class CustomersService {
   }
 
   async findAllCustomersAvailable(): Promise<any> {
+
+    const qb = this.orderRepository.createQueryBuilder('customer');
+
     const res = await this.customerRepository.find({
       relations: {
         customer: true,
