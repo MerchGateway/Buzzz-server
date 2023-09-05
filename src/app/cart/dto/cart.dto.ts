@@ -13,9 +13,26 @@ export class CreateCartDto {
   @IsOptional()
   public readonly size?: Size;
 
-  @IsEnum(Color)
+  @IsEnum([
+    '#ffffff',
+    '#808080',
+    '#333333',
+    '#ff0005',
+    '#ff8c00',
+    'Green',
+    'Red',
+    'White',
+    'Blue',
+    'Orange',
+    'Black',
+    'Grey',
+    'Brown',
+    'Pink',
+    'Purple',
+    'Ash',
+  ])
   @IsOptional()
-  public readonly color: Color;
+  public readonly color: string;
 }
 export class UpdateCartDto {
   @IsNumber()
@@ -25,7 +42,24 @@ export class UpdateCartDto {
   @IsEnum(Size)
   @IsOptional()
   public readonly size?: Size;
-  @IsEnum(Color)
+  @IsEnum([
+    '#ffffff',
+    '#808080',
+    '#333333',
+    '#ff0005',
+    '#ff8c00',
+    'Green',
+    'Red',
+    'White',
+    'Blue',
+    'Orange',
+    'Black',
+    'Grey',
+    'Brown',
+    'Pink',
+    'Purple',
+    'Ash',
+  ])
   @IsOptional()
-  public readonly color?: Color;
+  public readonly color?: string;
 }

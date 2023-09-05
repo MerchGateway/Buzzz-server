@@ -117,6 +117,7 @@ export class OrderService {
     try {
       // const Orders = await this.orderRepository.find();
       // return Orders;
+
           const qb = this.orderRepository.createQueryBuilder('order');
        FindOptionsUtils.joinEagerRelations(
         qb,

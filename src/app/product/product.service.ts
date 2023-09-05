@@ -124,7 +124,6 @@ export class ProductService {
   async updateAvailability(id: string, { inStock }) {
     try {
       const product = await this.handleGetAProduct(id);
-
       product.inStock = inStock;
       return await product.save();
     } catch (err) {
