@@ -1,4 +1,6 @@
-import { IsNumber, IsOptional, IsUUID } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsUUID } from 'class-validator';
+import { Color } from 'src/types/color';
+import { Size } from 'src/types/size';
 
 export class CreateCartDto {
   @IsUUID()
@@ -6,13 +8,58 @@ export class CreateCartDto {
 
   @IsNumber()
   public readonly quantity: number;
+
+  @IsEnum(Size)
+  @IsOptional()
+  public readonly size?: Size;
+
+  @IsEnum([
+    '#ffffff',
+    '#808080',
+    '#333333',
+    '#ff0005',
+    '#ff8c00',
+    'Green',
+    'Red',
+    'White',
+    'Blue',
+    'Orange',
+    'Black',
+    'Grey',
+    'Brown',
+    'Pink',
+    'Purple',
+    'Ash',
+  ])
+  @IsOptional()
+  public readonly color: string;
 }
 export class UpdateCartDto {
-  @IsUUID()
-  @IsOptional()
-  public readonly order?: string;
-
   @IsNumber()
   @IsOptional()
   public readonly quantity?: number;
+
+  @IsEnum(Size)
+  @IsOptional()
+  public readonly size?: Size;
+  @IsEnum([
+    '#ffffff',
+    '#808080',
+    '#333333',
+    '#ff0005',
+    '#ff8c00',
+    'Green',
+    'Red',
+    'White',
+    'Blue',
+    'Orange',
+    'Black',
+    'Grey',
+    'Brown',
+    'Pink',
+    'Purple',
+    'Ash',
+  ])
+  @IsOptional()
+  public readonly color?: string;
 }

@@ -30,20 +30,13 @@ export class PaystackBrokerService {
     @InjectRepository(PaymentReceipt)
     private readonly paymentRepository: Repository<PaymentReceipt>,
     private readonly cartService: CartService,
-    private readonly userService: UsersService,
+   
     private readonly transactionService: TransactionService,
   ) {
-    // const config = configuration();
-    // create connection instance of axios
+
     this.axiosConnection = connection();
 
-    // this.axiosConnection = axios.create({
-    //   baseURL: 'https://api.paystack.co',
-    //   headers: {
-    //     authorization: `Bearer ${config.broker.paystackSecretKey}`,
-    //     'Content-Type': 'application/json',
-    //   },
-    // });
+
   }
   // Create payment Ref (initialize transaction)
   public async createPayRef(user: User): Promise<{
@@ -54,7 +47,6 @@ export class PaystackBrokerService {
     // create payload values to be sent to paystack
     const payload: { email: string; amount: number } = {
       email: user.email,
-
       amount: 0,
     };
 
@@ -80,12 +72,7 @@ export class PaystackBrokerService {
     return await this.axiosConnection
       .post('/transaction/initialize', payload)
       .then(async (res) => {
-        // return res.data.data= {
-        //   data: {
-        //     authorization_url: string;
-        //     access_code: string;
-        //     reference: string;
-        //   }}
+    
         // create transaction on payment initalize
         await this.transactionService.createTransaction(
           res.data?.data.reference,
@@ -97,30 +84,14 @@ export class PaystackBrokerService {
       .catch((err) => {
         throw new HttpException(err.message, err.statusCode || 500);
       });
-    // initialize payment
-    // const init: {
-    //   status: boolean;
-    //   message: string;
-    //   data: {
-    //     authorization_url: string;
-    //     access_code: string;
-    //     reference: string;
-    //   };
-    // } = await this.axiosConnection.post('/transaction/initialize', payload);
-
-    // console.log('na init be this o', init);
-
-    // return authorization data for users to complete their transactions
+   
   }
-
- 
 
   public async createRefund(transaction: string) {
     // console.log(transaction);
     const refund = await this.axiosConnection.post('/refund', { transaction });
     return { data: refund.data };
   }
-
 
   private async handleGetPayRecord(id: string) {
     const record = await this.paymentRepository.findOne({ where: { id } });
@@ -130,7 +101,7 @@ export class PaystackBrokerService {
     return record;
   }
 
-  // checks if the pay ref exists i  the database already
+  // checks if the pay ref exists in  the database already
   private async checkIfPayRefExists(ref: string) {
     const payRef = await this.paymentRepository.findOne({
       where: { reference: ref },

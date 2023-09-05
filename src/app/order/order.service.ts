@@ -1,5 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsUtils, Repository } from 'typeorm';
+import { Pagination, IPaginationOptions } from 'nestjs-typeorm-paginate';
+import { paginate } from 'nestjs-typeorm-paginate';
 import {
   Injectable,
   HttpException,
@@ -14,6 +16,7 @@ import { Order } from './entities/order.entity';
 import { User } from '../users/entities/user.entity';
 import { CartService } from '../cart/cart.service';
 import { Status } from 'src/types/order';
+import { PolyMailerContent } from './entities/polymailer_content.entity';
 
 interface OrderAnalyticsT {
   thisMonthOrder: number;
@@ -57,14 +60,7 @@ export class OrderService {
             };
           }
 
-          // const newOrder = this.orderRepository.create({
-          //   user,
-          //   cart,
-          //   shipping_details: {
-          //     shipping_address: payload.shipping_address,
-          //   },
-          // });
-          // // // save cart items
+          // // save cart items
 
           return await this.orderRepository.save(order);
           // return await connection.manager.save(order);
@@ -76,19 +72,6 @@ export class OrderService {
       throw new HttpException(err.message, err.status);
     }
   }
-
-  // public async updateOrder(
-  //   payload: UpdateOrderDto,
-  //   orderId: string,
-  // ): Promise<Order | undefined> {
-  //   try {
-  //     console.log(payload, orderId);
-
-  //     return;
-  //   } catch (err: any) {
-  //     throw new HttpException(err.message, err.status);
-  //   }
-  // }
 
   public async deleteOrder(orderId: string): Promise<Order | undefined> {
     try {
@@ -126,26 +109,83 @@ export class OrderService {
     }
   }
 
-  public async getOrders(user: User): Promise<Order[] | undefined> {
+  public async getAllOrders({
+    limit,
+    page,
+    route,
+  }: IPaginationOptions): Promise<Pagination<Order>> {
     try {
-      const Orders = await this.orderRepository.findBy({
-        user: { id: user.id },
-      });
-      return Orders;
+      // const Orders = await this.orderRepository.find();
+      // return Orders;
+
+          const qb = this.orderRepository.createQueryBuilder('order');
+       FindOptionsUtils.joinEagerRelations(
+        qb,
+        qb.alias,
+        this.orderRepository.metadata,
+      );
+      return paginate<Order>(qb, { limit, page, route });
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
   }
 
-  public async getActiveOrders(id: string): Promise<Order[] | undefined> {
+  public async getOrders(
+    user: User,
+    pagination?: IPaginationOptions,
+  ): Promise<Pagination<Order> | Order[]> {
     try {
-      const Orders = await this.orderRepository.find({
-        where: {
-          user: { id },
-          status: Status.PAID,
-        },
+      if (!pagination) {
+        const Orders = await this.orderRepository.find({
+          where: {
+            user: { id: user.id },
+          },
+        });
+        return Orders;
+      }
+      const { limit, page, route } = pagination;
+      const qb = this.orderRepository.createQueryBuilder('order');
+      FindOptionsUtils.joinEagerRelations(
+        qb,
+        qb.alias,
+        this.orderRepository.metadata,
+      );
+      qb.leftJoinAndSelect('order.user', 'user').where('user.id=:user', {
+        user: user.id,
       });
-      return Orders;
+
+      return paginate<Order>(qb, { limit, page, route });
+    } catch (err: any) {
+      throw new HttpException(err.message, err.status);
+    }
+  }
+
+  public async getActiveOrders(
+    id: string,
+    { limit, page, route }: IPaginationOptions,
+  ): Promise<Pagination<Order>> {
+    try {
+      // const Orders = await this.orderRepository.find({
+      //   where: {
+      //     user: { id },
+      //     status: Status.PAID,
+      //   },
+      // });
+      // return Orders;
+
+      const qb = this.orderRepository.createQueryBuilder('order');
+      FindOptionsUtils.joinEagerRelations(
+        qb,
+        qb.alias,
+        this.orderRepository.metadata,
+      );
+      qb.leftJoinAndSelect('order.user', 'user')
+        .where('user.id=:user', { user: id })
+        .andWhere('order.status=:status', {
+          status: Status.PAID,
+        });
+
+      return paginate<Order>(qb, { limit, page, route });
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }

@@ -4,6 +4,9 @@ import {
   IsString,
   IsOptional,
   IsUUID,
+  MaxLength,
+  minLength,
+  MinLength,
 } from 'class-validator';
 
 export class CreateProductDto {
@@ -14,6 +17,10 @@ export class CreateProductDto {
   @IsNumber()
   @IsNotEmpty()
   public price: number;
+
+  @IsString()
+  @IsOptional()
+  public description: string;
 
   @IsUUID()
   @IsNotEmpty()
@@ -32,4 +39,14 @@ export class EditProductDto {
   @IsUUID()
   @IsOptional()
   public categoryId: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(40)
+  @MinLength(10)
+  public bio: string;
+
+  @IsString()
+  @IsOptional()
+  public description: string;
 }

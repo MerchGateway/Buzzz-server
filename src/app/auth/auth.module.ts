@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from 'src/app/users/users.module';
@@ -17,20 +17,30 @@ import { EMAIL_PROVIDER } from '../../constant';
 import { ConfigService } from '@nestjs/config';
 import { NodemailerProvider } from '../../providers/nodemailer.provider';
 import { WalletModule } from '../wallet/wallet.module';
+import { AdminModule } from '../admin/admin.module';
+import { NotificationModule } from '../notification/notification.module';
+import { TwoFactorAuthModule } from '../2fa/twoFactorAuth.module';
+import { DesignModule } from '../design/design.module';
+
 
 @Module({
   imports: [
+    TwoFactorAuthModule,
+    DesignModule,
     PassportModule,
+    AdminModule,
     JwtModule.register({
       secret: configuration().jwt.secret,
       signOptions: { expiresIn: configuration().jwt.expiresIn },
     }),
     UsersModule,
-    TypeOrmModule.forFeature([User]),
-    TypeOrmModule.forFeature([PasswordReset]),
+    NotificationModule,
+    TypeOrmModule.forFeature([User,PasswordReset]),
+
     LoggerModule,
     WalletModule,
   ],
+  
   controllers: [AuthController],
   providers: [
     LocalStrategy,
@@ -46,6 +56,8 @@ import { WalletModule } from '../wallet/wallet.module';
       },
       inject: [ConfigService],
     },
+
   ],
+  exports: [AuthService],
 })
 export class AuthModule {}

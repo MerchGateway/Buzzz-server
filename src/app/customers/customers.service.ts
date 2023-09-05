@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Customer } from './entities/customer.entity';
@@ -6,6 +6,8 @@ import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
 import { OrderService } from '../order/order.service';
 import { Order } from '../order/entities/order.entity';
+import { Status } from 'src/types/status';
+import { SuccessResponse } from 'src/utils/response';
 
 interface customerAnalyticsT {
   allCustomers: number;
@@ -70,6 +72,68 @@ export class CustomersService {
     };
 
     return caller();
+  }
+
+  async findAllCustomersAvailable(): Promise<any> {
+    const res = await this.customerRepository.find({
+      relations: {
+        customer: true,
+      },
+    });
+
+    const sort = async (customer: Customer) => {
+      const orders = await this.orderRepository.getOrders(customer.customer[0]);
+      const data = {
+        customer: customer,
+        order: orders,
+      };
+      return data;
+    };
+
+    const caller = async () => {
+      return Promise.all(res?.map((h) => sort(h)));
+    };
+
+    
+    return caller();
+  }
+
+  public async toggleStatus(
+    Status: Status,
+    sellerId: string,
+  ): Promise<any> {
+    try {
+      const res = await this.customerRepository.findOne({
+        where: { sellerId },
+        relations: {
+          customer: true,
+        },
+      });
+
+      if (!res) {
+        throw new NotFoundException(
+          `customer with seller id ${sellerId} does not exist`,
+        );
+      }
+      res.status = Status;
+      return await this.customerRepository.save(res);
+    } catch (err) {
+      throw new HttpException(err.message, err.status);
+    }
+  }
+
+  public async deleteCustomer(sellerId: string): Promise<any> {
+    try {
+      await this.customerRepository.delete({ sellerId });
+
+      return new SuccessResponse(
+        {},
+        `customer with sellerId ${sellerId} deleted succesfully`,
+        200,
+      );
+    } catch (err) {
+      throw new HttpException(err.message, err.status);
+    }
   }
 
   public async customerAnalytics(user: User): Promise<customerAnalyticsT> {

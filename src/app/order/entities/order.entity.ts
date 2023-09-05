@@ -10,12 +10,14 @@ import {
   ManyToOne,
   BeforeInsert,
   BeforeUpdate,
-  JoinColumn
+  JoinColumn,
 } from 'typeorm';
 
 import { Status } from '../../../types/order';
 import { Cart } from '../../cart/entities/cart.entity';
 import { User } from '../../users/entities/user.entity';
+import { PrintingPartner } from 'src/app/admin/printing-partners/entities/printing-partner.entity';
+import { LogisticsPartner } from 'src/app/admin/logistics-partners/entities/logistics-partner.entity';
 @Entity('order')
 export class Order extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -23,6 +25,7 @@ export class Order extends BaseEntity {
 
   @ManyToOne(() => User, {
     cascade: true,
+    eager: true,
   })
   @JoinColumn({ name: 'client_id' })
   user: User;
@@ -40,8 +43,11 @@ export class Order extends BaseEntity {
   @JoinColumn({ name: 'cart_item_id' })
   cart: Cart;
 
-  @Column({ type: 'simple-json', nullable: true })
-  product: any;
+  @ManyToOne(() => Product, {
+    eager: true,
+    onDelete: 'SET NULL',
+  })
+  product: Product;
 
   @Column()
   sellerId: string;
@@ -64,6 +70,13 @@ export class Order extends BaseEntity {
     };
   };
 
+  @Column({ type: 'simple-json', default: null, nullable: true })
+  polymailer_details: {
+    from: string;
+    to: string;
+    content: string;
+  };
+
   @Column({ nullable: true, default: 0, type: 'decimal', precision: 10 })
   delivery_fee: number;
 
@@ -73,12 +86,23 @@ export class Order extends BaseEntity {
   @Column({ type: 'enum', enum: Status, default: Status.PENDING })
   status: string;
 
+  @ManyToOne(() => PrintingPartner, (partner) => partner.orders, {
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+  })
+  printing_partner: PrintingPartner;
+
+  @ManyToOne(() => LogisticsPartner, (logistics) => logistics.orders, {
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+  })
+  logistics_partner: LogisticsPartner;
+
   @BeforeInsert()
   @BeforeUpdate()
   private async setDeliveryFee() {
     // todo shipping fee logic
   }
-  // delete already ordered cart item
 
   @BeforeInsert()
   @BeforeUpdate()
@@ -100,12 +124,12 @@ export class Order extends BaseEntity {
   }
 
   public async updateStatus(value: string) {
+
     this.status = value;
-    console.log(this.status);
     if (this.status === Status.PAID) {
+  
       // delete this.cart;
       if (this.cart) {
-    
         Cart.remove(this.cart);
       }
     }

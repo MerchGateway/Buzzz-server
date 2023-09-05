@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsUtils, Repository } from 'typeorm';
 import {
   paginate,
   Pagination,
@@ -24,6 +24,7 @@ export class ProductService {
     product.categoryId = body.categoryId;
     product.seller = user;
     product.sellerId = user.id;
+    product.description = body.description;
     return this.productRepository.save(product);
   }
 
@@ -38,6 +39,7 @@ export class ProductService {
           name: body.name,
           price: body.price,
           categoryId: body.categoryId,
+          description: body.description,
         })
         .execute();
       return await this.handleGetAProduct(id);
@@ -69,27 +71,30 @@ export class ProductService {
       throw err;
     }
   }
+
   async handleQueryProducts(
     { limit, page, route }: IPaginationOptions,
     searchQuery: any,
   ) {
     const searchResult = this.productRepository
       .createQueryBuilder('product')
-      .where('product.name = :name OR product.price = :price', {
-        name: searchQuery?.name,
-        price: searchQuery?.price,
-      });
+      .where(
+        'product.name = :name OR product.price = :price OR product.sellerId= :sellerId OR seller.username= :username ',
+        {
+          name: searchQuery?.name,
+          price: searchQuery?.price,
+          sellerId: searchQuery?.sellerId,
+          username: searchQuery?.username,
+        },
+      );
 
     return paginate<Product>(searchResult, { limit, page, route });
   }
-
   async handleGetAProduct(id: string) {
     try {
       const product = await this.productRepository.findOne({
         where: { id },
         relations: {
-          seller: true,
-          category: true,
           receipt: true,
         },
       });
@@ -105,19 +110,22 @@ export class ProductService {
   async handleGetAllProducts(
     options: IPaginationOptions,
   ): Promise<Pagination<Product>> {
-    const fetch = this.productRepository.createQueryBuilder('p');
-    fetch.orderBy('p.createdAt', 'ASC');
+    const qb = this.productRepository.createQueryBuilder('p');
+    FindOptionsUtils.joinEagerRelations(
+      qb,
+      qb.alias,
+      this.productRepository.metadata,
+    );
+    qb.orderBy('p.createdAt', 'DESC');
 
-    return paginate<Product>(fetch, options);
+    return paginate<Product>(qb, options);
   }
 
-  async handleDeleteAProduct(id: string) {
+  async updateAvailability(id: string, { inStock }) {
     try {
       const product = await this.handleGetAProduct(id);
-      if (product) {
-        const deleteProd = await this.productRepository.remove(product);
-        return deleteProd;
-      }
+      product.inStock = inStock;
+      return await product.save();
     } catch (err) {
       throw err;
     }

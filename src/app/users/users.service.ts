@@ -21,8 +21,16 @@ export class UsersService {
     return await this.userRepository.save(user);
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll(query?: FindOptionsWhere<User>) {
+    const users = await this.userRepository.find({ where: query });
+
+    if (!users) {
+      throw new NotFoundException(
+        'User{s} with provided condition does not exist',
+      );
+    }
+
+    return users;
   }
 
   async findOne(id: string) {
@@ -35,13 +43,11 @@ export class UsersService {
     return user;
   }
 
-  async findOneBy(conditions: FindOptionsWhere<User>) {
-    const user = await this.userRepository.findOneBy(conditions);
+  async findOneBy(username: string) {
+    const user = await this.userRepository.findOneBy({ username });
 
     if (!user) {
-      throw new NotFoundException(
-        'User with provided conditions does not exist',
-      );
+      throw new NotFoundException(`User with provided username ${username} does not exist`);
     }
 
     return user;

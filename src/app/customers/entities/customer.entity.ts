@@ -1,4 +1,5 @@
 import { User } from 'src/app/users/entities/user.entity';
+import { Status } from 'src/types/status';
 import {
   Column,
   CreateDateColumn,
@@ -19,10 +20,11 @@ export class Customer {
   @Column()
   sellerId: string;
 
+  @Column({ type: 'enum', enum: Status, default: Status.ENABLED })
+  status:Status ;
 
   @ManyToMany(() => User)
-    @JoinTable()
-    customer: User[]
-
+  @JoinTable()
+  customer: User[];
 }
 

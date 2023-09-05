@@ -48,6 +48,31 @@ export default () => ({
   broker: {
     paystackSecretKey: process.env.PAYSTACK_SECRET_KEY,
   },
+  firebaseCredentials: {
+    type: process.env.TYPE,
+    firebase_image_url: process.env.FIREBASE_IMAGE_URL,
+    project_id: process.env.PROJECT_ID,
+    private_key_id: process.env.PRIVATE_KEY_ID,
+    private_key: process.env.PRIVATE_KEY,
+    client_email: process.env.CLIENT_EMAIL,
+    client_id: process.env.CLIENT_ID,
+    auth_uri: process.env.AUTH_URI,
+    token_uri: process.env.TOKEN_URI,
+    auth_provider_x509_cert_url: process.env.AUTH_PROVIDER_X509_CERT_URL,
+    client_x509_cert_url: process.env.CLIENT_X509_CERT_URL,
+  },
+  cloudinary: {
+    cloud_name: process.env.CLOUD_NAME,
+    cloud_api_key: process.env.CLOUD_API_KEY,
+    cloud_api_secret: process.env.CLOUD_API_SECRET,
+    cloudinary_url: process.env.CLOUDINARY_URL,
+  },
+  redis: {
+    port: parseInt(process.env.REDIS_PORT,10)||6379,
+    redis_url:process.env.REDIS_URL
+  },
+
+  firebaseDatabaseUrl: process.env.FIREBASE_DATABASE_URL,
   smtpHost: process.env.SMTP_HOST,
   smtpPort: process.env.SMTP_PORT,
   smtpEmail: process.env.SMTP_EMAIL,

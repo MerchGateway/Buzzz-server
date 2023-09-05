@@ -1,20 +1,27 @@
 import { Injectable, HttpException, NotFoundException } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/transaction.dto';
+import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThanOrEqual, Repository } from 'typeorm';
+import { FindOptionsUtils, MoreThanOrEqual, Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
 import connection from '../payment/paystack/utils/connection';
 import { Status as orderStatus } from '../../types/order';
 import { User } from '../users/entities/user.entity';
 import { OrderService } from '../order/order.service';
-import * as moment from 'moment';
+import moment from 'moment';
 import { AxiosInstance } from 'axios';
-
+import {
+  DEFAULT_POLYMAILER_CONTENT,
+  PAYSTACK_SUCCESS_MESSAGE,
+} from '../../constant';
 import { Order } from '../order/entities/order.entity';
-
+import { PolyMailerContent } from '../order/entities/polymailer_content.entity';
 import { Status } from 'src/types/transaction';
 import { CustomersService } from '../customers/customers.service';
 import { ProductService } from '../product/product.service';
+import { paginate } from 'nestjs-typeorm-paginate';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 
 @Injectable()
 export class TransactionService {
@@ -22,6 +29,8 @@ export class TransactionService {
   constructor(
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
+    @InjectRepository(PolyMailerContent)
+    private readonly polyMailerContentRepository: Repository<PolyMailerContent>,
     private readonly orderService: OrderService,
     private readonly customerService: CustomersService,
     private readonly productService: ProductService,
@@ -45,13 +54,7 @@ export class TransactionService {
         orders,
       });
 
-      await this.transactionRepository.save(transaction);
-      // fetch fresh copy of the just created transaction
-      const cleanTransaction = await this.transactionRepository.findOne({
-        where: { id: transaction.id },
-        relations: { orders: true },
-      });
-      return cleanTransaction;
+      return await this.transactionRepository.save(transaction);
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
@@ -59,19 +62,52 @@ export class TransactionService {
 
   public async getTransactionsForAuthUser(
     user: User,
-  ): Promise<Transaction[] | undefined> {
+    { limit, page, route }: IPaginationOptions,
+  ): Promise<Pagination<Transaction>> {
     try {
-      const transactions = await this.transactionRepository.find({
-        where: {
-          user: { id: user.id },
-        },
+      // const transactions = await this.transactionRepository.find({
+      //   where: {
+      //     user: { id: user.id },
+      //   },
+      // });
+
+      const qb = this.transactionRepository.createQueryBuilder('transaction');
+      FindOptionsUtils.joinEagerRelations(
+        qb,
+        qb.alias,
+        this.transactionRepository.metadata,
+      );
+      qb.leftJoinAndSelect('transaction.user', 'user').where('user.id=:user', {
+        user: user.id,
       });
-      return transactions;
+
+      return paginate<Transaction>(qb, { limit, page, route });
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
   }
+  public async getTransactions({
+    limit,
+    page,
+    route,
+  }: IPaginationOptions): Promise<Pagination<Transaction>> {
+    try {
+      const qb = this.transactionRepository.createQueryBuilder('transaction');
+      FindOptionsUtils.joinEagerRelations(
+        qb,
+        qb.alias,
+        this.transactionRepository.metadata,
+      );
+      qb.leftJoinAndSelect('transaction.user', 'user');
 
+      // const transactions = await this.transactionRepository.find({
+      //   relations: ['user'],
+      // });
+      return paginate<Transaction>(qb, { limit, page, route });
+    } catch (err: any) {
+      throw new HttpException(err.message, err.status);
+    }
+  }
   private async getATransaction(
     transactionId: string,
   ): Promise<Transaction | undefined> {
@@ -88,9 +124,32 @@ export class TransactionService {
     return transaction;
   }
 
-  public async verifyTransaction(
-    reference: string,
-  ): Promise<Transaction | undefined> {
+  public async verifyTransaction(reference: string): Promise<string> {
+    let response: string;
+
+    // read files
+    // const transactionSuccess = readFileSync(
+    //   resolve(__dirname,'..','..','..','public/transaction-success.html'),
+    //   { encoding: 'utf-8' },
+    // );
+    // const transactionFail = readFileSync(
+    //   resolve(__dirname,'..','..','..','public/transaction-fail.html'),
+    //   { encoding: 'utf-8' },
+    // );
+    const transactionSuccess = resolve(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      'public/transaction-success.html',
+    );
+    const transactionFail = resolve(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      'public/transaction-fail.html',
+    );
     // create connection instance of axios
     this.axiosConnection = connection();
     try {
@@ -111,7 +170,7 @@ export class TransactionService {
           if (
             res.data &&
             res.data.data.status === 'success' &&
-            res.data.message === 'Verification successful'
+            res.data.message === PAYSTACK_SUCCESS_MESSAGE
           ) {
             isTransaction.fee = res.data.data.fees;
             isTransaction.currency = res.data.data.currency;
@@ -124,22 +183,49 @@ export class TransactionService {
             await Promise.all(
               isTransaction.orders.map(async (order) => {
                 await order.updateStatus(orderStatus.PAID);
+
+                // fetch polymailerContents
+                const polymailerContents: PolyMailerContent[] =
+                  await this.polyMailerContentRepository.find();
+
+                // get a random polymailer content
+                const random = Math.floor(
+                  Math.random() * polymailerContents.length,
+                );
+                console.log(
+                  random,
+                  order.user.name.split(' ')[0],
+                  order.product.seller.name.split(' ')[0],
+                );
+
+                // set polymailer details
+                order.polymailer_details = {
+                  to: order.user.name.split(' ')[0],
+                  from: order.product.seller.name.split(' ')[0],
+                  content: polymailerContents[0]
+                    ? polymailerContents[random].content
+                    : DEFAULT_POLYMAILER_CONTENT,
+                };
+                console.log(order);
+
                 await order.save();
               }),
             );
+            response = transactionSuccess;
           } else {
             isTransaction.fee = res.data.data.fees;
             isTransaction.currency = res.data.data.currency;
             isTransaction.channel = res.data.data.channel;
             isTransaction.amount = res.data.data.amount;
             isTransaction.status = Status.FAILED;
-            isTransaction.message = 'Transaction could not be verified';
+            isTransaction.message = 'Transaction verification failed';
             await Promise.all(
               isTransaction.orders.map(async (order) => {
                 await order.updateStatus(orderStatus.CANCELLED);
                 await order.save();
               }),
             );
+            response = transactionFail;
           }
         })
         .catch(async (err: any) => {
@@ -151,6 +237,7 @@ export class TransactionService {
               return await order.save();
             }),
           );
+          response = transactionFail;
         });
       //
 
@@ -164,7 +251,8 @@ export class TransactionService {
       // console.log(res)
       // add user to customer list
       await this.customerService.create(product.seller.id, res.user);
-      return res;
+      // return res;
+      return response;
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }

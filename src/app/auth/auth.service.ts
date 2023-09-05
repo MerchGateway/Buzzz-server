@@ -17,18 +17,21 @@ import { IdentityProvider } from '../../types/user';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { WinstonLoggerService } from 'src/logger/winston-logger/winston-logger.service';
 import { EmailProvider } from '../../types/email';
-
+import { DesignService } from '../design/design.service';
 import { PasswordReset } from './entities/password-reset.entity';
 import { EMAIL_PROVIDER, PASSWORD_RESET_TOKEN_EXPIRY } from '../../constant';
 
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { WalletService } from '../wallet/wallet.service';
+import { Authtype } from 'src/types/authenticator';
+import { TwoFactorAuthService } from '../2fa/twoFactorAuth.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
+    private designService: DesignService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectRepository(PasswordReset)
@@ -36,7 +39,9 @@ export class AuthService {
     private readonly logger: WinstonLoggerService,
     @Inject(EMAIL_PROVIDER)
     private emailProvider: EmailProvider,
+
     private readonly walletService: WalletService,
+    private readonly twoFactorAuthService: TwoFactorAuthService,
   ) {
     this.logger.setContext(AuthService.name);
   }
@@ -48,12 +53,13 @@ export class AuthService {
       .addSelect('user.password')
       .getOne();
 
+    console.log(user);
     if (!user) {
       return null;
     }
 
     const isMatch = await user.matchPassword(enteredPassword);
-
+    console.log(isMatch);
     if (!isMatch) {
       return null;
     }
@@ -79,30 +85,75 @@ export class AuthService {
     return user;
   }
 
-  async postSignin(user: User) {
+  async postAdminSignin(user: User) {
+    console.log('this is the user', user);
     const payload: JwtPayload = { sub: user.id, role: user.role };
-
     user.password && delete user.password;
-
-    if (!user.wallet) {
-      const wallet = await this.walletService.createWallet();
-      user = await this.userRepository.save({ ...user, wallet });
-    }
-
     return {
       user,
       accessToken: this.jwtService.sign(payload),
     };
   }
 
-  async signin(user: User) {
+  async postSignin(user: User) {
+    const payload: JwtPayload = { sub: user.id, role: user.role };
+    user.password && delete user.password;
+
+    // get refreshed push notification registeration token eachtime on signin to capture possible new device
+
+    if (!user.wallet) {
+      const wallet = await this.walletService.createWallet();
+      user = await this.userRepository.save({
+        ...user,
+        wallet,
+      });
+    }
+    return {
+      user,
+      accessToken: this.jwtService.sign(payload),
+    };
+  }
+
+  async signin(user: User, designId?: string) {
     const data = await this.postSignin(user);
 
+    if (designId) {
+      // associate design with user
+      const design = await this.designService.fetchSingleDesign(designId);
+      design.owner = user;
+      await design.save();
+      console.log(design)
+    }
+
+    if (user.allow2fa == true) {
+      // always reset two factor verify status to false on login
+      const updatedUserData = await this.userRepository.save({
+        ...data.user,
+        isTwoFactorVerified: false,
+      });
+
+      if (user.twoFactorType === Authtype.INAPP) {
+        // send  login token
+        await this.twoFactorAuthService.generateOtp(user);
+      }
+      const tokenLocation =
+        user.twoFactorType === Authtype.GOOGLE
+          ? 'google authenticator app'
+          : 'registered email';
+
+      return new SuccessResponse(
+        { ...updatedUserData, accessToken: data.accessToken },
+        `Continue sign in by providing an authorization token from your ${tokenLocation} `,
+      );
+    }
     return new SuccessResponse(data, 'Signin successful');
   }
 
   async signup(signupUserDto: SignupUserDto) {
-    const user = this.userRepository.create(signupUserDto);
+    let user: User;
+
+    user = this.userRepository.create(signupUserDto);
+
     await this.userRepository.save(user);
 
     const data = await this.postSignin(user);
@@ -213,5 +264,12 @@ export class AuthService {
       { user: result },
       'Password updated successfully',
     );
+  }
+
+  // admin section
+
+  async adminSignin(user: User) {
+    const data = await this.postAdminSignin(user);
+    return new SuccessResponse(data, 'Signin successful');
   }
 }
