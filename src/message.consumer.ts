@@ -73,7 +73,7 @@ export class MessageConsumer {
         await this.imageStorage.deletePhotosByPrefix(
           isDesignExist.design.owner
             ? isDesignExist.design.owner.username
-            : 'no_auth',
+            : isDesignExist.design.id,
         );
         let updatedDesign = await this.designService.sortAssets(
           isDesignExist.design,

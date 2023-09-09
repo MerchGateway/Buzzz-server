@@ -91,11 +91,11 @@ export class DesignService {
           
           const image = await this.imageStorage.uploadPhoto(
             payload.objects[i].src,
-            {
-              asset_folder: design.owner ? design.owner.username : 'no_auth',
+          {
+              asset_folder: design.owner ? design.owner.username : design.id,
               public_id_prefix: design.owner
                 ? design.owner.username
-                : 'no_auth',
+                : design.id,
             },
           );
 
@@ -265,6 +265,7 @@ export class DesignService {
       throw new HttpException(err.message, err.status);
     }
   }
+  
 
   async publishDesign(
     user: User,
@@ -278,6 +279,9 @@ export class DesignService {
       if (design.published == true) {
         throw new ConflictException('design already published');
       }
+
+
+    
       const product = await this.productService.createProduct(
         {
           name: payload.title,
