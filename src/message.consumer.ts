@@ -70,10 +70,7 @@ export class MessageConsumer {
         isDesignExist.design.texts = [];
 
         // delete old images from cloudinary
-        await this.imageStorage.deletePhotosByPrefix(
-          isDesignExist.design.owner
-            ? isDesignExist.design.owner.username
-            : isDesignExist.design.id,
+        await this.imageStorage.deletePhotosByPrefix(isDesignExist.design.id,
         );
         let updatedDesign = await this.designService.sortAssets(
           isDesignExist.design,

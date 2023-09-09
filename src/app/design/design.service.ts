@@ -93,9 +93,7 @@ export class DesignService {
             payload.objects[i].src,
           {
               asset_folder: design.owner ? design.owner.username : design.id,
-              public_id_prefix: design.owner
-                ? design.owner.username
-                : design.id,
+              public_id_prefix:  design.id,
             },
           );
 
