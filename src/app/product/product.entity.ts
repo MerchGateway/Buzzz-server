@@ -14,6 +14,7 @@ import { Category } from '../category/entities/category.entity';
 // import { Order } from '../order/entities/order.entity';
 import { PaymentReceipt } from '../payment/entities/payment.entity';
 import { User } from '../users/entities/user.entity';
+import { ImageBody } from 'src/types/asset';
 import { Design } from '../design/entities/design.entity';
 @Entity({ name: 'product', schema: 'public' })
 export class Product extends BaseEntity {
@@ -23,8 +24,12 @@ export class Product extends BaseEntity {
   @Column({ unique: false })
   name: string;
 
-  @Column({ type: 'varchar', nullable: true, default: 'noimage.png' })
-  thumbnail: string;
+ 
+  @Column({
+    type: 'simple-json',
+    nullable: true,
+  })
+  thumbnail: ImageBody;
 
   @Column({ default: true })
   inStock: boolean;

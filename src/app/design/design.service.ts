@@ -284,6 +284,7 @@ export class DesignService {
           price: payload.price,
           description: payload.description,
           categoryId: category_id,
+          thumbnail:payload.thumbnail
         },
         user,
       );
