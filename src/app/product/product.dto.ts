@@ -22,6 +22,11 @@ export class CreateProductDto {
   @IsOptional()
   public description: string;
 
+  
+  @IsString()
+  @IsNotEmpty()
+  public thumbnail: string;
+
   @IsUUID()
   @IsNotEmpty()
   public categoryId: string;
