@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException,Inject,BadRequestException} from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  Inject,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsUtils, Repository } from 'typeorm';
 import {
@@ -13,8 +18,6 @@ import { CloudinaryProvider } from 'src/providers/cloudinary.provider';
 import { CLOUDINARY } from 'src/constant';
 import { UploadApiResponse } from 'cloudinary';
 
-
-
 @Injectable()
 export class ProductService {
   constructor(
@@ -24,16 +27,16 @@ export class ProductService {
     private readonly imageStorage: CloudinaryProvider,
   ) {}
 
-  public async createProduct(body: CreateProductDto, user: User): Promise<Product> {
-let image:UploadApiResponse;
+  public async createProduct(
+    body: CreateProductDto,
+    user: User,
+  ): Promise<Product> {
+    let image: UploadApiResponse;
 
-  image = await this.imageStorage.uploadPhoto(
-    body.thumbnail,
-    {
+    image = await this.imageStorage.uploadPhoto(body.thumbnail, {
       asset_folder: user.username,
       public_id_prefix: 'thumbnail',
-    },
-  );
+    });
     const product: Product = new Product();
     product.name = body.name;
     product.price = body.price;
@@ -41,10 +44,10 @@ let image:UploadApiResponse;
     product.seller = user;
     product.sellerId = user.id;
     product.description = body.description;
-    product.thumbnail={
+    product.thumbnail = {
       public_id: image.public_id,
       url: image.secure_url,
-    }
+    };
     return this.productRepository.save(product);
   }
 

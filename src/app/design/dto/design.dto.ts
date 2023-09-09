@@ -13,6 +13,10 @@ export class PublishDesignDto {
   @IsOptional()
   description: string;
 
+  @IsString()
+  @IsNotEmpty()
+  public thumbnail: string;
+
 
 }
 export class PublishDesignAndCheckoutDto {
@@ -37,5 +41,9 @@ export class PublishDesignAndCheckoutDto {
   @IsEnum(Color)
   @IsOptional()
   public readonly color: Color;
+
+  @IsString()
+  @IsNotEmpty()
+  public thumbnail: string;
 
 }
