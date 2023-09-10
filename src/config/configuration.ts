@@ -12,6 +12,8 @@ export interface DatabaseConfig {
   entities: string;
   migrations: string;
   migrationsDir: string;
+  charset: string; // Set charset to utf8mb4
+  collation: string; // Set collation to utf8mb4_unicode_ci
 }
 
 export default () => ({
@@ -28,6 +30,8 @@ export default () => ({
     entities: process.env.TYPEORM_ENTITIES,
     migrations: process.env.TYPEORM_MIGRATIONS,
     migrationsDir: process.env.TYPEORM_MIGRATIONS_DIR,
+    charset: 'utf8mb4', 
+    collation: 'utf8mb4_unicode_ci',
   },
   jwt: {
     secret: process.env.JWT_SECRET,
@@ -68,8 +72,8 @@ export default () => ({
     cloudinary_url: process.env.CLOUDINARY_URL,
   },
   redis: {
-    port: parseInt(process.env.REDIS_PORT,10)||6379,
-    redis_url:process.env.REDIS_URL
+    port: parseInt(process.env.REDIS_PORT, 10) || 6379,
+    redis_url: process.env.REDIS_URL,
   },
 
   firebaseDatabaseUrl: process.env.FIREBASE_DATABASE_URL,

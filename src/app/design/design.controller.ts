@@ -5,6 +5,7 @@ import {
   Delete,
   UseGuards,
   HttpCode,
+  Res,
   Get,
   Patch,
   Put,
@@ -129,6 +130,7 @@ export class DesignController {
 
   @Get('fetch-my-design/:id')
   fetchMyDesign(
+    @Res()res:Response,
     @CurrentUser() user: User,
     @Param('id', ParseUUIDPipe) id: string,
   ) {
