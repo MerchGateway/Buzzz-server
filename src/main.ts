@@ -10,6 +10,7 @@ import * as express from 'express';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.setGlobalPrefix('v1');
+  app.use(express.json({limit:'50mb'}))
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   app.enableCors();
   // const config: ConfigService = app.get(ConfigService);
