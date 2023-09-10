@@ -122,7 +122,7 @@ export class AuthService {
       const design = await this.designService.fetchSingleDesign(designId);
       design.owner = user;
       await design.save();
-      console.log(design)
+      console.log(design);
     }
 
     if (user.allow2fa == true) {
@@ -149,12 +149,17 @@ export class AuthService {
     return new SuccessResponse(data, 'Signin successful');
   }
 
-  async signup(signupUserDto: SignupUserDto) {
+  async signup(signupUserDto: SignupUserDto, designId?: string) {
     let user: User;
-
     user = this.userRepository.create(signupUserDto);
-
     await this.userRepository.save(user);
+    if (designId) {
+      // associate design with user
+      const design = await this.designService.fetchSingleDesign(designId);
+      design.owner = user;
+      await design.save();
+      console.log(design);
+    }
 
     const data = await this.postSignin(user);
 
