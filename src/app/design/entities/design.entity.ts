@@ -37,7 +37,7 @@ export class Design extends BaseEntity {
   @Column({ type: 'bool', default: false })
   published: boolean;
 
-  @Column({ type: 'simple-json' })
+  @Column({ type: 'simple-json',collation: 'utf8mb4_unicode_ci' })
   design_data: any;
 
   @Column({ type: 'simple-array', nullable: true })
@@ -50,7 +50,7 @@ export class Design extends BaseEntity {
   })
   images: ImageBody[];
 
-  @Column({ type: 'simple-array', nullable: true })
+  @Column({ type: 'simple-array', nullable: true,collation: 'utf8mb4_unicode_ci' })
   @IsOptional()
   texts: string[];
 
