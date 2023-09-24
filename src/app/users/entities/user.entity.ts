@@ -23,7 +23,7 @@ import { LogisticsPartner } from 'src/app/admin/logistics-partners/entities/logi
 import { PrintingPartner } from 'src/app/admin/printing-partners/entities/printing-partner.entity';
 import { Wallet } from '../../wallet/entities/wallet.entity';
 import { Product } from 'src/app/product/product.entity';
-import { Inject } from '@nestjs/common';
+import { ForbiddenException, Inject } from '@nestjs/common';
 // import { UsernameGenerator } from 'src/providers/usernameGenerator.provider';
 // import { USERNAME_GENERATOR } from 'src/constant';
 import {
@@ -64,6 +64,9 @@ export class User extends BaseEntity {
 
   @Column({ select: false, nullable: true })
   password: string;
+
+  @Column({ select: false, nullable: true })
+  pin: string;
 
   @Column({ type: 'enum', enum: Role, default: Role.USER })
   role: Role;
@@ -174,9 +177,23 @@ export class User extends BaseEntity {
     if (this.password) {
       const salt = await bcrypt.genSalt(10);
       this.password = bcrypt.hashSync(this.password, salt);
-
-      console.log(this.password);
     }
+  }
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  private async hashPin?() {
+    if (this.pin) {
+      const salt = await bcrypt.genSalt(10);
+      this.pin = bcrypt.hashSync(this.pin, salt);
+    }
+  }
+
+  public async matchPin?(enteredPin: string) {
+    if (!this.pin) {
+      throw new ForbiddenException('User has no pin');
+    }
+    return await bcrypt.compare(enteredPin, this.pin);
   }
 
   @BeforeUpdate()
@@ -186,7 +203,6 @@ export class User extends BaseEntity {
     if (!this.username) {
       const username = generateFromEmail(this.email, 3);
       this.username = username;
-      console.log(this.username);
     }
   }
 

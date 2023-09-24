@@ -17,8 +17,6 @@ import connection from 'src/app/payment/paystack/utils/connection';
 import { CartService } from 'src/app/cart/cart.service';
 import { TransactionService } from 'src/app/transaction/transaction.service';
 import { Cart } from 'src/app/cart/entities/cart.entity';
-import { UsersService } from 'src/app/users/users.service';
-// import { UpdateUserDto } from 'src/app/users/dto/update-user.dto';
 
 envConfig();
 
@@ -30,13 +28,10 @@ export class PaystackBrokerService {
     @InjectRepository(PaymentReceipt)
     private readonly paymentRepository: Repository<PaymentReceipt>,
     private readonly cartService: CartService,
-   
+
     private readonly transactionService: TransactionService,
   ) {
-
     this.axiosConnection = connection();
-
-
   }
   // Create payment Ref (initialize transaction)
   public async createPayRef(user: User): Promise<{
@@ -72,7 +67,6 @@ export class PaystackBrokerService {
     return await this.axiosConnection
       .post('/transaction/initialize', payload)
       .then(async (res) => {
-    
         // create transaction on payment initalize
         await this.transactionService.createTransaction(
           res.data?.data.reference,
@@ -84,13 +78,57 @@ export class PaystackBrokerService {
       .catch((err) => {
         throw new HttpException(err.message, err.statusCode || 500);
       });
-   
   }
 
   public async createRefund(transaction: string) {
     // console.log(transaction);
     const refund = await this.axiosConnection.post('/refund', { transaction });
     return { data: refund.data };
+  }
+
+  public async getBankList() {
+    const response = await this.axiosConnection.get('/bank');
+    return response.data.data as { name: string; code: string }[];
+  }
+
+  public async resolveAccountNumber(accountNumber: string, bankCode: string) {
+    const response = await this.axiosConnection.get(
+      `/bank/resolve?account_number=${accountNumber}&bank_code=${bankCode}}`,
+    );
+    return response.data.data as {
+      account_name: string;
+      account_number: string;
+      bank_id: number;
+    };
+  }
+
+  public async createTransferRecipient(
+    name: string,
+    accountNumber: string,
+    bankCode: string,
+  ) {
+    return this.axiosConnection.post('/transferrecipient', {
+      type: 'nuban',
+      name,
+      account_number: accountNumber,
+      bank_code: bankCode,
+      currency: 'NGN',
+    });
+  }
+
+  public async initiateTransfer(
+    amount: number,
+    recipient: string,
+    reason: string,
+    reference: string,
+  ) {
+    return this.axiosConnection.post('/transfer', {
+      source: 'balance',
+      amount,
+      recipient,
+      reason,
+      reference,
+    });
   }
 
   private async handleGetPayRecord(id: string) {

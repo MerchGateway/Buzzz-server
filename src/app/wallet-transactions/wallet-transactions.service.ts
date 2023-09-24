@@ -4,7 +4,8 @@ import { Repository } from 'typeorm';
 import { CreateWalletTransactionDto } from './dto/create-wallet-transaction.dto';
 import { UpdateWalletTransactionDto } from './dto/update-wallet-transaction.dto';
 import {
-  TransactionType,
+  TransactionMethod,
+  TransactionStatus,
   WalletTransaction,
 } from './entities/wallet-transaction.entity';
 
@@ -15,8 +16,11 @@ export class WalletTransactionsService {
     private readonly walletTransactionRepository: Repository<WalletTransaction>,
   ) {}
 
-  create(createWalletTransactionDto: CreateWalletTransactionDto) {
-    return 'This action adds a new walletTransaction';
+  async create(createWalletTransactionDto: CreateWalletTransactionDto) {
+    const transaction = this.walletTransactionRepository.create(
+      createWalletTransactionDto,
+    );
+    return await this.walletTransactionRepository.save(transaction);
   }
 
   findAll() {
@@ -40,8 +44,11 @@ export class WalletTransactionsService {
       .createQueryBuilder('transaction')
       .select('SUM(transaction.amount)', 'sum')
       .where('transaction.wallet_id = :walletId', { walletId })
-      .andWhere('transaction.type = :type', {
-        type: TransactionType.CREDIT,
+      .andWhere('transaction.method = :method', {
+        method: TransactionMethod.CREDIT,
+      })
+      .andWhere('transaction.status != :status', {
+        status: TransactionStatus.FAILED,
       })
       .getRawOne();
 
@@ -49,8 +56,11 @@ export class WalletTransactionsService {
       .createQueryBuilder('transaction')
       .select('SUM(transaction.amount)', 'sum')
       .where('transaction.wallet_id = :walletId', { walletId })
-      .andWhere('transaction.type = :type', {
-        type: TransactionType.DEBIT,
+      .andWhere('transaction.method = :method', {
+        method: TransactionMethod.DEBIT,
+      })
+      .andWhere('transaction.status != :status', {
+        status: TransactionStatus.FAILED,
       })
       .getRawOne();
 

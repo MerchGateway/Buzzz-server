@@ -1,5 +1,8 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { WalletService } from './wallet.service';
+import { WithdrawFromWalletDto } from './dto/withdraw-from-wallet.dto';
+import { CurrentUser } from '../../decorators/user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('wallets')
 export class WalletController {
@@ -10,13 +13,11 @@ export class WalletController {
     return this.walletService.getByWalletId(walletId);
   }
 
-  @Post(':walletId/fund')
-  fund(@Param('walletId') walletId: string) {
-    return this.walletService.fundWallet(walletId);
-  }
-
   @Post(':walletId/withdraw')
-  withdraw(@Param('walletId') walletId: string) {
-    return this.walletService.withdrawFromWallet(walletId);
+  withdraw(
+    @Body() withdrawFromWalletDto: WithdrawFromWalletDto,
+    @CurrentUser() user: User,
+  ) {
+    return this.walletService.withdrawFromWallet(withdrawFromWalletDto, user);
   }
 }
