@@ -57,7 +57,9 @@ export class GoogleOauthStrategy extends PassportStrategy(Strategy, 'google') {
       user = await this.usersService.create({
         identityProvider: IdentityProvider.GOOGLE,
         identityProviderId: id,
-        name: name.familyName + ' ' + name.givenName,
+        name: '',
+        firstName: name.givenName,
+        lastName: name.familyName,
         email: emails[0].value,
       });
     }

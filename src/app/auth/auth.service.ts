@@ -109,7 +109,7 @@ export class AuthService {
     };
   }
 
-  async postSignin(user: User) {
+  async postSignin(user: User, designId?: string) {
     const payload: JwtPayload = { sub: user.id, role: user.role };
     user.password && delete user.password;
 
@@ -123,6 +123,13 @@ export class AuthService {
       });
     }
 
+    if (designId) {
+      // associate design with user
+      const design = await this.designService.fetchSingleDesign(designId);
+      design.user = user;
+      await design.save();
+    }
+
     return {
       user,
       accessToken: this.jwtService.sign(payload),
@@ -130,14 +137,7 @@ export class AuthService {
   }
 
   async signin(user: User, designId?: string) {
-    const data = await this.postSignin(user);
-
-    if (designId) {
-      // associate design with user
-      const design = await this.designService.fetchSingleDesign(designId);
-      design.user = user;
-      await design.save();
-    }
+    const data = await this.postSignin(user, designId);
 
     if (user.allow2fa == true) {
       // always reset two factor verify status to false on login
@@ -165,22 +165,15 @@ export class AuthService {
 
   async signup(signupUserDto: SignupUserDto, designId?: string) {
     const nameParts = signupUserDto.name.split(' ');
+
     const user = this.userRepository.create({
       ...signupUserDto,
       firstName: nameParts[0],
       lastName: nameParts[1] || '',
     });
-
     await this.userRepository.save(user);
-    if (designId) {
-      // associate design with user
-      const design = await this.designService.fetchSingleDesign(designId);
-      design.user = user;
-      await design.save();
-      console.log(design);
-    }
 
-    const data = await this.postSignin(user);
+    const data = await this.postSignin(user, designId);
 
     return new SuccessResponse(data, 'Signup successful', HttpStatus.CREATED);
   }

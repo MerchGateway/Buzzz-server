@@ -62,8 +62,11 @@ export class AuthController {
   @Public()
   @UseGuards(GoogleOauthGuard)
   @Get('/signin/google/redirect')
-  googleOauthRedirect(@CurrentUser() user: User) {
-    return this.authService.postSignin(user);
+  googleOauthRedirect(
+    @CurrentUser() user: User,
+    @Query('designId') designId: string,
+  ) {
+    return this.authService.postSignin(user, designId);
   }
 
   @Public()
@@ -75,14 +78,20 @@ export class AuthController {
   @Public()
   @UseGuards(TwitterOauthGuard)
   @Get('/signin/twitter/redirect')
-  twitterOauthRedirect(@CurrentUser() user: User) {
-    return this.authService.postSignin(user);
+  twitterOauthRedirect(
+    @CurrentUser() user: User,
+    @Query('designId') designId: string,
+  ) {
+    return this.authService.postSignin(user, designId);
   }
 
   @Public()
   @Post('signup')
-  signup(@Body() signupUserDto: SignupUserDto,@Query("designId") designId:string) {
-    return this.authService.signup(signupUserDto,designId);
+  signup(
+    @Body() signupUserDto: SignupUserDto,
+    @Query('designId') designId: string,
+  ) {
+    return this.authService.signup(signupUserDto, designId);
   }
 
   @Public()
