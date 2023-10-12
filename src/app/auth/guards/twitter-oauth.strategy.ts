@@ -30,7 +30,7 @@ export class TwitterOauthStrategy extends PassportStrategy(
     _refreshToken: string,
     profile: Profile,
   ) {
-    const { id, username, emails } = profile;
+    const { id, emails, name } = profile;
 
     const existingNonTwitterProviderUser = await this.authService.findOneUser(
       {
@@ -61,7 +61,9 @@ export class TwitterOauthStrategy extends PassportStrategy(
       user = await this.usersService.create({
         identityProvider: IdentityProvider.TWITTER,
         identityProviderId: id,
-        name: username,
+        name: '',
+        firstName: name.givenName,
+        lastName: name.familyName,
         email: emails[0].value,
       });
     }
