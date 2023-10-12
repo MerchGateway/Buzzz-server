@@ -20,6 +20,7 @@ export default () => ({
   nodeEnv: process.env.NODE_ENV,
   appUrl: process.env.APP_URL,
   clientUrl: process.env.CLIENT_URL,
+  designClientUrl: process.env.DESIGN_CLIENT_URL,
   port: parseInt(process.env.PORT, 10) || 5000,
   database: {
     connection: process.env.TYPEORM_CONNECTION,
@@ -33,7 +34,7 @@ export default () => ({
     entities: process.env.TYPEORM_ENTITIES,
     migrations: process.env.TYPEORM_MIGRATIONS,
     migrationsDir: process.env.TYPEORM_MIGRATIONS_DIR,
-    charset: 'utf8mb4', 
+    charset: 'utf8mb4',
     collation: 'utf8mb4_unicode_ci',
   },
   jwt: {
