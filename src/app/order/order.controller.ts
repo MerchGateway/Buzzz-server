@@ -25,7 +25,7 @@ import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/types/general';
 import { RolesGuard } from '../auth/guards/roles.guard';
 
-@Controller('order')
+@Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
@@ -84,7 +84,7 @@ export class OrderController {
     @CurrentUser() user: User,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
-  ): Promise<Pagination<Order>|Order[]> {
+  ): Promise<Pagination<Order> | Order[]> {
     limit = limit > 100 ? 100 : limit < 10 ? 10 : limit;
     return this.orderService.getOrders(user, {
       page,

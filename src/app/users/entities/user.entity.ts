@@ -1,48 +1,36 @@
 import * as bcrypt from 'bcrypt';
 import { Role } from 'src/types/general';
-import { Authtype } from 'src/types/authenticator';
+import { AuthType } from 'src/types/authenticator';
 import { IdentityProvider } from 'src/types/user';
 import { Design } from 'src/app/design/entities/design.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
-  AfterInsert,
   Column,
-  CreateDateColumn,
   Entity,
   JoinColumn,
-  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
-  BaseEntity,
+  OneToOne,
 } from 'typeorm';
-
 import { LogisticsPartner } from 'src/app/admin/logistics-partners/entities/logistics-partner.entity';
 import { PrintingPartner } from 'src/app/admin/printing-partners/entities/printing-partner.entity';
 import { Wallet } from '../../wallet/entities/wallet.entity';
-import { Product } from 'src/app/product/product.entity';
-import { ForbiddenException, Inject } from '@nestjs/common';
-// import { UsernameGenerator } from 'src/providers/usernameGenerator.provider';
-// import { USERNAME_GENERATOR } from 'src/constant';
-import {
-  generateFromEmail,
-  uniqueUsernameGenerator,
-} from 'unique-username-generator';
+import { Product } from 'src/app/product/entities/product.entity';
+import { ForbiddenException } from '@nestjs/common';
+import { generateFromEmail } from 'unique-username-generator';
+import { Timestamp } from '../../../database/timestamp.entity';
 
 @Entity()
-export class User extends BaseEntity {
-  // constructor(
-  //   @Inject(USERNAME_GENERATOR)
-  //   private readonly usernameGenerator: UsernameGenerator
-  // ) {}
-
+export class User extends Timestamp {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({
     name: 'identity_provider',
+    type: 'enum',
+    enum: IdentityProvider,
     nullable: true,
     select: false,
   })
@@ -59,40 +47,43 @@ export class User extends BaseEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column({ nullable: true })
-  name: string;
+  @Column({ name: 'first_name', nullable: true })
+  firstName: string | null;
+
+  @Column({ name: 'last_name', nullable: true })
+  lastName: string | null;
 
   @Column({ select: false, nullable: true })
-  password: string;
+  password: string | null;
 
   @Column({ select: false, nullable: true })
-  pin: string;
+  pin: string | null;
 
   @Column({ type: 'enum', enum: Role, default: Role.USER })
   role: Role;
 
   @Column({ nullable: true })
-  bio: string;
+  bio: string | null;
+
+  @Column({ name: 'phone_number', nullable: true })
+  phoneNumber: string | null;
 
   @Column({ nullable: true })
-  phoneNumber: string;
+  address: string | null;
 
-  @Column({ nullable: true })
-  address: string;
-
-  @Column({ nullable: true, type: 'simple-json' })
-  shipping_address: {
-    street_number: number;
+  @Column({ nullable: true, type: 'simple-json', name: 'shipping_address' })
+  shippingAddress: {
+    streetNumber: number;
     state: string;
     LGA: string;
-    Nearest_bustop: string;
+    nearestBusStop: string;
     street: string;
-  };
+  } | null;
 
   @Column({ name: 'is_public', default: true })
   isPublic: boolean;
 
-  @Column({ name: 'notification', default: false })
+  @Column({ name: 'allow_notification', default: false })
   allowNotification: boolean;
 
   @ManyToOne(
@@ -101,7 +92,7 @@ export class User extends BaseEntity {
     { onDelete: 'SET NULL' },
   )
   @JoinColumn({ name: 'printing_partner' })
-  printing_partner: PrintingPartner;
+  printingPartner: PrintingPartner | null;
 
   @ManyToOne(
     () => LogisticsPartner,
@@ -109,67 +100,62 @@ export class User extends BaseEntity {
     { onDelete: 'SET NULL' },
   )
   @JoinColumn({ name: 'logistics_partner' })
-  logistics_partner: LogisticsPartner;
+  logisticsPartner: LogisticsPartner | null;
 
   @Column({
-    name: 'registeration-token',
-    type: 'varchar',
+    name: 'registration_token',
     nullable: true,
     unique: true,
     select: false,
   })
-  registerationToken: string;
+  registrationToken: string;
 
-  @OneToMany(() => Design, (design) => design.owner)
+  @OneToMany(() => Design, (design) => design.user)
   designs: Design[];
 
   @Column({
-    name: 'allow_twofactor_authentication',
-    type: 'bool',
+    name: 'allow_two_factor_authentication',
     default: false,
   })
   allow2fa: boolean;
 
-  @Column({ name: 'is_twofactor_verified', type: 'bool', default: false })
+  @Column({ name: 'is_two_factor_verified', default: false })
   isTwoFactorVerified: boolean;
 
   @Column({
     name: 'two_factor_type',
     type: 'enum',
-    enum: Authtype,
-    default: Authtype.GOOGLE,
+    enum: AuthType,
+    default: AuthType.GOOGLE,
   })
-  twoFactorType: Authtype;
+  twoFactorType: AuthType;
 
-  @Column({ name: 'show_email', type: 'bool', default: true })
+  @Column({ name: 'show_email', default: true })
   showEmail: boolean;
 
   @Column({ nullable: true })
-  instagram: string;
+  instagram: string | null;
 
-  @Column({ nullable: true, unique: true })
+  @Column({ unique: true })
   username: string;
 
   @Column({ nullable: true })
-  facebook: string;
+  facebook: string | null;
 
   @Column({ nullable: true })
-  twitter: string;
+  twitter: string | null;
 
   @Column({ nullable: true })
-  reddit: string;
+  reddit: string | null;
 
+  @OneToOne(() => Wallet, (wallet) => wallet.user)
   @JoinColumn({ name: 'wallet_id' })
   wallet: Wallet;
 
   @OneToMany(() => Product, (product) => product.seller)
   products: Product[];
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
+  hasPin?: boolean;
 
   @BeforeInsert()
   @BeforeUpdate()

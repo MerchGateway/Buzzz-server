@@ -7,12 +7,11 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 
-import { Inject, UseGuards } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 
 import { Socket, Server } from 'socket.io';
 import { DesignService } from './app/design/design.service';
 import { User } from './app/users/entities/user.entity';
-import { WsGuard } from './app/auth/guards/ws-auth-guard';
 import { DESIGN_MERCH, DESIGN_ERROR, SOCKET_CONNECT } from './constant';
 import { JWT } from './constant';
 import { Jwt } from './providers/jwt.provider';
@@ -44,10 +43,9 @@ export class AppGateway
   // @UseGuards(WsGuard)
   @SubscribeMessage(DESIGN_MERCH)
   async handleDesign(client: ExtendedSocket, payload: any): Promise<void> {
-    let tke = client.handshake.headers.authorization
+    const tke = client.handshake.headers.authorization
       ? client.handshake.headers.authorization.split(' ')[1]
       : null;
-    console.log('entered socket file');
     // const user: User = client.user;
     let user: User;
     let response: Job<Design>;
@@ -82,28 +80,10 @@ export class AppGateway
     }
   }
 
-  // @UseGuards(WsGuard)
-  // @SubscribeMessage('contribute-to-design')
-  // async contributeToDesign(
-  //   client: ExtendedSocket,
-  //   payload: any,
-  // ): Promise<void> {
-  //   // const user: User = client.user;
-  //   const response = await this.jwtService.verifyToken(
-  //     client.handshake.headers.authorization.split(' ')[1],
-  //   );
-
-  //   const user: User = await this.userService.findOne(response.sub);
-  //   await this.designService.contributeToDesign(
-  //     user,
-  //     payload,
-  //     client.handshake.query.id as string,
-  //   );
-  //   client.to(user.id).emit('contribute-to-design', payload);
-  // }
-
-  afterInit(server: Server) {
-    console.log('server initialized');
+  afterInit(_server: Server) {
+    const dateString = new Date().toLocaleString();
+    const message = `[WebSocket] ${process.pid} - ${dateString} LOG [WebSocketServer] Websocket server successfully started`;
+    console.log(message);
   }
 
   handleDisconnect(client: Socket) {
@@ -112,15 +92,13 @@ export class AppGateway
 
   async handleConnection(client: ExtendedSocket, ...args: any[]) {
     try {
-      let tke = client.handshake.headers.authorization
+      const tke = client.handshake.headers.authorization
         ? client.handshake.headers.authorization.split(' ')[1]
         : null;
       if (tke) {
         const payload = await this.jwtService.verifyToken(tke);
         // join private room
         client.join(payload?.sub);
-        console.log(client.rooms);
-        console.log(`Connected ${client.id}`);
         this.server.to(payload.sub).emit(SOCKET_CONNECT, { connected: true });
       } else {
         this.server.to(client.id).emit(SOCKET_CONNECT, { connected: true });

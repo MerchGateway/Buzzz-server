@@ -1,4 +1,4 @@
-import { Request  } from 'express';
+import { Request } from 'express';
 import { Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
@@ -11,7 +11,6 @@ import { ConfigService } from '@nestjs/config';
 
 export interface CustomRequest extends Request {
   user: User;
- 
 }
 
 @Injectable()
@@ -25,7 +24,6 @@ export class TwofactorJwtStrategy extends PassportStrategy(
     private configService: ConfigService,
     private twoFactorService: TwoFactorAuthService,
   ) {
-    console.log('two factor strategy');
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: configService.get('jwt.secret'),
@@ -34,7 +32,7 @@ export class TwofactorJwtStrategy extends PassportStrategy(
   }
 
   async validate(req: CustomRequest, payload: any) {
-    let body = req.body as unknown as { token: string };
+    const body = req.body as unknown as { token: string };
 
     const isValidToken = await this.twoFactorService.verify2faToken(
       body.token,

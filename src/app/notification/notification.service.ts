@@ -37,7 +37,7 @@ export class NotificationService {
     try {
       return await this.notificationRepository.find({
         where: { user: { id: user.id } },
-        order: { created_at: 'DESC' },
+        order: { createdAt: 'DESC' },
       });
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
@@ -50,7 +50,7 @@ export class NotificationService {
     try {
       const userWithToken = await this.userRepository.findOne({
         where: { email },
-        select: ['id', 'registerationToken', 'allowNotification'],
+        select: ['id', 'registrationToken', 'allowNotification'],
       });
 
       if (!userWithToken) {
@@ -90,7 +90,7 @@ export class NotificationService {
         // send push notification
 
         this.pushNotificationProvider.sendPushNotification(
-          isRegisteredToken.registerationToken,
+          isRegisteredToken.registrationToken,
           { title: payload.title, body: payload.message },
         );
       }
@@ -114,14 +114,14 @@ export class NotificationService {
           allowNotification: true,
           registerationToken: Not(IsNull()),
         },
-        select: ['registerationToken'],
+        select: ['registrationToken'],
       });
 
       // compute registeration token
 
       await Promise.all(
         users.map(async (data) => {
-          tokens.push(data.registerationToken);
+          tokens.push(data.registrationToken);
 
           createNotificationBody.push({
             title: payload.title,

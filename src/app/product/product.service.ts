@@ -11,8 +11,8 @@ import {
   Pagination,
   IPaginationOptions,
 } from 'nestjs-typeorm-paginate';
-import { CreateProductDto, EditProductDto } from './product.dto';
-import { Product } from './product.entity';
+import { CreateProductDto, EditProductDto } from './dto/product.dto';
+import { Product } from './entities/product.entity';
 import { User } from '../users/entities/user.entity';
 import { CloudinaryProvider } from 'src/providers/cloudinary.provider';
 import { CLOUDINARY } from 'src/constant';
@@ -31,18 +31,17 @@ export class ProductService {
     body: CreateProductDto,
     user: User,
   ): Promise<Product> {
-    let image: UploadApiResponse;
-
-    image = await this.imageStorage.uploadPhoto(body.thumbnail, {
+    const image = (await this.imageStorage.uploadPhoto(body.thumbnail, {
       asset_folder: user.username,
       public_id_prefix: 'thumbnail',
-    });
+    })) as UploadApiResponse;
+
     const product: Product = new Product();
     product.name = body.name;
     product.price = body.price;
-    product.categoryId = body.categoryId;
+    product.category = body.categoryId as any;
     product.seller = user;
-    product.sellerId = user.id;
+    product.seller = user.id as any;
     product.description = body.description;
     product.thumbnail = {
       public_id: image.public_id,
@@ -61,7 +60,7 @@ export class ProductService {
         .set({
           name: body.name,
           price: body.price,
-          categoryId: body.categoryId,
+          category: { id: body.categoryId },
           description: body.description,
         })
         .execute();
@@ -75,7 +74,7 @@ export class ProductService {
     await this.productRepository
       .createQueryBuilder('addPayrecord')
       .update()
-      .where('id= :id', { id: id })
+      .where('id = :id', { id: id })
       .set({
         receiptId,
         purchased: true,

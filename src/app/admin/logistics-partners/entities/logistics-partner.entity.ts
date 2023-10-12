@@ -1,39 +1,28 @@
-import { Product } from 'src/app/product/product.entity';
-import { Transaction } from 'src/app/transaction/entities/transaction.entity';
 import { User } from 'src/app/users/entities/user.entity';
 import { Status } from 'src/types/status';
-import {
-  BaseEntity,
-  Entity,
-  OneToMany,
-  CreateDateColumn,
-  Column,
-  UpdateDateColumn,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-
+import { Entity, OneToMany, Column, PrimaryGeneratedColumn } from 'typeorm';
 import { Order } from 'src/app/order/entities/order.entity';
-@Entity('logistics-partner')
-export class LogisticsPartner extends BaseEntity {
+import { Timestamp } from '../../../../database/timestamp.entity';
+@Entity()
+export class LogisticsPartner extends Timestamp {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({
-    name: 'partner-name',
     unique: true,
   })
   name: string;
 
-  @OneToMany(() => User, (user) => user.logistics_partner, {
+  @OneToMany(() => User, (user) => user.logisticsPartner, {
     cascade: true,
   })
   administrators: User[];
 
-  @OneToMany(() => Order, (order) => order.logistics_partner, { eager: true })
+  @OneToMany(() => Order, (order) => order.logisticsPartner, { eager: true })
   orders: Order[];
 
   @Column({ type: 'simple-json' })
-  partner_address: {
+  address: {
     address: string;
     state: string;
     LGA: string;
@@ -42,10 +31,4 @@ export class LogisticsPartner extends BaseEntity {
 
   @Column({ type: 'enum', enum: Status, default: Status.ENABLED })
   status: Status;
-
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
 }

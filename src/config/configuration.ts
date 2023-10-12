@@ -15,6 +15,9 @@ export interface DatabaseConfig {
 }
 
 export default () => ({
+  nodeEnv: process.env.NODE_ENV,
+  appUrl: process.env.APP_URL,
+  clientUrl: process.env.CLIENT_URL,
   port: parseInt(process.env.PORT, 10) || 5000,
   database: {
     connection: process.env.TYPEORM_CONNECTION,
@@ -24,7 +27,7 @@ export default () => ({
     name: process.env.TYPEORM_DATABASE,
     username: process.env.TYPEORM_USERNAME,
     password: process.env.TYPEORM_PASSWORD,
-    synchronize: process.env.TYPEORM_SYNCHRONIZE,
+    synchronize: Boolean(process.env.TYPEORM_SYNCHRONIZE),
     entities: process.env.TYPEORM_ENTITIES,
     migrations: process.env.TYPEORM_MIGRATIONS,
     migrationsDir: process.env.TYPEORM_MIGRATIONS_DIR,
@@ -68,8 +71,8 @@ export default () => ({
     cloudinary_url: process.env.CLOUDINARY_URL,
   },
   redis: {
-    port: parseInt(process.env.REDIS_PORT,10)||6379,
-    redis_url:process.env.REDIS_URL
+    port: parseInt(process.env.REDIS_PORT, 10) || 6379,
+    redis_url: process.env.REDIS_URL,
   },
 
   firebaseDatabaseUrl: process.env.FIREBASE_DATABASE_URL,
@@ -77,4 +80,5 @@ export default () => ({
   smtpPort: process.env.SMTP_PORT,
   smtpEmail: process.env.SMTP_EMAIL,
   smtpPassword: process.env.SMTP_PASSWORD,
+  passportSessionSecret: process.env.PASSPORT_SESSION_SECRET,
 });

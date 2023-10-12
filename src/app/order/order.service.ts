@@ -16,7 +16,7 @@ import { Order } from './entities/order.entity';
 import { User } from '../users/entities/user.entity';
 import { CartService } from '../cart/cart.service';
 import { Status } from 'src/types/order';
-import { PolyMailerContent } from './entities/polymailer_content.entity';
+import { PolymailerContent } from './entities/polymailer-content.entity';
 
 interface OrderAnalyticsT {
   thisMonthOrder: number;
@@ -39,10 +39,10 @@ export class OrderService {
     try {
       const userCartItems = await this.cartService.getCartItems(user);
 
-      // throw exception if there isnt any item in cart
+      // throw exception if there isn't any item in cart
       if (!userCartItems[0]) {
         throw new BadRequestException(
-          'Item{s} to create order for doesnt exist ',
+          'Item{s} to create order for does not exist ',
         );
       }
 
@@ -51,12 +51,12 @@ export class OrderService {
           const order = new Order();
           order.user = user;
           order.cart = cart;
-          order.sellerId = cart.product.sellerId;
+          order.sellerId = cart.product.seller.id;
 
-          if (payload.shipping_address !== null) {
-            order.shipping_details = {
-              shipping_fee: 0,
-              shipping_address: payload.shipping_address,
+          if (payload.shippingAddress !== null) {
+            order.shippingDetails = {
+              shippingFee: 0,
+              shippingAddress: payload.shippingAddress,
             };
           }
 
@@ -118,8 +118,8 @@ export class OrderService {
       // const Orders = await this.orderRepository.find();
       // return Orders;
 
-          const qb = this.orderRepository.createQueryBuilder('order');
-       FindOptionsUtils.joinEagerRelations(
+      const qb = this.orderRepository.createQueryBuilder('order');
+      FindOptionsUtils.joinEagerRelations(
         qb,
         qb.alias,
         this.orderRepository.metadata,
@@ -134,30 +134,26 @@ export class OrderService {
     user: User,
     pagination?: IPaginationOptions,
   ): Promise<Pagination<Order> | Order[]> {
-    try {
-      if (!pagination) {
-        const Orders = await this.orderRepository.find({
-          where: {
-            user: { id: user.id },
-          },
-        });
-        return Orders;
-      }
-      const { limit, page, route } = pagination;
-      const qb = this.orderRepository.createQueryBuilder('order');
-      FindOptionsUtils.joinEagerRelations(
-        qb,
-        qb.alias,
-        this.orderRepository.metadata,
-      );
-      qb.leftJoinAndSelect('order.user', 'user').where('user.id=:user', {
-        user: user.id,
+    if (!pagination) {
+      const Orders = await this.orderRepository.find({
+        where: {
+          user: { id: user.id },
+        },
       });
-
-      return paginate<Order>(qb, { limit, page, route });
-    } catch (err: any) {
-      throw new HttpException(err.message, err.status);
+      return Orders;
     }
+    const { limit, page, route } = pagination;
+    const qb = this.orderRepository.createQueryBuilder('order');
+    FindOptionsUtils.joinEagerRelations(
+      qb,
+      qb.alias,
+      this.orderRepository.metadata,
+    );
+    qb.leftJoinAndSelect('order.user', 'user').where('user.id = :userId', {
+      userId: user.id,
+    });
+
+    return paginate<Order>(qb, { limit, page, route });
   }
 
   public async getActiveOrders(

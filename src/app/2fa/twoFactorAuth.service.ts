@@ -17,7 +17,7 @@ import { QrcodeProvider } from 'src/types/qrcode';
 import { EMAIL_PROVIDER } from '../../constant';
 import { EmailProvider } from '../../types/email';
 import { SuccessResponse } from 'src/utils/response';
-import { Authtype } from 'src/types/authenticator';
+import { AuthType } from 'src/types/authenticator';
 
 @Injectable()
 export class TwoFactorAuthService {
@@ -35,9 +35,7 @@ export class TwoFactorAuthService {
 
   public async toggle2fa(payload: Toggle2faDto, user: User): Promise<any> {
     try {
-
       if (payload.allow2fa == false) {
-      
         await this.userRepository.save({
           ...user,
           isTwoFactorVerified: false,
@@ -48,14 +46,15 @@ export class TwoFactorAuthService {
           'two factor authentication turned off successfully',
           200,
         );
-      }  console.log(user)
-    const updatedUser=  await this.userRepository.save({
+      }
+      console.log(user);
+      const updatedUser = await this.userRepository.save({
         ...user,
         isTwoFactorVerified: false,
         allow2fa: true,
       });
 
-      console.log('passed here')
+      console.log('passed here');
       return await this.initialize2fa(updatedUser);
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
@@ -102,7 +101,7 @@ export class TwoFactorAuthService {
         await this.authenticator.generateTwoFactorAuthenticationSecret(user);
 
       const qrcodeDataUrl = await this.qrcode.generateQrCodeDataURL(
-        twoFaSecret.otpauthUrl,
+        twoFaSecret.otpAuthUrl,
       );
 
       const generatedQrData: TwoFactorAuth =
@@ -130,8 +129,8 @@ export class TwoFactorAuthService {
           isTwoFactorVerified: false,
         });
       }
-      console.log("passed init save")
-      if (user.twoFactorType === Authtype.GOOGLE) {
+      console.log('passed init save');
+      if (user.twoFactorType === AuthType.GOOGLE) {
         return this.generateQrCode(user);
       }
       return this.generateOtp(user);

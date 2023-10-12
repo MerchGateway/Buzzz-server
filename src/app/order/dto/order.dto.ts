@@ -2,12 +2,12 @@ import { IsOptional, IsArray, IsObject } from 'class-validator';
 import { Status } from '../../../types/order';
 export class CreateOrderDto {
   @IsObject()
-  shipping_address: {
-    street_number: number;
+  shippingAddress: {
+    streetNumber: number;
     state: string;
     LGA: string;
-    Nearest_bustop: string;
-    street:string
+    nearestBusStop: string;
+    street: string;
   };
 }
 export class UpdateOrderDto {

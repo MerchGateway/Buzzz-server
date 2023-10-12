@@ -3,16 +3,11 @@ import {
   Post,
   Body,
   Delete,
-  UseGuards,
-  HttpCode,
   Get,
   Patch,
   Put,
-  HttpStatus,
   Param,
 } from '@nestjs/common';
-
-import { Status } from 'src/types/status';
 import { Role } from 'src/types/general';
 import { Roles } from 'src/decorators/roles.decorator';
 import {
@@ -27,15 +22,12 @@ import {
   UpdatePrintingAdminDto,
   CreatePrintingAdminDto,
 } from './printing-partners/dto/printing-partner.dto';
-
 import { AdminService } from './admin.service';
 import { ParseUUIDPipe } from '@nestjs/common';
-import { LogisticsPartner } from './logistics-partners/entities/logistics-partner.entity';
 
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
-
 
   @Roles(Role.SUPER_ADMIN)
   @Post('create-printing-partner')
@@ -137,7 +129,7 @@ export class AdminController {
   removeLogisticsPartner(@Param('id', ParseUUIDPipe) id: string) {
     return this.adminService.deleteLogisticsPartner(id);
   }
- 
+
   @Roles(Role.SUPER_ADMIN)
   @Post('create-logistics-admin/:id')
   createLogisticsAdmin(

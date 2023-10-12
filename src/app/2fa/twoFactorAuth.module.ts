@@ -10,16 +10,13 @@ import { QRCODE, AUTHENTICATOR } from 'src/constant';
 import { AuthModule } from '../auth/auth.module';
 import { EMAIL_PROVIDER } from '../../constant';
 import { ConfigService } from '@nestjs/config';
-import { NodemailerProvider } from '../../providers/nodemailer.provider'
+import { NodemailerProvider } from '../../providers/nodemailer.provider';
 import { TwofactorJwtStrategy } from './guard/twoFactor-jwt-strategy';
 
 @Module({
-  imports: [
-   
-    TypeOrmModule.forFeature([User, TwoFactorAuth]),
-  ],
+  imports: [TypeOrmModule.forFeature([User, TwoFactorAuth])],
   providers: [
-  TwoFactorAuthService,
+    TwoFactorAuthService,
     TwofactorJwtStrategy,
     {
       provide: AUTHENTICATOR,

@@ -88,17 +88,24 @@ export class PaystackBrokerService {
 
   public async getBankList() {
     const response = await this.axiosConnection.get('/bank');
-    return response.data.data as { name: string; code: string }[];
+    return response.data.data as {
+      id: string;
+      name: string;
+      code: string;
+      slug: string;
+    }[];
   }
 
   public async resolveAccountNumber(accountNumber: string, bankCode: string) {
     const response = await this.axiosConnection.get(
-      `/bank/resolve?account_number=${accountNumber}&bank_code=${bankCode}}`,
+      `/bank/resolve?account_number=${accountNumber}&bank_code=${bankCode}`,
     );
-    return response.data.data as {
-      account_name: string;
-      account_number: string;
-      bank_id: number;
+    const res = response.data.data;
+
+    return {
+      accountName: res.account_name as string,
+      accountNumber: res.account_number as string,
+      bankId: res.bank_id as number,
     };
   }
 

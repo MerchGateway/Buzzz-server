@@ -5,12 +5,15 @@ import { AppDataSource } from 'src/database/ormconfig';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
-      imports: [],
-      inject: [],
-      useFactory: () => ({
-        ...AppDataSource.options,
-        autoLoadEntities: true,
-      }),
+      useFactory: () => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { migrations, entities, ...rest } = AppDataSource.options;
+        return {
+          ...rest,
+          migrationsRun: true,
+          autoLoadEntities: true,
+        };
+      },
     }),
   ],
 })

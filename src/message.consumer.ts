@@ -21,7 +21,7 @@ export class MessageConsumer {
 
   @Process(DESIGN_MERCH)
   async readOperationJob(job: Job<unknown>) {
-    console.log("entered queue")
+    console.log('entered queue');
     let jobData: any = job.data;
     let isDesignExist: { design: Design };
 
@@ -52,7 +52,7 @@ export class MessageConsumer {
       if (!isDesignExist.design) {
         console.log('creating new design');
         const newDesign = this.designRepository.create({
-          owner: jobData.user,
+          user: jobData.user,
           texts: [],
           images: [],
           contributors: [],
@@ -70,8 +70,7 @@ export class MessageConsumer {
         isDesignExist.design.texts = [];
 
         // delete old images from cloudinary
-        await this.imageStorage.deletePhotosByPrefix(isDesignExist.design.id,
-        );
+        await this.imageStorage.deletePhotosByPrefix(isDesignExist.design.id);
         let updatedDesign = await this.designService.sortAssets(
           isDesignExist.design,
           jobData.payload,

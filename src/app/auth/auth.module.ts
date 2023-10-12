@@ -21,13 +21,13 @@ import { AdminModule } from '../admin/admin.module';
 import { NotificationModule } from '../notification/notification.module';
 import { TwoFactorAuthModule } from '../2fa/twoFactorAuth.module';
 import { DesignModule } from '../design/design.module';
-
+import { SessionSerializer } from './guards/session.serializer';
 
 @Module({
   imports: [
     TwoFactorAuthModule,
     DesignModule,
-    PassportModule,
+    PassportModule.register({ session: true }),
     AdminModule,
     JwtModule.register({
       secret: configuration().jwt.secret,
@@ -35,18 +35,17 @@ import { DesignModule } from '../design/design.module';
     }),
     UsersModule,
     NotificationModule,
-    TypeOrmModule.forFeature([User,PasswordReset]),
-
+    TypeOrmModule.forFeature([User, PasswordReset]),
     LoggerModule,
     WalletModule,
   ],
-  
   controllers: [AuthController],
   providers: [
     LocalStrategy,
     JwtStrategy,
     GoogleOauthStrategy,
     TwitterOauthStrategy,
+    SessionSerializer,
     AuthService,
     PasswordReset,
     {
@@ -56,7 +55,6 @@ import { DesignModule } from '../design/design.module';
       },
       inject: [ConfigService],
     },
-
   ],
   exports: [AuthService],
 })

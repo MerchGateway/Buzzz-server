@@ -5,7 +5,6 @@ import {
   IsOptional,
   IsUUID,
   MaxLength,
-  minLength,
   MinLength,
 } from 'class-validator';
 
@@ -22,7 +21,6 @@ export class CreateProductDto {
   @IsOptional()
   public description: string;
 
-  
   @IsString()
   @IsNotEmpty()
   public thumbnail: string;
