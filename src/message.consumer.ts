@@ -65,6 +65,10 @@ export class MessageConsumer {
         console.log('came back here', updatedDesign);
         return updatedDesign;
       } else {
+        if( isDesignExist.design.published===true){
+           throw new WsException('Design already published');
+        }
+        
         console.log('updating old design');
         isDesignExist.design.images = [];
         isDesignExist.design.texts = [];

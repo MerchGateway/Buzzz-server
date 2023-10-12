@@ -34,7 +34,11 @@ export class Design extends Timestamp {
   published: boolean;
 
   //! TO-DO: Add a proper type for designData
-  @Column({ name: 'design_data', type: 'simple-json' })
+  @Column({
+    name: 'design_data',
+    type: 'simple-json',
+    collation: 'utf8mb4_unicode_ci',
+  })
   designData: any;
 
   @Column({ type: 'simple-array', nullable: true })
@@ -46,7 +50,11 @@ export class Design extends Timestamp {
   })
   images: ImageBody[] | null;
 
-  @Column({ type: 'simple-array', nullable: true })
+  @Column({
+    type: 'simple-array',
+    nullable: true,
+    collation: 'utf8mb4_unicode_ci',
+  })
   texts: string[] | null;
 
   @BeforeInsert()

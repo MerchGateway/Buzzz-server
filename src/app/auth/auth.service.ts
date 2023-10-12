@@ -163,7 +163,7 @@ export class AuthService {
     return new SuccessResponse(data, 'Signin successful');
   }
 
-  async signup(signupUserDto: SignupUserDto) {
+  async signup(signupUserDto: SignupUserDto, designId?: string) {
     const nameParts = signupUserDto.name.split(' ');
     const user = this.userRepository.create({
       ...signupUserDto,
@@ -172,6 +172,13 @@ export class AuthService {
     });
 
     await this.userRepository.save(user);
+    if (designId) {
+      // associate design with user
+      const design = await this.designService.fetchSingleDesign(designId);
+      design.user = user;
+      await design.save();
+      console.log(design);
+    }
 
     const data = await this.postSignin(user);
 

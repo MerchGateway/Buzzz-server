@@ -5,6 +5,7 @@ import {
   Delete,
   UseGuards,
   HttpCode,
+  Res,
   Get,
   Patch,
   Put,

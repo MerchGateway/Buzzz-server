@@ -81,8 +81,8 @@ export class AuthController {
 
   @Public()
   @Post('signup')
-  signup(@Body() signupUserDto: SignupUserDto) {
-    return this.authService.signup(signupUserDto);
+  signup(@Body() signupUserDto: SignupUserDto,@Query("designId") designId:string) {
+    return this.authService.signup(signupUserDto,designId);
   }
 
   @Public()
