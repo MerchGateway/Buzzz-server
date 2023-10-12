@@ -1,8 +1,5 @@
 import {
-  BaseEntity,
   Entity,
-  CreateDateColumn,
-  UpdateDateColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   OneToOne,
@@ -11,14 +8,13 @@ import {
   BeforeInsert,
   BeforeUpdate,
 } from 'typeorm';
-import { Product } from 'src/app/product/product.entity';
+import { Product } from 'src/app/product/entities/product.entity';
 import { User } from 'src/app/users/entities/user.entity';
 import { ImageBody } from 'src/types/asset';
-import { IMAGE_TYPE, TEXT_TYPE } from 'src/constant';
-import { IsOptional } from 'class-validator';
+import { Timestamp } from '../../../database/timestamp.entity';
 
-@Entity('design')
-export class Design extends BaseEntity {
+@Entity()
+export class Design extends Timestamp {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -31,40 +27,41 @@ export class Design extends BaseEntity {
     onDelete: 'CASCADE',
     eager: true,
   })
-  @JoinColumn()
-  owner: User;
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
-  @Column({ type: 'bool', default: false })
+  @Column({ default: false })
   published: boolean;
 
-  @Column({ type: 'simple-json',collation: 'utf8mb4_unicode_ci' })
-  design_data: any;
+  //! TO-DO: Add a proper type for designData
+  @Column({
+    name: 'design_data',
+    type: 'simple-json',
+    collation: 'utf8mb4_unicode_ci',
+  })
+  designData: any;
 
   @Column({ type: 'simple-array', nullable: true })
-  @IsOptional()
-  contributors: string[];
+  contributors: string[] | null;
 
   @Column({
     type: 'simple-json',
     nullable: true,
   })
-  images: ImageBody[];
+  images: ImageBody[] | null;
 
-  @Column({ type: 'simple-array', nullable: true,collation: 'utf8mb4_unicode_ci' })
-  @IsOptional()
-  texts: string[];
-
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
+  @Column({
+    type: 'simple-array',
+    nullable: true,
+    collation: 'utf8mb4_unicode_ci',
+  })
+  texts: string[] | null;
 
   @BeforeInsert()
   @BeforeUpdate()
   private async() {
     if (!this.contributors[0]) {
-      this.owner && this.contributors.push(this.owner.email);
+      this.user && this.contributors.push(this.user.email);
     }
   }
 }

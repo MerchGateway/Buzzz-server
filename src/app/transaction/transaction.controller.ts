@@ -42,7 +42,7 @@ export class TransactionController {
   ) {
     const response = await this.transactionService.verifyTransaction(reference);
     // res.send(response).end()
-    return res.sendFile(response)
+    return res.sendFile(response);
   }
 
   @Roles(Role.SUPER_ADMIN)

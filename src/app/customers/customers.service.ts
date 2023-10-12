@@ -41,7 +41,7 @@ export class CustomersService {
     if (!res) {
       const customer = new Customer();
       customer.sellerId = sellerId;
-      customer.customer = [user];
+      customer.user = [user];
       return await this.customerRepository.save(customer);
     }
 
@@ -54,12 +54,12 @@ export class CustomersService {
         sellerId: userId,
       },
       relations: {
-        customer: true,
+        user: true,
       },
     });
 
     const sort = async (customer: Customer) => {
-      const orders = await this.orderRepository.getOrders(customer.customer[0]);
+      const orders = await this.orderRepository.getOrders(customer.user[0]);
       const data = {
         customer: customer,
         order: orders,
@@ -77,12 +77,12 @@ export class CustomersService {
   async findAllCustomersAvailable(): Promise<any> {
     const res = await this.customerRepository.find({
       relations: {
-        customer: true,
+        user: true,
       },
     });
 
     const sort = async (customer: Customer) => {
-      const orders = await this.orderRepository.getOrders(customer.customer[0]);
+      const orders = await this.orderRepository.getOrders(customer.user[0]);
       const data = {
         customer: customer,
         order: orders,
@@ -94,19 +94,15 @@ export class CustomersService {
       return Promise.all(res?.map((h) => sort(h)));
     };
 
-    
     return caller();
   }
 
-  public async toggleStatus(
-    Status: Status,
-    sellerId: string,
-  ): Promise<any> {
+  public async toggleStatus(Status: Status, sellerId: string): Promise<any> {
     try {
       const res = await this.customerRepository.findOne({
         where: { sellerId },
         relations: {
-          customer: true,
+          user: true,
         },
       });
 

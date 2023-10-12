@@ -2,11 +2,11 @@ import {
   Injectable,
   NestInterceptor,
   ExecutionContext,
-  BadGatewayException,
   CallHandler,
   BadRequestException,
   RequestTimeoutException,
   ServiceUnavailableException,
+  HttpException,
 } from '@nestjs/common';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -35,10 +35,10 @@ export class ErrorsInterceptor implements NestInterceptor {
           return throwError(
             () => new RequestTimeoutException('Request timed out'),
           );
-        } else if (err instanceof BadRequestException) {
-          return throwError(() => new BadRequestException(err));
         }
-        return throwError(() => new BadGatewayException(err?.message || err));
+        return throwError(
+          () => new HttpException(err?.message || err, err.status || 500),
+        );
       }),
     );
   }

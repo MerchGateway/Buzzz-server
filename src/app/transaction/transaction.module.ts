@@ -7,11 +7,11 @@ import { OrderModule } from '../order/order.module';
 import { CartModule } from '../cart/cart.module';
 import { ProductModule } from '../product/product.module';
 import { CustomersModule } from '../customers/customers.module';
-import { PolyMailerContent } from '../order/entities/polymailer_content.entity';
+import { PolymailerContent } from '../order/entities/polymailer-content.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Transaction,PolyMailerContent]),
+    TypeOrmModule.forFeature([Transaction, PolymailerContent]),
     OrderModule,
     CartModule,
     ProductModule,

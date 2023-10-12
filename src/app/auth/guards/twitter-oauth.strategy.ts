@@ -1,6 +1,6 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy } from 'passport-twitter';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/app/users/users.service';
 import { IdentityProvider } from '../../../types/user';
@@ -20,7 +20,7 @@ export class TwitterOauthStrategy extends PassportStrategy(
       consumerKey: configService.get<string>('oauth.twitterConsumerKey'),
       consumerSecret: configService.get<string>('oauth.twitterConsumerSecret'),
       callbackURL:
-        configService.get<string>('appUrl') + 'v1/auth/twitter/redirect',
+        configService.get<string>('clientUrl') + '/auth/login/social-redirect',
       includeEmail: true,
     });
   }
@@ -30,7 +30,27 @@ export class TwitterOauthStrategy extends PassportStrategy(
     _refreshToken: string,
     profile: Profile,
   ) {
-    const { id, name, emails } = profile;
+    const { id, username, emails } = profile;
+
+    const existingNonTwitterProviderUser = await this.authService.findOneUser(
+      {
+        email: emails[0].value,
+      },
+      {
+        id: true,
+        identityProvider: true,
+      },
+    );
+
+    if (
+      existingNonTwitterProviderUser &&
+      existingNonTwitterProviderUser.identityProvider !==
+        IdentityProvider.TWITTER
+    ) {
+      throw new UnauthorizedException(
+        'You cannot sign in with your Twitter account because an account with this email address already exists',
+      );
+    }
 
     let user = await this.authService.findOauthUser(
       IdentityProvider.TWITTER,
@@ -41,7 +61,7 @@ export class TwitterOauthStrategy extends PassportStrategy(
       user = await this.usersService.create({
         identityProvider: IdentityProvider.TWITTER,
         identityProviderId: id,
-        name: name.givenName,
+        name: username,
         email: emails[0].value,
       });
     }

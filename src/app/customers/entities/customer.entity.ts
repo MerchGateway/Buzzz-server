@@ -2,29 +2,25 @@ import { User } from 'src/app/users/entities/user.entity';
 import { Status } from 'src/types/status';
 import {
   Column,
-  CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
   ManyToMany,
-  JoinTable
+  JoinTable,
 } from 'typeorm';
+import { Timestamp } from '../../../database/timestamp.entity';
 
-@Entity('customer')
-export class Customer {
+@Entity()
+export class Customer extends Timestamp {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
-
-  @Column()
+  @Column({ name: 'seller_id' })
   sellerId: string;
 
   @Column({ type: 'enum', enum: Status, default: Status.ENABLED })
-  status:Status ;
+  status: Status;
 
   @ManyToMany(() => User)
-  @JoinTable()
-  customer: User[];
+  @JoinTable({ name: 'customer_user' })
+  user: User[];
 }
-

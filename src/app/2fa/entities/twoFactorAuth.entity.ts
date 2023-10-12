@@ -1,26 +1,15 @@
 import {
   Entity,
   Column,
-  BaseEntity,
-  CreateDateColumn,
   ManyToOne,
-  OneToOne,
   JoinColumn,
-  UpdateDateColumn,
   PrimaryGeneratedColumn,
-  // BeforeInsert,
-  OneToMany,
-  // TableColumn,
 } from 'typeorm';
-
 import { User } from '../../users/entities/user.entity';
+import { Timestamp } from '../../../database/timestamp.entity';
 
 @Entity('2fa')
-export class TwoFactorAuth extends BaseEntity {
-  constructor() {
-    super();
-  }
-
+export class TwoFactorAuth extends Timestamp {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -28,12 +17,6 @@ export class TwoFactorAuth extends BaseEntity {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column({ name: '2fa_secret', type: 'varchar', select: false })
+  @Column({ select: false })
   secret: string;
-
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
 }

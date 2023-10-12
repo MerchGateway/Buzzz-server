@@ -16,8 +16,8 @@ import {
 import { BASE_URL } from '../../constant';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { Pagination } from 'nestjs-typeorm-paginate';
-import { CreateProductDto, EditProductDto } from './product.dto';
-import { Product } from './product.entity';
+import { CreateProductDto, EditProductDto } from './dto/product.dto';
+import { Product } from './entities/product.entity';
 import { ProductService } from './product.service';
 import { CategoryService } from '../category/category.service';
 import { Public } from 'src/decorators/public.decorator';
@@ -121,6 +121,6 @@ export class ProductController {
     @Param('id') id: string,
     @Body() data: { inStock: boolean },
   ): Promise<Product | string> {
-    return this.service.updateAvailability(id,data);
+    return this.service.updateAvailability(id, data);
   }
 }

@@ -9,7 +9,12 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/app/users/entities/user.entity';
-import { MoreThanOrEqual, Repository } from 'typeorm';
+import {
+  FindOptionsSelect,
+  FindOptionsWhere,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { SignupUserDto } from './dto/signup-user.dto';
 import { SuccessResponse } from '../../utils/response';
 import { JwtPayload } from './guards/jwt.strategy';
@@ -20,12 +25,12 @@ import { EmailProvider } from '../../types/email';
 import { DesignService } from '../design/design.service';
 import { PasswordReset } from './entities/password-reset.entity';
 import { EMAIL_PROVIDER, PASSWORD_RESET_TOKEN_EXPIRY } from '../../constant';
-
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { WalletService } from '../wallet/wallet.service';
-import { Authtype } from 'src/types/authenticator';
+import { AuthType } from 'src/types/authenticator';
 import { TwoFactorAuthService } from '../2fa/twoFactorAuth.service';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
@@ -39,27 +44,30 @@ export class AuthService {
     private readonly logger: WinstonLoggerService,
     @Inject(EMAIL_PROVIDER)
     private emailProvider: EmailProvider,
-
     private readonly walletService: WalletService,
     private readonly twoFactorAuthService: TwoFactorAuthService,
+    private readonly usersService: UsersService,
   ) {
     this.logger.setContext(AuthService.name);
   }
 
-  async validateUser(email: string, enteredPassword: string) {
+  async validateUser(
+    email: string,
+    enteredPassword: string,
+  ): Promise<User | null> {
     const user = await this.userRepository
       .createQueryBuilder('user')
       .where('user.email = :email', { email })
       .addSelect('user.password')
+      .leftJoinAndSelect('user.wallet', 'wallet')
       .getOne();
 
-    console.log(user);
     if (!user) {
       return null;
     }
 
     const isMatch = await user.matchPassword(enteredPassword);
-    console.log(isMatch);
+
     if (!isMatch) {
       return null;
     }
@@ -68,6 +76,13 @@ export class AuthService {
     const { password, ...result } = user;
 
     return result as User;
+  }
+
+  async findOneUser(
+    filter: FindOptionsWhere<User>,
+    select?: FindOptionsSelect<User>,
+  ) {
+    return await this.userRepository.findOne({ where: filter, select });
   }
 
   async findOauthUser(
@@ -86,7 +101,6 @@ export class AuthService {
   }
 
   async postAdminSignin(user: User) {
-    console.log('this is the user', user);
     const payload: JwtPayload = { sub: user.id, role: user.role };
     user.password && delete user.password;
     return {
@@ -99,7 +113,7 @@ export class AuthService {
     const payload: JwtPayload = { sub: user.id, role: user.role };
     user.password && delete user.password;
 
-    // get refreshed push notification registeration token eachtime on signin to capture possible new device
+    // get refreshed push notification registration token each time on signin to capture possible new device
 
     if (!user.wallet) {
       const wallet = await this.walletService.createWallet();
@@ -108,6 +122,7 @@ export class AuthService {
         wallet,
       });
     }
+
     return {
       user,
       accessToken: this.jwtService.sign(payload),
@@ -120,9 +135,8 @@ export class AuthService {
     if (designId) {
       // associate design with user
       const design = await this.designService.fetchSingleDesign(designId);
-      design.owner = user;
+      design.user = user;
       await design.save();
-      console.log(design);
     }
 
     if (user.allow2fa == true) {
@@ -132,12 +146,12 @@ export class AuthService {
         isTwoFactorVerified: false,
       });
 
-      if (user.twoFactorType === Authtype.INAPP) {
+      if (user.twoFactorType === AuthType.IN_APP) {
         // send  login token
         await this.twoFactorAuthService.generateOtp(user);
       }
       const tokenLocation =
-        user.twoFactorType === Authtype.GOOGLE
+        user.twoFactorType === AuthType.GOOGLE
           ? 'google authenticator app'
           : 'registered email';
 
@@ -150,13 +164,18 @@ export class AuthService {
   }
 
   async signup(signupUserDto: SignupUserDto, designId?: string) {
-    let user: User;
-    user = this.userRepository.create(signupUserDto);
+    const nameParts = signupUserDto.name.split(' ');
+    const user = this.userRepository.create({
+      ...signupUserDto,
+      firstName: nameParts[0],
+      lastName: nameParts[1] || '',
+    });
+
     await this.userRepository.save(user);
     if (designId) {
       // associate design with user
       const design = await this.designService.fetchSingleDesign(designId);
-      design.owner = user;
+      design.user = user;
       await design.save();
       console.log(design);
     }
@@ -276,5 +295,9 @@ export class AuthService {
   async adminSignin(user: User) {
     const data = await this.postAdminSignin(user);
     return new SuccessResponse(data, 'Signin successful');
+  }
+
+  findAuthUser(id: string) {
+    return this.usersService.findOneProfile(id);
   }
 }

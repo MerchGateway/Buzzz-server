@@ -47,7 +47,7 @@ export class PrintingPartnerService {
         .addSelect('polymailer_details')
         .addSelect('order.status', 'status')
         .where('printing_partner.id=:printing_partner', {
-          printing_partner: userWithPrintingRelation.printing_partner.id,
+          printing_partner: userWithPrintingRelation.printingPartner.id,
         })
         .getRawMany();
 
@@ -60,14 +60,14 @@ export class PrintingPartnerService {
     try {
       const userWithPartner = await this.userRepository.findOne({
         where: { id: user.id },
-        relations: { printing_partner: true },
+        relations: { printingPartner: true },
       });
       const order = await this.orderRepository.findOne({
         where: {
           id,
-          printing_partner: { id: userWithPartner.printing_partner.id },
+          printingPartner: { id: userWithPartner.printingPartner.id },
         },
-        relations: { printing_partner: true },
+        relations: { printingPartner: true },
       });
 
       if (!order) {
@@ -80,7 +80,7 @@ export class PrintingPartnerService {
         thumbnail: order.product.thumbnail,
         quantity: order.quantity,
         status: order.status,
-        polymailer_details: order.polymailer_details,
+        polymailer_details: order.polymailerDetails,
       };
     } catch (err) {
       user;
@@ -110,7 +110,7 @@ export class PrintingPartnerService {
     try {
       const userWithPartner = await this.userRepository.findOne({
         where: { id: user.id },
-        relations: { printing_partner: true },
+        relations: { printingPartner: true },
       });
       const allowedStatuses = ['In-Progress', 'Printed'];
 
@@ -124,11 +124,11 @@ export class PrintingPartnerService {
         where: { id },
         relations: ['printing_partner'],
       });
-      console.log(order.printing_partner);
+      console.log(order.printingPartner);
 
       if (
-        !order.printing_partner ||
-        order.printing_partner.id !== userWithPartner.printing_partner.id
+        !order.printingPartner ||
+        order.printingPartner.id !== userWithPartner.printingPartner.id
       ) {
         throw new UnauthorizedException(
           'This order hasnt been assigned to you',

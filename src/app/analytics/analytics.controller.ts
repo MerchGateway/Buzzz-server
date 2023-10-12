@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { CurrentUser } from 'src/decorators/user.decorator';
 import { User } from '../users/entities/user.entity';
 import { AnalyticsService, OrderT } from './analytics.service';

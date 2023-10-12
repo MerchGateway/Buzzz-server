@@ -11,7 +11,7 @@ import { Cart } from './entities/cart.entity';
 import { User } from '../users/entities/user.entity';
 import { CreateCartDto, UpdateCartDto } from '../cart/dto/cart.dto';
 import { ProductService } from '../product/product.service';
-import { Product } from '../product/product.entity';
+import { Product } from '../product/entities/product.entity';
 
 @Injectable()
 export class CartService {
@@ -41,11 +41,11 @@ export class CartService {
         return await this.cartRepository.save(isCart);
       } else {
         const cartItem = this.cartRepository.create({
-          owner: user,
+          user: user,
           quantity: cartDto.quantity,
           product: productItem,
           size: cartDto?.size,
-          color:cartDto?.color
+          color: cartDto?.color,
         });
 
         return await this.cartRepository.save(cartItem);
@@ -77,11 +77,11 @@ export class CartService {
             return await this.cartRepository.save(isCart);
           } else {
             const cartItem = this.cartRepository.create({
-              owner: user,
+              user: user,
               quantity: cart.quantity,
               product: productItem,
               size: cart?.size,
-              color:cart?.color
+              color: cart?.color,
             });
 
             return await this.cartRepository.save(cartItem);
@@ -115,7 +115,7 @@ export class CartService {
       // update quantity if it exists
       cartItem.quantity = cartDto.quantity;
       cartDto.size && (cartItem.size = cartDto.size);
-      
+
       return await this.cartRepository.save(cartItem);
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
@@ -124,7 +124,7 @@ export class CartService {
   public async getCartItems(user: User): Promise<Cart[] | undefined> {
     try {
       const cartItems = await this.cartRepository.find({
-        where: { owner: { id: user.id } },
+        where: { user: { id: user.id } },
         relations: { product: true },
       });
       return cartItems;

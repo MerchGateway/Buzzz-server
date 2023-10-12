@@ -34,7 +34,6 @@ $ npm install
 
 ## Running the app
 
-
 install redis and mysql globally on machine. Follow the steps stated in the links below on how to install mysql and redis on your various machines
 
 <a href="https://redis.io/docs/getting-started/installation/install-redis-on-linux
@@ -63,6 +62,24 @@ $ npm run start:prod
 
 ```bash
 $ yarn docker:start
+```
+
+## Migrations
+
+### Generating Migrations
+
+Migrations are not manually written, instead we leverage typeorm's migration generator which checks the state of our database and generates a migration file to cover all changes made to the entities within the source code.
+
+```
+$ yarn typeorm migration:generate -d ./src/database/ormconfig.ts ./src/database/migrations/<NAME-OF-MIGRATION>
+```
+
+### Running Migrations
+
+To run migrations simply run
+
+```
+$ yarn migration:run
 ```
 
 ## Test

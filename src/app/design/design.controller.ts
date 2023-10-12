@@ -17,7 +17,7 @@ import {
   PublishDesignDto,
   PublishDesignAndCheckoutDto,
 } from './dto/design.dto';
-import { PolyMailerContent } from '../order/entities/polymailer_content.entity';
+import { PolymailerContent } from '../order/entities/polymailer-content.entity';
 import { Design } from './entities/design.entity';
 import { ParseUUIDPipe } from '@nestjs/common';
 import { Role } from 'src/types/general';
@@ -35,25 +35,25 @@ export class DesignController {
   @Roles(Role.SUPER_ADMIN, Role.PRINTING_ADMIN)
   @UseGuards(RolesGuard)
   @Get('polymailer-contents')
-  fetchPolyMailerContents(): Promise<PolyMailerContent[] | undefined> {
+  fetchPolyMailerContents(): Promise<PolymailerContent[] | undefined> {
     return this.designService.fetchPolymailerContents();
   }
 
   @Roles(Role.SUPER_ADMIN, Role.PRINTING_ADMIN)
   @UseGuards(RolesGuard)
-  @Post('create-polymailer-content') 
+  @Post('create-polymailer-content')
   createPolyMailerContent(
     @Body() payload: { content: string }[],
-  ): Promise<PolyMailerContent[] | undefined> {
+  ): Promise<PolymailerContent[] | undefined> {
     return this.designService.createPolymailerContent(payload);
   }
 
   @Get('use-template')
-   useTemplate(
+  useTemplate(
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: User,
   ): Promise<Design | undefined> {
-    return  this.designService.useTemplate(id, user);
+    return this.designService.useTemplate(id, user);
   }
 
   @Public()
@@ -130,7 +130,6 @@ export class DesignController {
 
   @Get('fetch-my-design/:id')
   fetchMyDesign(
-    @Res()res:Response,
     @CurrentUser() user: User,
     @Param('id', ParseUUIDPipe) id: string,
   ) {

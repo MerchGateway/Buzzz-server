@@ -1,8 +1,5 @@
 import {
-  BaseEntity,
   Entity,
-  CreateDateColumn,
-  UpdateDateColumn,
   PrimaryGeneratedColumn,
   ManyToOne,
   JoinColumn,
@@ -12,30 +9,28 @@ import {
   BeforeInsert,
   BeforeUpdate,
 } from 'typeorm';
-
 import { User } from '../../users/entities/user.entity';
-
 import { Order } from '../../order/entities/order.entity';
-import { Product } from '../../product/product.entity';
-import { Size } from 'src/types/size';
-import { Color } from 'src/types/color';
+import { Product } from '../../product/entities/product.entity';
+import { Size } from '../../../types/size';
+import { Timestamp } from '../../../database/timestamp.entity';
 
-@Entity('cart_item')
-export class Cart extends BaseEntity {
+@Entity()
+export class Cart extends Timestamp {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @ManyToOne(() => User, {
     cascade: true,
   })
-  @JoinColumn({ name: 'client_id' })
-  owner: User;
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
   @OneToOne(() => Product, {
     cascade: true,
     eager: true,
   })
-  @JoinColumn()
+  @JoinColumn({ name: 'product_id' })
   product: Product;
 
   @OneToMany(() => Order, (order) => order.cart)
@@ -75,7 +70,7 @@ export class Cart extends BaseEntity {
     ],
     nullable: true,
   })
-  color: string;
+  color: string | null;
 
   @BeforeInsert()
   @BeforeUpdate()
@@ -88,12 +83,6 @@ export class Cart extends BaseEntity {
   private async addColor(): Promise<void> {
     !this.color &&
       this.product &&
-      (this.color = this.product.design.design_data.background);
+      (this.color = this.product.design.designData.background);
   }
-
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
 }

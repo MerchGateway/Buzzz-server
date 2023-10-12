@@ -1,10 +1,7 @@
-import { Product } from 'src/app/product/product.entity';
+import { Product } from 'src/app/product/entities/product.entity';
 import { Transaction } from 'src/app/transaction/entities/transaction.entity';
 import {
-  BaseEntity,
   Entity,
-  CreateDateColumn,
-  UpdateDateColumn,
   Column,
   PrimaryGeneratedColumn,
   ManyToOne,
@@ -12,14 +9,15 @@ import {
   BeforeUpdate,
   JoinColumn,
 } from 'typeorm';
-
 import { Status } from '../../../types/order';
 import { Cart } from '../../cart/entities/cart.entity';
 import { User } from '../../users/entities/user.entity';
 import { PrintingPartner } from 'src/app/admin/printing-partners/entities/printing-partner.entity';
 import { LogisticsPartner } from 'src/app/admin/logistics-partners/entities/logistics-partner.entity';
-@Entity('order')
-export class Order extends BaseEntity {
+import { Timestamp } from '../../../database/timestamp.entity';
+
+@Entity()
+export class Order extends Timestamp {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -27,7 +25,7 @@ export class Order extends BaseEntity {
     cascade: true,
     eager: true,
   })
-  @JoinColumn({ name: 'client_id' })
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @ManyToOne(() => Transaction, (transaction) => transaction.orders, {
@@ -40,48 +38,65 @@ export class Order extends BaseEntity {
     eager: true,
     onDelete: 'SET NULL',
   })
-  @JoinColumn({ name: 'cart_item_id' })
+  @JoinColumn({ name: 'cart_id' })
   cart: Cart;
 
   @ManyToOne(() => Product, {
     eager: true,
     onDelete: 'SET NULL',
   })
+  @JoinColumn({ name: 'product_id' })
   product: Product;
 
-  @Column()
+  @Column({ name: 'seller_id' })
   sellerId: string;
 
-  @Column({ type: 'numeric', nullable: true })
+  @Column({ type: 'numeric' })
   quantity: number;
 
-  @Column({ type: 'numeric', nullable: true })
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   total: number;
 
-  @Column({ type: 'simple-json', default: null, nullable: true })
-  shipping_details!: {
-    shipping_fee: number;
-    shipping_address: {
-      street_number: number;
+  @Column({
+    name: 'shipping_details',
+    type: 'simple-json',
+    default: null,
+    nullable: true,
+  })
+  shippingDetails: {
+    shippingFee: number;
+    shippingAddress: {
+      streetNumber: number;
       state: string;
       LGA: string;
       street: string;
-      Nearest_bustop: string;
+      nearestBusStop: string;
     };
-  };
+  } | null;
 
-  @Column({ type: 'simple-json', default: null, nullable: true })
-  polymailer_details: {
+  @Column({
+    name: 'polymailer_details',
+    type: 'simple-json',
+    default: null,
+    nullable: true,
+  })
+  polymailerDetails: {
     from: string;
     to: string;
     content: string;
-  };
+  } | null;
 
-  @Column({ nullable: true, default: 0, type: 'decimal', precision: 10 })
-  delivery_fee: number;
+  @Column({
+    name: 'delivery_fee',
+    nullable: true,
+    default: 0,
+    type: 'decimal',
+    precision: 10,
+  })
+  deliveryFee: number | null;
 
-  @Column({ type: 'varchar', default: '', nullable: true })
-  coupon: string;
+  @Column({ nullable: true })
+  coupon: string | null;
 
   @Column({ type: 'enum', enum: Status, default: Status.PENDING })
   status: string;
@@ -90,13 +105,15 @@ export class Order extends BaseEntity {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
-  printing_partner: PrintingPartner;
+  @JoinColumn({ name: 'printing_partner_id' })
+  printingPartner: PrintingPartner;
 
   @ManyToOne(() => LogisticsPartner, (logistics) => logistics.orders, {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
-  logistics_partner: LogisticsPartner;
+  @JoinColumn({ name: 'logistics_partner_id' })
+  logisticsPartner: LogisticsPartner;
 
   @BeforeInsert()
   @BeforeUpdate()
@@ -124,19 +141,12 @@ export class Order extends BaseEntity {
   }
 
   public async updateStatus(value: string) {
-
     this.status = value;
     if (this.status === Status.PAID) {
-  
       // delete this.cart;
       if (this.cart) {
         Cart.remove(this.cart);
       }
     }
   }
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
 }

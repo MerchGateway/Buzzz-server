@@ -1,4 +1,4 @@
- import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -15,16 +15,12 @@ import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { CartModule } from './cart/cart.module';
-import { CLOUDINARY } from 'src/constant';
-import { CloudinaryProvider } from 'src/providers/cloudinary.provider';
 import { PaymentModule } from './payment/payment.module';
 import { ContactModule } from './contact/contact.module';
-
 import { ErrorsInterceptor } from 'src/interceptor/error.interceptor';
 import { CustomersModule } from './customers/customers.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { WalletModule } from './wallet/wallet.module';
-import { WalletTransactionsModule } from './wallet-transactions/wallet-transactions.module';
 import { NotificationModule } from './notification/notification.module';
 import { DesignController } from './design/design.controller';
 import { DesignModule } from './design/design.module';
@@ -33,9 +29,13 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      expandVariables: true,
+      load: [configuration],
+    }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..','..', 'public'),
+      rootPath: join(__dirname, '..', '..', 'public'),
     }),
     JwtModule.register({
       secret: configuration().jwt.secret,
@@ -52,7 +52,6 @@ import { join } from 'path';
     PaymentModule,
     ContactModule,
     WalletModule,
-    WalletTransactionsModule,
     CustomersModule,
     AnalyticsModule,
     NotificationModule,
@@ -70,7 +69,6 @@ import { join } from 'path';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
-    
     {
       provide: APP_INTERCEPTOR,
       useClass: ErrorsInterceptor,

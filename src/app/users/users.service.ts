@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { WalletService } from '../wallet/wallet.service';
@@ -10,6 +15,7 @@ import { User } from './entities/user.entity';
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @Inject(forwardRef(() => WalletService))
     private readonly walletService: WalletService,
   ) {}
 
@@ -34,20 +40,16 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    const user = await this.userRepository.findOneBy({ id });
-
-    if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
-
-    return user;
+    return this.findOneProfile(id);
   }
 
   async findOneBy(username: string) {
     const user = await this.userRepository.findOneBy({ username });
 
     if (!user) {
-      throw new NotFoundException(`User with provided username ${username} does not exist`);
+      throw new NotFoundException(
+        `User with provided username ${username} does not exist`,
+      );
     }
 
     return user;
@@ -63,5 +65,27 @@ export class UsersService {
 
   remove(id: string) {
     return `This action removes a #${id} user`;
+  }
+
+  async findOneProfile(id: string) {
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .where('user.id = :id', { id })
+      .addSelect('user.pin')
+      .getOne();
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+
+    if (!!user.pin) {
+      user.hasPin = true;
+    } else {
+      user.hasPin = false;
+    }
+
+    delete user.pin;
+
+    return user;
   }
 }
