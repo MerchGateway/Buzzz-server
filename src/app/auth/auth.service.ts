@@ -163,6 +163,11 @@ export class AuthService {
     return new SuccessResponse(data, 'Signin successful');
   }
 
+  async socialSignin(user: User, designId?: string) {
+    const data = await this.postSignin(user, designId);
+    return new SuccessResponse(data, 'Signin successful');
+  }
+
   async signup(signupUserDto: SignupUserDto, designId?: string) {
     const nameParts = signupUserDto.name.split(' ');
 
