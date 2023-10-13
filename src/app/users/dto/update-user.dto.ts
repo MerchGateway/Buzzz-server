@@ -34,11 +34,11 @@ export class UpdateUserDto {
 
   @IsObject()
   @IsOptional()
-  shipping_address: {
-    street_number: number;
+  shippingAddress: {
+    streetNumber: number;
     state: string;
     LGA: string;
-    Nearest_bustop: string;
+    nearestBusStop: string;
     street: string;
   };
 

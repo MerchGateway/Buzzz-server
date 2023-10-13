@@ -26,34 +26,31 @@ export class CartService {
     cartDto: CreateCartDto,
     user: User,
   ): Promise<Cart | undefined> {
-    try {
-      const productItem = await this.product.handleGetAProduct(cartDto.product);
+    const productItem = await this.product.handleGetAProduct(cartDto.product);
 
-      if (!productItem) {
-        throw new NotFoundException(
-          `Product  with id ${cartDto.product} does not exist`,
-        );
-      }
-      const isCart = await this.checkIfCartExist(cartDto.product);
+    if (!productItem) {
+      throw new NotFoundException(
+        `Product  with id ${cartDto.product} does not exist`,
+      );
+    }
+    const isCart = await this.checkIfCartExist(cartDto.product);
 
-      if (isCart) {
-        isCart.quantity += cartDto.quantity;
-        return await this.cartRepository.save(isCart);
-      } else {
-        const cartItem = this.cartRepository.create({
-          user: user,
-          quantity: cartDto.quantity,
-          product: productItem,
-          size: cartDto?.size,
-          color: cartDto?.color,
-        });
+    if (isCart) {
+      isCart.quantity += cartDto.quantity;
+      return await this.cartRepository.save(isCart);
+    } else {
+      const cartItem = this.cartRepository.create({
+        user: user,
+        quantity: cartDto.quantity,
+        product: productItem,
+        size: cartDto?.size,
+        color: cartDto?.color,
+      });
 
-        return await this.cartRepository.save(cartItem);
-      }
-    } catch (err: any) {
-      throw new HttpException(err.message, err.status);
+      return await this.cartRepository.save(cartItem);
     }
   }
+
   public async createMultipleCartItem(
     cartDto: CreateCartDto[],
     user: User,

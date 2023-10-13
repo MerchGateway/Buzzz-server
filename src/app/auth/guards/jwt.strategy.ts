@@ -28,7 +28,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     let user: User;
 
     try {
-      user = await this.usersService.findOne(payload.sub);
+      user = await this.usersService.findOneProfile(payload.sub);
 
       if (
         user.allow2fa == true &&
