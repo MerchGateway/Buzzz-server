@@ -24,7 +24,10 @@ async function bootstrap() {
     }),
   );
   app.enableCors({
-    origin: [config.get<string>('clientUrl'), 'http://localhost:5500'],
+    origin: [
+      config.get<string>('clientUrl'),
+      config.get<string>('designClientUrl'),
+    ],
     credentials: true,
   });
   app.use(express.static(join(__dirname, 'public')));
