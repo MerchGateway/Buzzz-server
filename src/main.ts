@@ -30,6 +30,10 @@ async function bootstrap() {
   //   ],
   //   credentials: true,
   // });
+  app.enableCors({
+    origin: '*',
+    credentials: true,
+  });
   app.use(express.static(join(__dirname, 'public')));
   app.set('view engine', 'html');
   app.engine('html', (await import('ejs')).renderFile);
