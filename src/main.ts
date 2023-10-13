@@ -23,13 +23,13 @@ async function bootstrap() {
       exceptionFactory: validationExceptionFactory,
     }),
   );
-  app.enableCors({
-    origin: [
-      config.get<string>('clientUrl'),
-      config.get<string>('designClientUrl'),
-    ],
-    credentials: true,
-  });
+  // app.enableCors({
+  //   origin: [
+  //     config.get<string>('clientUrl'),
+  //     config.get<string>('designClientUrl'),
+  //   ],
+  //   credentials: true,
+  // });
   app.use(express.static(join(__dirname, 'public')));
   app.set('view engine', 'html');
   app.engine('html', (await import('ejs')).renderFile);
