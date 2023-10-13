@@ -18,7 +18,7 @@ export const AppDataSource = new DataSource({
   synchronize: config.database.synchronize,
   database: config.database.name,
   charset: 'utf8mb4_unicode_ci',
-  //migrations: [config.database.migrations],
+  migrations: [config.database.migrations],
   entities: [config.database.entities],
   namingStrategy: new SnakeNamingStrategy(),
 });
