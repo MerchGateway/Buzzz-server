@@ -10,6 +10,7 @@ import { WalletService } from '../wallet/wallet.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { SuccessResponse } from '../../utils/response';
 
 @Injectable()
 export class UsersService {
@@ -40,7 +41,8 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    return this.findOneProfile(id);
+    const user = await this.findOneProfile(id);
+    return new SuccessResponse(user, 'User retrieved successfully');
   }
 
   async findOneBy(username: string) {
@@ -58,7 +60,7 @@ export class UsersService {
   async update(user: User, updateUserDto: UpdateUserDto) {
     await this.userRepository.update(user.id, updateUserDto);
 
-    user = await this.findOne(user.id);
+    user = await this.findOneProfile(user.id);
 
     return user;
   }

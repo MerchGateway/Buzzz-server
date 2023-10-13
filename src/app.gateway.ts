@@ -54,7 +54,7 @@ export class AppGateway
       if (tke) {
         const jwtRes = await this.jwtService.verifyToken(tke);
 
-        user = await this.userService.findOne(jwtRes.sub);
+        user = await this.userService.findOneProfile(jwtRes.sub);
         response = await this.designService.design(
           payload,
           user,
