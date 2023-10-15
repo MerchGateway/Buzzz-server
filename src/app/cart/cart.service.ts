@@ -119,15 +119,11 @@ export class CartService {
     }
   }
   public async getCartItems(user: User): Promise<Cart[] | undefined> {
-    try {
-      const cartItems = await this.cartRepository.find({
-        where: { user: { id: user.id } },
-        relations: { product: true },
-      });
-      return cartItems;
-    } catch (err: any) {
-      throw new HttpException(err.message, err.status);
-    }
+    const cartItems = await this.cartRepository.find({
+      where: { user: { id: user.id } },
+      relations: { product: true },
+    });
+    return cartItems;
   }
 
   public async getSingleCartItem(cartId: string): Promise<Cart | undefined> {

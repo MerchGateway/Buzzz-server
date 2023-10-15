@@ -169,13 +169,7 @@ export class AuthService {
   }
 
   async signup(signupUserDto: SignupUserDto, designId?: string) {
-    const nameParts = signupUserDto.name.split(' ');
-
-    const user = this.userRepository.create({
-      ...signupUserDto,
-      firstName: nameParts[0],
-      lastName: nameParts[1] || '',
-    });
+    const user = this.userRepository.create(signupUserDto);
     await this.userRepository.save(user);
 
     const data = await this.postSignin(user, designId);

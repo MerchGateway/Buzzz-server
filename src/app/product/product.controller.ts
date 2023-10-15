@@ -8,41 +8,29 @@ import {
   UseInterceptors,
   UploadedFiles,
   Get,
-  Delete,
   Query,
   DefaultValuePipe,
   ParseIntPipe,
 } from '@nestjs/common';
-import { BASE_URL } from '../../constant';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { Pagination } from 'nestjs-typeorm-paginate';
-import { CreateProductDto, EditProductDto } from './dto/product.dto';
+import { EditProductDto } from './dto/product.dto';
 import { Product } from './entities/product.entity';
 import { ProductService } from './product.service';
 import { CategoryService } from '../category/category.service';
 import { Public } from 'src/decorators/public.decorator';
-import { User } from '../users/entities/user.entity';
-import { CurrentUser } from 'src/decorators/user.decorator';
 import { Patch } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('product')
 export class ProductController {
   constructor(
     @Inject(CategoryService)
     private readonly categoryService: CategoryService,
-
     @Inject(ProductService)
-    private readonly service: ProductService,
+    private readonly productService: ProductService,
+    private readonly configService: ConfigService,
   ) {}
-
-  // @Post('create-new')
-  // public async createProduct(
-  //   @CurrentUser() user: User,
-  //   @Body() body: CreateProductDto,
-  // ): Promise<Product> {
-  //   await this.categoryService.getCategory(body.categoryId);
-  //   return this.service.createProduct(body, user);
-  // }
 
   @Post('upload')
   @UseInterceptors(
@@ -63,7 +51,7 @@ export class ProductController {
 
   @Put('set-visibility/:id')
   public setVisibility(@Param('id') id: string) {
-    return this.service.handleSetVisibility(id);
+    return this.productService.handleSetVisibility(id);
   }
 
   @Put('edit/:id')
@@ -74,7 +62,7 @@ export class ProductController {
     if (body.categoryId) {
       await this.categoryService.getCategory(body.categoryId);
     }
-    return this.service.handleEditProduct(body, id);
+    return this.productService.handleEditProduct(body, id);
   }
 
   //seach or filter product by price || name || or any other field that would be added
@@ -85,11 +73,11 @@ export class ProductController {
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
     @Query() searchQuery: any,
   ) {
-    return this.service.handleQueryProducts(
+    return this.productService.handleQueryProducts(
       {
         limit,
         page,
-        route: `${BASE_URL}/product/search`,
+        route: `${this.configService.get<string>('appUrl')}/product/search`,
       },
       searchQuery,
     );
@@ -98,7 +86,7 @@ export class ProductController {
   @Public()
   @Get(':id')
   public getAProduct(@Param('id') id: string): Promise<Product | string> {
-    return this.service.handleGetAProduct(id);
+    return this.productService.handleGetAProduct(id);
   }
 
   @Public()
@@ -109,10 +97,10 @@ export class ProductController {
   ): Promise<Pagination<Product>> {
     limit = limit > 100 ? 100 : limit < 10 ? 10 : limit;
 
-    return this.service.handleGetAllProducts({
+    return this.productService.handleGetAllProducts({
       page,
       limit,
-      route: `${BASE_URL}/product`,
+      route: `${this.configService.get<string>('appUrl')}/product`,
     });
   }
 
@@ -121,6 +109,6 @@ export class ProductController {
     @Param('id') id: string,
     @Body() data: { inStock: boolean },
   ): Promise<Product | string> {
-    return this.service.updateAvailability(id, data);
+    return this.productService.updateAvailability(id, data);
   }
 }

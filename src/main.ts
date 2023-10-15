@@ -2,8 +2,6 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
-import createDefaultCategories from './utils/createDefaultCategories';
-import createSuperAdmin from './utils/createSuperAdmin';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as express from 'express';
@@ -48,8 +46,5 @@ async function bootstrap() {
   app.use(passport.session());
   const port: number = config.get<number>('port');
   await app.listen(port);
-  // create default categories after all routes must have loaded
-  createDefaultCategories();
-  createSuperAdmin();
 }
 bootstrap();

@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsUtils, Repository } from 'typeorm';
+import { FindOptionsUtils, In, Repository } from 'typeorm';
 import { Pagination, IPaginationOptions } from 'nestjs-typeorm-paginate';
 import { paginate } from 'nestjs-typeorm-paginate';
 import {
@@ -32,45 +32,60 @@ export class OrderService {
     private readonly cartService: CartService,
   ) {}
 
-  public async createOrder(
-    payload: CreateOrderDto,
-    user: User,
-  ): Promise<Order[] | undefined> {
-    try {
-      const userCartItems = await this.cartService.getCartItems(user);
+  public async createOrder(payload: CreateOrderDto, user: User) {
+    const userCartItems = await this.cartService.getCartItems(user);
 
-      // throw exception if there isn't any item in cart
-      if (!userCartItems[0]) {
-        throw new BadRequestException(
-          'Item{s} to create order for does not exist ',
-        );
-      }
-
-      const result: Order[] = await Promise.all(
-        userCartItems.map(async (cart) => {
-          const order = new Order();
-          order.user = user;
-          order.cart = cart;
-          order.sellerId = cart.product.seller.id;
-
-          if (payload.shippingAddress !== null) {
-            order.shippingDetails = {
-              shippingFee: 0,
-              shippingAddress: payload.shippingAddress,
-            };
-          }
-
-          // // save cart items
-
-          return await this.orderRepository.save(order);
-          // return await connection.manager.save(order);
-        }),
+    // throw exception if there isn't any item in cart
+    if (!userCartItems[0]) {
+      throw new BadRequestException(
+        'Item{s} to create order for does not exist ',
       );
-
-      return result;
-    } catch (err: any) {
-      throw new HttpException(err.message, err.status);
     }
+
+    let result: Order[] = await Promise.all(
+      userCartItems.map(async (cart) => {
+        const order = new Order();
+        order.user = user;
+        order.cart = cart;
+        order.sellerId = cart.product.seller.id;
+        order.product = cart.product;
+
+        if (payload.shippingAddress !== null) {
+          order.shippingDetails = {
+            shippingFee: 0,
+            shippingAddress: payload.shippingAddress,
+          };
+        }
+
+        // save cart items
+        return await this.orderRepository.save(order);
+      }),
+    );
+
+    const orderIds = result.map((order) => order.id);
+
+    // order.total
+    // order.sellerId
+    // order.product
+    // order.product.seller
+    // order.product.seller.wallet
+    result = await this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.product', 'product')
+      .leftJoinAndSelect('product.seller', 'seller')
+      .leftJoinAndSelect('seller.wallet', 'wallet')
+      .where('order.id IN (:...orderIds)', { orderIds })
+      .select([
+        'order.id',
+        'order.total',
+        'order.sellerId',
+        'product.id',
+        'seller.id',
+        'wallet.id',
+      ])
+      .getMany();
+
+    return result;
   }
 
   public async deleteOrder(orderId: string): Promise<Order | undefined> {

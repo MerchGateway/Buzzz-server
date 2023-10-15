@@ -1,9 +1,13 @@
-import { Injectable, HttpException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsUtils, Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
-import connection from '../payment/paystack/utils/connection';
 import { Status as orderStatus } from '../../types/order';
 import { User } from '../users/entities/user.entity';
 import { OrderService } from '../order/order.service';
@@ -11,15 +15,28 @@ import moment from 'moment';
 import { AxiosInstance } from 'axios';
 import {
   DEFAULT_POLY_MAILER_CONTENT,
-  PAYSTACK_SUCCESS_MESSAGE,
+  PAYSTACK_SUCCESS_STATUS,
 } from '../../constant';
 import { Order } from '../order/entities/order.entity';
 import { PolymailerContent } from '../order/entities/polymailer-content.entity';
-import { TransactionMethod, TransactionStatus } from 'src/types/transaction';
+import {
+  TransactionChannel,
+  TransactionMethod,
+  TransactionStatus,
+} from 'src/types/transaction';
 import { CustomersService } from '../customers/customers.service';
 import { ProductService } from '../product/product.service';
 import { paginate } from 'nestjs-typeorm-paginate';
-import { resolve } from 'path';
+import { FeeService } from '../fee/fee.service';
+import { Request } from 'express';
+import { SuccessResponse } from '../../utils/response';
+import * as crypto from 'crypto';
+import { ConfigService } from '@nestjs/config';
+import {
+  PaystackChargeEventData,
+  PaystackEvent,
+  TransferEventData,
+} from '../../types/paystack';
 
 @Injectable()
 export class TransactionService {
@@ -32,61 +49,127 @@ export class TransactionService {
     private readonly orderService: OrderService,
     private readonly customerService: CustomersService,
     private readonly productService: ProductService,
+    private readonly feeService: FeeService,
+    private readonly configService: ConfigService,
   ) {}
 
   public async createTransaction(
     reference: string,
     user: User,
     message: string,
-  ): Promise<Transaction> {
+  ) {
     //create order
     const orders: Order[] = await this.orderService.createOrder(
       { shippingAddress: user.shippingAddress },
       user,
     );
 
-    const totalCost = orders.reduce((acc, order) => {
-      return acc + order.total;
+    const ownerOrders = orders.filter((order) => order.sellerId === user.id);
+    const resellerOrders = orders.filter((order) => order.sellerId !== user.id);
+
+    const totalOwnerCost = ownerOrders.reduce((acc, order) => {
+      return acc + parseFloat(order.total.toString());
+    }, 0);
+    const totalResellerCost = resellerOrders.reduce((acc, order) => {
+      return acc + parseFloat(order.total.toString());
     }, 0);
 
-    const transaction = this.transactionRepository.create({
-      reference,
-      wallet: user.wallet,
-      message,
-      orders,
-      amount: totalCost,
-    });
+    const fee = await this.feeService.getLatest();
 
-    return await this.transactionRepository.save(transaction);
+    const totalOwnerFees = ownerOrders.length * fee.owner;
+    const totalResellerFees = resellerOrders.length * fee.reseller;
+
+    const transactions: Transaction[] = [];
+
+    // buying your own product
+    if (ownerOrders.length > 0) {
+      // create a hidden credit with the same amount for the buyer to enable debiting without encountering negative values
+      const ownerCreditTransaction = this.transactionRepository.create({
+        reference,
+        wallet: user.wallet,
+        message,
+        orders,
+        amount: totalOwnerCost,
+        fee,
+        feeAmount: totalOwnerFees,
+        method: TransactionMethod.CREDIT,
+        isHidden: true,
+      });
+      // debit the buyer the same amount as the cost of the product and amount of hidden credit
+      const ownerDebitTransaction = this.transactionRepository.create({
+        reference,
+        wallet: user.wallet,
+        message,
+        orders,
+        amount: totalOwnerCost,
+        fee,
+        feeAmount: totalOwnerFees,
+        method: TransactionMethod.DEBIT,
+      });
+      transactions.push(ownerCreditTransaction, ownerDebitTransaction);
+    }
+
+    if (resellerOrders.length > 0) {
+      // credit the owner of the product
+      const resellerCreditTransaction = this.transactionRepository.create({
+        reference,
+        wallet: resellerOrders[0].product.seller.wallet,
+        message,
+        orders,
+        amount: totalResellerCost,
+        fee,
+        feeAmount: totalResellerFees,
+        method: TransactionMethod.CREDIT,
+      });
+      // create a hidden credit with the same amount for the buyer to enable debiting without encountering negative values
+      const ownerCreditTransaction = this.transactionRepository.create({
+        reference,
+        wallet: user.wallet,
+        message,
+        orders,
+        amount: totalResellerCost,
+        fee,
+        method: TransactionMethod.CREDIT,
+        isHidden: true,
+      });
+      // debit the buyer the same amount as the cost of the product and amount of hidden credit
+      const ownerDebitTransaction = this.transactionRepository.create({
+        reference,
+        wallet: user.wallet,
+        message,
+        orders,
+        amount: totalResellerCost,
+        fee,
+        feeAmount: totalResellerCost,
+        method: TransactionMethod.DEBIT,
+      });
+      transactions.push(
+        resellerCreditTransaction,
+        ownerCreditTransaction,
+        ownerDebitTransaction,
+      );
+    }
+
+    return await this.transactionRepository.save(transactions);
   }
 
   public async getTransactionsForAuthUser(
     user: User,
     { limit, page, route }: IPaginationOptions,
   ): Promise<Pagination<Transaction>> {
-    // const transactions = await this.transactionRepository.find({
-    //   where: {
-    //     user: { id: user.id },
-    //   },
-    // });
-
     const qb = this.transactionRepository.createQueryBuilder('transaction');
     FindOptionsUtils.joinEagerRelations(
       qb,
       qb.alias,
       this.transactionRepository.metadata,
     );
-    // qb.leftJoinAndSelect('transaction.wallet', 'wallet').where(
-    //   'wallet.user.id = :user',
-    //   {
-    //     user: user.id,
-    //   },
-    // );
-    // qb.leftJoinAndSelect('transaction.wallet', 'wallet').where('wallet.id = :user', {
-    //   user: user.id,
-    // });
     // select nested relations
     qb.leftJoinAndSelect('transaction.wallet', 'wallet');
+    qb.leftJoinAndSelect('transaction.orders', 'orders');
+    qb.leftJoinAndSelect('orders.product', 'product');
+    qb.orderBy('transaction.created_at', 'DESC');
+    qb.where('transaction.wallet_id = :walletId', { walletId: user.wallet.id });
+    qb.andWhere('transaction.is_hidden = :isHidden', { isHidden: false });
 
     return paginate<Transaction>(qb, { limit, page, route });
   }
@@ -95,23 +178,17 @@ export class TransactionService {
     page,
     route,
   }: IPaginationOptions): Promise<Pagination<Transaction>> {
-    try {
-      const qb = this.transactionRepository.createQueryBuilder('transaction');
-      FindOptionsUtils.joinEagerRelations(
-        qb,
-        qb.alias,
-        this.transactionRepository.metadata,
-      );
-      qb.leftJoinAndSelect('transaction.user', 'user');
-
-      // const transactions = await this.transactionRepository.find({
-      //   relations: ['user'],
-      // });
-      return paginate<Transaction>(qb, { limit, page, route });
-    } catch (err: any) {
-      throw new HttpException(err.message, err.status);
-    }
+    const qb = this.transactionRepository.createQueryBuilder('transaction');
+    FindOptionsUtils.joinEagerRelations(
+      qb,
+      qb.alias,
+      this.transactionRepository.metadata,
+    );
+    qb.leftJoinAndSelect('transaction.user', 'user');
+    qb.orderBy('transaction.created_at', 'DESC');
+    return paginate<Transaction>(qb, { limit, page, route });
   }
+
   private async getATransaction(transactionId: string): Promise<Transaction> {
     const transaction = await this.transactionRepository.findOne({
       where: { id: transactionId },
@@ -127,126 +204,91 @@ export class TransactionService {
     return transaction;
   }
 
-  public async verifyTransaction(reference: string): Promise<string> {
-    let response: string;
+  private async verifyPaymentTransaction(
+    paystackEventData: PaystackChargeEventData,
+  ) {
+    const { reference, status, currency, channel, amount, message } =
+      paystackEventData;
 
-    // read files
-    // const transactionSuccess = readFileSync(
-    //   resolve(__dirname,'..','..','..','public/transaction-success.html'),
-    //   { encoding: 'utf-8' },
-    // );
-    // const transactionFail = readFileSync(
-    //   resolve(__dirname,'..','..','..','public/transaction-fail.html'),
-    //   { encoding: 'utf-8' },
-    // );
-    const transactionSuccess = resolve(
-      __dirname,
-      '..',
-      '..',
-      '..',
-      'public/transaction-success.html',
-    );
-    const transactionFail = resolve(
-      __dirname,
-      '..',
-      '..',
-      '..',
-      'public/transaction-fail.html',
-    );
-    // create connection instance of axios
-    this.axiosConnection = connection();
-
-    const transactionToVerify = await this.transactionRepository.findOneBy({
-      reference,
+    const transactionsToVerify = await this.transactionRepository.find({
+      where: { reference },
+      relations: [
+        'orders',
+        'orders.user',
+        'orders.product',
+        'orders.product.seller',
+        'wallet',
+        'wallet.user',
+      ],
     });
 
-    if (!transactionToVerify) {
-      throw new NotFoundException(
-        `Transaction with reference ${reference} does not exist`,
+    if (transactionsToVerify.length == 0) {
+      // don't throw error here to avoid paystack retrying the webhook
+      return;
+    }
+
+    //verify transaction status
+
+    if (status === PAYSTACK_SUCCESS_STATUS) {
+      transactionsToVerify.forEach((transaction) => {
+        transaction.currency = currency;
+        transaction.channel = channel.toUpperCase() as TransactionChannel;
+        transaction.amount = parseFloat((amount / 100).toFixed(2));
+        transaction.message = 'Transaction successful';
+        transaction.status = TransactionStatus.SUCCESS;
+      });
+
+      // set the status of order to paid on successful payment verification
+      await Promise.all(
+        transactionsToVerify[0].orders.map(async (order) => {
+          await order.updateStatus(orderStatus.PAID);
+
+          // fetch polymailerContents
+          const polymailerContents: PolymailerContent[] =
+            await this.polyMailerContentRepository.find();
+
+          // get a random polymailer content
+          const random = Math.floor(Math.random() * polymailerContents.length);
+          console.log(
+            random,
+            order.user.firstName.split(' ')[0],
+            order.product.seller.firstName.split(' ')[0],
+          );
+
+          // set polymailer details
+          order.polymailerDetails = {
+            to: order.user.firstName.split(' ')[0],
+            from: order.product.seller.firstName.split(' ')[0],
+            content: polymailerContents[0]
+              ? polymailerContents[random].content
+              : DEFAULT_POLY_MAILER_CONTENT,
+          };
+          console.log(order);
+
+          await order.save();
+        }),
+      );
+    } else {
+      transactionsToVerify.forEach((transaction) => {
+        transaction.currency = currency;
+        transaction.channel = channel.toUpperCase() as TransactionChannel;
+        transaction.amount = parseFloat((amount / 100).toFixed(2));
+        transaction.status = TransactionStatus.FAILED;
+        transaction.message = message || 'Transaction verification failed';
+      });
+      await Promise.all(
+        transactionsToVerify[0].orders.map(async (order) => {
+          await order.updateStatus(orderStatus.CANCELLED);
+          await order.save();
+        }),
       );
     }
 
-    //verify transactiion status
-    await this.axiosConnection
-      .get(`/transaction/verify/${reference}`)
-      .then(async (res: any) => {
-        if (
-          res.data &&
-          res.data.data.status === 'success' &&
-          res.data.message === PAYSTACK_SUCCESS_MESSAGE
-        ) {
-          transactionToVerify.currency = res.data.data.currency;
-          transactionToVerify.channel = res.data.data.channel;
-          transactionToVerify.amount = res.data.data.amount;
-          transactionToVerify.message = 'Transaction successful';
-          transactionToVerify.status = TransactionStatus.SUCCESS;
-
-          // set the status of order to paid on successful payment verification
-          await Promise.all(
-            transactionToVerify.orders.map(async (order) => {
-              await order.updateStatus(orderStatus.PAID);
-
-              // fetch polymailerContents
-              const polymailerContents: PolymailerContent[] =
-                await this.polyMailerContentRepository.find();
-
-              // get a random polymailer content
-              const random = Math.floor(
-                Math.random() * polymailerContents.length,
-              );
-              console.log(
-                random,
-                order.user.firstName.split(' ')[0],
-                order.product.seller.firstName.split(' ')[0],
-              );
-
-              // set polymailer details
-              order.polymailerDetails = {
-                to: order.user.firstName.split(' ')[0],
-                from: order.product.seller.firstName.split(' ')[0],
-                content: polymailerContents[0]
-                  ? polymailerContents[random].content
-                  : DEFAULT_POLY_MAILER_CONTENT,
-              };
-              console.log(order);
-
-              await order.save();
-            }),
-          );
-          response = transactionSuccess;
-        } else {
-          transactionToVerify.currency = res.data.data.currency;
-          transactionToVerify.channel = res.data.data.channel;
-          transactionToVerify.amount = res.data.data.amount;
-          transactionToVerify.status = TransactionStatus.FAILED;
-          transactionToVerify.message = 'Transaction verification failed';
-          await Promise.all(
-            transactionToVerify.orders.map(async (order) => {
-              await order.updateStatus(orderStatus.CANCELLED);
-              await order.save();
-            }),
-          );
-          response = transactionFail;
-        }
-      })
-      .catch(async (err: any) => {
-        transactionToVerify.status = TransactionStatus.FAILED;
-        transactionToVerify.message = err.message;
-        await Promise.all(
-          transactionToVerify.orders.map(async (order) => {
-            await order.updateStatus(orderStatus.CANCELLED);
-            return await order.save();
-          }),
-        );
-        response = transactionFail;
-      });
-    //
-
-    await this.transactionRepository.save(transactionToVerify);
+    await this.transactionRepository.save(transactionsToVerify);
 
     // TODO: map through the orders and do this for all product in the order
-    const res = await this.transactionRepository.findOne({
-      where: { id: transactionToVerify.id },
+    const res = await this.transactionRepository.find({
+      where: { reference },
       relations: [
         'orders',
         'orders.product',
@@ -256,12 +298,37 @@ export class TransactionService {
       ],
     });
     const product = await this.productService.handleGetAProduct(
-      res.orders[0].product.id,
+      res[0].orders[0].product.id,
     );
     // add user to customer list
-    await this.customerService.create(product.seller.id, res.wallet.user);
-    // return res;
-    return response;
+    await this.customerService.create(product.seller.id, res[0].wallet.user);
+  }
+
+  private async verifyWithdrawalTransaction(
+    paystackEventData: TransferEventData,
+  ) {
+    const { status, reference, amount, currency } = paystackEventData;
+
+    const transaction = await this.transactionRepository.findOne({
+      where: { reference },
+    });
+
+    if (!transaction) {
+      // don't throw error here to avoid paystack retrying the webhook
+      return;
+    }
+
+    if (status === PAYSTACK_SUCCESS_STATUS) {
+      transaction.status = TransactionStatus.SUCCESS;
+      transaction.amount = parseFloat((amount / 100).toFixed(2));
+      transaction.currency = currency;
+      transaction.message = 'Withdrawal successful';
+    } else {
+      transaction.status = TransactionStatus.FAILED;
+      transaction.message = 'Withdrawal failed';
+    }
+
+    await this.transactionRepository.save(transaction);
   }
 
   public async deleteTransaction(
@@ -350,7 +417,7 @@ export class TransactionService {
   async getBalanceForWalletId(walletId: string) {
     const creditsResult = await this.transactionRepository
       .createQueryBuilder('transaction')
-      .select('SUM(transaction.amount)', 'sum')
+      .select('SUM(transaction.amount - transaction.feeAmount)', 'sum')
       .where('transaction.wallet_id = :walletId', { walletId })
       .andWhere('transaction.method = :method', {
         method: TransactionMethod.CREDIT,
@@ -362,7 +429,7 @@ export class TransactionService {
 
     const debitsResult = await this.transactionRepository
       .createQueryBuilder('transaction')
-      .select('SUM(transaction.amount)', 'sum')
+      .select(`SUM(transaction.amount)`, 'sum')
       .where('transaction.wallet_id = :walletId', { walletId })
       .andWhere('transaction.method = :method', {
         method: TransactionMethod.DEBIT,
@@ -372,8 +439,37 @@ export class TransactionService {
       })
       .getRawOne();
 
-    const availableBalance = (creditsResult.sum || 0) - (debitsResult.sum || 0);
+    const availableBalance =
+      parseFloat(creditsResult.sum || 0) - parseFloat(debitsResult.sum || 0);
 
     return availableBalance;
+  }
+
+  async handleWebhook(req: Request) {
+    const paystackSecretKey = this.configService.get<string>('paystack.secret');
+
+    const hash = crypto
+      .createHmac('sha512', paystackSecretKey)
+      .update(JSON.stringify(req.body))
+      .digest('hex');
+
+    if (hash !== req.headers['x-paystack-signature']) {
+      throw new BadRequestException('Invalid signature');
+    }
+
+    switch (req.body.event) {
+      case PaystackEvent.CHARGE_SUCCESS:
+        await this.verifyPaymentTransaction(req.body.data);
+        break;
+      case PaystackEvent.TRANSFER_SUCCESS:
+      case PaystackEvent.TRANSFER_FAILED:
+      case PaystackEvent.TRANSFER_REVERSED:
+        await this.verifyWithdrawalTransaction(req.body.data);
+        break;
+      default:
+        break;
+    }
+
+    return new SuccessResponse({}, 'Webhook received successfully');
   }
 }

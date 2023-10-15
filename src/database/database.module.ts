@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppDataSource } from 'src/database/ormconfig';
+import { SeederModule } from './seeders/seeder.module';
 
 @Module({
   imports: [
@@ -15,6 +16,8 @@ import { AppDataSource } from 'src/database/ormconfig';
         };
       },
     }),
+    SeederModule,
   ],
+  exports: [SeederModule],
 })
 export class DatabaseModule {}

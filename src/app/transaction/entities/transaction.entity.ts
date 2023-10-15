@@ -5,6 +5,7 @@ import {
   JoinColumn,
   PrimaryGeneratedColumn,
   OneToMany,
+  ManyToMany,
 } from 'typeorm';
 import {
   TransactionChannel,
@@ -16,6 +17,8 @@ import { Order } from 'src/app/order/entities/order.entity';
 import { Wallet } from '../../wallet/entities/wallet.entity';
 
 import { Timestamp } from '../../../database/timestamp.entity';
+import { Fee } from '../../fee/entities/fee.entity';
+import { DecimalTransformer } from '../../../utils/transformers/decimal';
 @Entity()
 export class Transaction extends Timestamp {
   @PrimaryGeneratedColumn('uuid')
@@ -25,10 +28,15 @@ export class Transaction extends Timestamp {
   @JoinColumn({ name: 'wallet_id' })
   wallet: Wallet;
 
-  @Column({ unique: true })
+  @Column()
   reference: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    transformer: new DecimalTransformer(),
+  })
   amount: number;
 
   @Column({ type: 'enum', enum: TransactionCurrency, nullable: true })
@@ -47,7 +55,7 @@ export class Transaction extends Timestamp {
   })
   status: TransactionStatus;
 
-  @OneToMany(() => Order, (order) => order.transaction)
+  @ManyToMany(() => Order, (order) => order.transactions)
   orders: Order[];
 
   @Column({
@@ -55,4 +63,20 @@ export class Transaction extends Timestamp {
     enum: TransactionChannel,
   })
   channel: TransactionChannel;
+
+  @ManyToOne(() => Fee)
+  @JoinColumn({ name: 'fee_id' })
+  fee: Fee;
+
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    default: 0,
+    transformer: new DecimalTransformer(),
+  })
+  feeAmount: number;
+
+  @Column({ name: 'is_hidden', default: false })
+  isHidden: boolean;
 }

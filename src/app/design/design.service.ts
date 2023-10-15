@@ -2,6 +2,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { ArrayContains } from 'typeorm';
 import {
+  BadRequestException,
   ConflictException,
   HttpException,
   HttpStatus,
@@ -20,7 +21,6 @@ import { ProductService } from '../product/product.service';
 import { PaystackBrokerService } from '../payment/paystack/paystack.service';
 import { User } from '../users/entities/user.entity';
 import { SuccessResponse } from 'src/utils/response';
-import { Product } from '../product/entities/product.entity';
 import { PolymailerContent } from '../order/entities/polymailer-content.entity';
 import { Inject } from '@nestjs/common';
 import { CLOUDINARY, EVENT_QUEUE, DESIGN_MERCH } from 'src/constant';
@@ -28,6 +28,7 @@ import { CloudinaryProvider } from 'src/providers/cloudinary.provider';
 import { TEXT_TYPE, IMAGE_TYPE } from 'src/constant';
 import { WsException } from '@nestjs/websockets/errors';
 import { Role } from 'src/types/general';
+import { FeeService } from '../fee/fee.service';
 @Injectable()
 export class DesignService {
   constructor(
@@ -42,6 +43,7 @@ export class DesignService {
     private readonly imageStorage: CloudinaryProvider,
     @InjectRepository(PolymailerContent)
     private readonly polyMailerContentRepository: Repository<PolymailerContent>,
+    private readonly feeService: FeeService,
   ) {}
   async viewAllDesigns(user: User): Promise<Design[] | undefined> {
     return await this.designRepository.find({
@@ -87,7 +89,7 @@ export class DesignService {
           );
 
           design.images.push({
-            public_id: image.public_id,
+            publicId: image.public_id,
             url: image.secure_url,
           });
           // update image scr from design with online link  to be saved
@@ -233,7 +235,15 @@ export class DesignService {
   ) {
     const design = await this.fetchMyDesign(id, user);
     if (design.published == true) {
-      throw new ConflictException('design already published');
+      throw new ConflictException('Design already published');
+    }
+
+    const fee = await this.feeService.getLatest();
+
+    if (payload.price <= fee.reseller) {
+      throw new BadRequestException(
+        `Design price must be greater than the mandatory fee of ₦${fee.reseller}.`,
+      );
     }
 
     const product = await this.productService.createProduct(
@@ -267,6 +277,14 @@ export class DesignService {
       }
     | undefined
   > {
+    const fee = await this.feeService.getLatest();
+
+    if (payload.price !== fee.owner) {
+      throw new BadRequestException(
+        `Design price must be the exact mandatory fee of ₦${fee.owner}.`,
+      );
+    }
+
     const product = await this.publishDesign(user, payload, id, category_id);
     //   save product to cart
     await this.cartService.createCartItem(

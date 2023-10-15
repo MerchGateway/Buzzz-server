@@ -25,7 +25,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
-  @Roles( Role.SUPER_ADMIN)
+  @Roles(Role.SUPER_ADMIN)
   @UseGuards(RolesGuard)
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -35,7 +35,7 @@ export class CategoryController {
     return this.categoryService.createCategory(payload);
   }
 
-  @Roles( Role.SUPER_ADMIN)
+  @Roles(Role.SUPER_ADMIN)
   @UseGuards(RolesGuard)
   @Put('/:categoryId')
   private updateCategory(

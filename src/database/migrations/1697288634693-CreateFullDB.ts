@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class FullDB1697123991454 implements MigrationInterface {
-  name = 'FullDB1697123991454';
+export class CreateFullDB1697288634693 implements MigrationInterface {
+  name = 'CreateFullDB1697288634693';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
@@ -14,7 +14,7 @@ export class FullDB1697123991454 implements MigrationInterface {
       `CREATE TABLE \`product\` (\`created_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updated_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deleted_at\` datetime(6) NULL, \`id\` varchar(36) NOT NULL, \`name\` varchar(255) NOT NULL, \`thumbnail\` text NULL, \`in_stock\` tinyint NOT NULL DEFAULT 1, \`price\` decimal NOT NULL, \`description\` varchar(255) NULL, \`is_published\` tinyint NOT NULL DEFAULT 0, \`receipt_id\` varchar(255) NULL, \`purchased\` tinyint NOT NULL DEFAULT 0, \`bio\` varchar(255) NULL, \`category_id\` varchar(36) NULL, \`seller_id\` varchar(36) NULL, \`design_id\` varchar(36) NULL, UNIQUE INDEX \`REL_3d12e5ac2924935dd903ef576b\` (\`design_id\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`,
     );
     await queryRunner.query(
-      `CREATE TABLE \`design\` (\`created_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updated_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deleted_at\` datetime(6) NULL, \`id\` varchar(36) NOT NULL, \`published\` tinyint NOT NULL DEFAULT 0, \`design_data\` text NOT NULL, \`contributors\` text NULL, \`images\` text NULL, \`texts\` text NULL, \`user_id\` varchar(36) NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`,
+      `CREATE TABLE \`design\` (\`created_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updated_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deleted_at\` datetime(6) NULL, \`id\` varchar(36) NOT NULL, \`published\` tinyint NOT NULL DEFAULT 0, \`design_data\` text COLLATE "utf8mb4_unicode_ci" NOT NULL, \`contributors\` text NULL, \`images\` text NULL, \`texts\` text COLLATE "utf8mb4_unicode_ci" NULL, \`user_id\` varchar(36) NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`,
     );
     await queryRunner.query(
       `CREATE TABLE \`wallet\` (\`created_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updated_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deleted_at\` datetime(6) NULL, \`id\` varchar(36) NOT NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`,
@@ -41,13 +41,13 @@ export class FullDB1697123991454 implements MigrationInterface {
       `CREATE TABLE \`2fa\` (\`created_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updated_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deleted_at\` datetime(6) NULL, \`id\` varchar(36) NOT NULL, \`secret\` varchar(255) NOT NULL, \`user_id\` varchar(36) NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`,
     );
     await queryRunner.query(
+      `CREATE TABLE \`password_reset\` (\`created_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updated_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deleted_at\` datetime(6) NULL, \`id\` varchar(36) NOT NULL, \`token\` varchar(255) NOT NULL, \`user_id\` varchar(36) NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`,
+    );
+    await queryRunner.query(
       `CREATE TABLE \`contact\` (\`created_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updated_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deleted_at\` datetime(6) NULL, \`id\` varchar(36) NOT NULL, \`email\` varchar(255) NOT NULL, \`message\` varchar(255) NOT NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`,
     );
     await queryRunner.query(
       `CREATE TABLE \`customer\` (\`created_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updated_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deleted_at\` datetime(6) NULL, \`id\` varchar(36) NOT NULL, \`seller_id\` varchar(255) NOT NULL, \`status\` enum ('enabled', 'disabled') NOT NULL DEFAULT 'enabled', PRIMARY KEY (\`id\`)) ENGINE=InnoDB`,
-    );
-    await queryRunner.query(
-      `CREATE TABLE \`password_reset\` (\`created_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updated_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deleted_at\` datetime(6) NULL, \`id\` varchar(36) NOT NULL, \`token\` varchar(255) NOT NULL, \`user_id\` varchar(36) NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`,
     );
     await queryRunner.query(
       `CREATE TABLE \`notification\` (\`created_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updated_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deleted_at\` datetime(6) NULL, \`id\` varchar(36) NOT NULL, \`title\` varchar(255) NOT NULL, \`message\` varchar(255) NOT NULL, \`status\` enum ('read', 'unread') NOT NULL DEFAULT 'unread', \`user_id\` varchar(36) NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`,
@@ -202,9 +202,9 @@ export class FullDB1697123991454 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE \`customer_user\``);
     await queryRunner.query(`DROP TABLE \`polymailer_content\``);
     await queryRunner.query(`DROP TABLE \`notification\``);
-    await queryRunner.query(`DROP TABLE \`password_reset\``);
     await queryRunner.query(`DROP TABLE \`customer\``);
     await queryRunner.query(`DROP TABLE \`contact\``);
+    await queryRunner.query(`DROP TABLE \`password_reset\``);
     await queryRunner.query(`DROP TABLE \`2fa\``);
     await queryRunner.query(
       `DROP INDEX \`REL_b453ec3d9d579f6b9699be98be\` ON \`user\``,

@@ -1,10 +1,10 @@
 import { Injectable, LoggerService, Scope } from '@nestjs/common';
 import { createLogger, format, transports } from 'winston';
 
-const { combine, timestamp, json } = format;
+const { combine, timestamp, prettyPrint } = format;
 
 const logger = createLogger({
-  format: combine(timestamp(), json()),
+  format: combine(timestamp(), prettyPrint()),
   transports: [new transports.Console()],
 });
 

@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { Product } from 'src/app/product/entities/product.entity';
 import { User } from 'src/app/users/entities/user.entity';
-import { ImageBody } from 'src/types/asset';
+import { DesignData, ImageBody } from 'src/types/asset';
 import { Timestamp } from '../../../database/timestamp.entity';
 
 @Entity()
@@ -33,13 +33,12 @@ export class Design extends Timestamp {
   @Column({ default: false })
   published: boolean;
 
-  //! TO-DO: Add a proper type for designData
   @Column({
     name: 'design_data',
     type: 'simple-json',
     collation: 'utf8mb4_unicode_ci',
   })
-  designData: any;
+  designData: DesignData;
 
   @Column({ type: 'simple-array', nullable: true })
   contributors: string[] | null;

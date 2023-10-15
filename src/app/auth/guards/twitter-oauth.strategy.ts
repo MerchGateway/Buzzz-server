@@ -61,7 +61,6 @@ export class TwitterOauthStrategy extends PassportStrategy(
       user = await this.usersService.create({
         identityProvider: IdentityProvider.TWITTER,
         identityProviderId: id,
-        name: '',
         firstName: name.givenName,
         lastName: name.familyName,
         email: emails[0].value,

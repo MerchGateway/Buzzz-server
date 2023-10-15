@@ -40,7 +40,7 @@ export class PaystackBrokerService {
     reference: string;
   }> {
     // create payload values to be sent to paystack
-    const payload: { email: string; amount: number } = {
+    const payload = {
       email: user.email,
       amount: 0,
     };
@@ -50,7 +50,7 @@ export class PaystackBrokerService {
     // console.log(cartItems.length);
     if (cartItems.length === 0) {
       throw new NotFoundException(
-        'you must have item(s) in your cart before creating a payment',
+        'You must have item(s) in your cart before creating a payment',
       );
     }
 
@@ -69,9 +69,9 @@ export class PaystackBrokerService {
       .then(async (res) => {
         // create transaction on payment initalize
         await this.transactionService.createTransaction(
-          res.data?.data.reference,
+          res.data.data.reference,
           user,
-          res.data?.message,
+          res.data.message,
         );
         return res.data.data;
       })
@@ -81,7 +81,6 @@ export class PaystackBrokerService {
   }
 
   public async createRefund(transaction: string) {
-    // console.log(transaction);
     const refund = await this.axiosConnection.post('/refund', { transaction });
     return { data: refund.data };
   }

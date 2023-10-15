@@ -44,7 +44,7 @@ export class ProductService {
     product.seller = user.id as any;
     product.description = body.description;
     product.thumbnail = {
-      public_id: image.public_id,
+      publicId: image.public_id,
       url: image.secure_url,
     };
     return this.productRepository.save(product);

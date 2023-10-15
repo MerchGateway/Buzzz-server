@@ -8,7 +8,7 @@ import { User } from '../users/entities/user.entity';
 import { TransactionModule } from '../transaction/transaction.module';
 import { PaystackBrokerModule } from '../payment/paystack/paystack.module';
 import { AuthModule } from '../auth/auth.module';
-import { UsersModule } from '../users/users.module';
+import { FeeModule } from '../fee/fee.module';
 
 @Module({
   imports: [
@@ -16,7 +16,7 @@ import { UsersModule } from '../users/users.module';
     TransactionModule,
     PaystackBrokerModule,
     forwardRef(() => AuthModule),
-    forwardRef(() => UsersModule),
+    FeeModule,
   ],
   controllers: [WalletController],
   providers: [WalletService],

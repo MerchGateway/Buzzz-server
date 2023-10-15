@@ -21,12 +21,13 @@ import { TransactionService } from '../transaction/transaction.service';
 import {
   TransactionChannel,
   TransactionCurrency,
+  TransactionMethod,
 } from '../../types/transaction';
 import { AuthService } from '../auth/auth.service';
-import { UsersService } from '../users/users.service';
 import { SetPinDto } from './dto/set-pin.dto';
 import { UpdatePinDto } from './dto/update-pin.dto';
 import { ResolveAccountNumberDto } from './dto/resolve-account-number.dto';
+import { FeeService } from '../fee/fee.service';
 
 @Injectable()
 export class WalletService {
@@ -43,8 +44,7 @@ export class WalletService {
     private paystackBrokerService: PaystackBrokerService,
     @Inject(forwardRef(() => AuthService))
     private authService: AuthService,
-    @Inject(forwardRef(() => UsersService))
-    private userService: UsersService,
+    private feeService: FeeService,
   ) {}
 
   async createWallet() {
@@ -127,8 +127,6 @@ export class WalletService {
   }
 
   async setWalletPin(user: User, setPinDto: SetPinDto) {
-    user = await this.userService.findOneProfile(user.id);
-
     const isValidPassword = await this.authService.validateUser(
       user.email,
       setPinDto.password,
@@ -149,8 +147,6 @@ export class WalletService {
   }
 
   async updateWalletPin(user: User, updatePinDto: UpdatePinDto) {
-    user = await this.userService.findOneProfile(user.id);
-
     if (!user.hasPin) {
       throw new BadRequestException('Wallet pin not set');
     }
@@ -171,12 +167,13 @@ export class WalletService {
     withdrawFromWalletDto: WithdrawFromWalletDto,
     user: User,
   ) {
-    user = await this.userRepository.findOne({
-      where: { id: user.id },
-      relations: ['wallet'],
-    });
+    user = await this.userRepository
+      .createQueryBuilder('user')
+      .where('user.id = :id', { id: user.id })
+      .addSelect('user.pin')
+      .leftJoinAndSelect('user.wallet', 'wallet')
+      .getOne();
 
-    // await this.userRepository.
     const balance = await this.transactionService.getBalanceForWalletId(
       user.wallet.id,
     );
@@ -207,9 +204,12 @@ export class WalletService {
           withdrawFromWalletDto.accountNumber,
           withdrawFromWalletDto.bankCode,
         );
-      recipientCode = recipient.data.recipient_code;
-    } catch (e) {
-      throw new HttpException(e.message, e.statusCode);
+      recipientCode = recipient.data.data.recipient_code;
+    } catch (error) {
+      throw new HttpException(
+        error.response.data.message || error.message,
+        error.response.status,
+      );
     }
 
     const transferReferenceDetails = {
@@ -220,26 +220,38 @@ export class WalletService {
     };
 
     try {
+      const amountInKobo = transferReferenceDetails.amount * 100;
       await this.paystackBrokerService.initiateTransfer(
-        transferReferenceDetails.amount,
+        amountInKobo,
         transferReferenceDetails.recipient,
         transferReferenceDetails.reason,
         transferReferenceDetails.reference,
       );
-    } catch (e) {
-      throw new HttpException(e.message, e.statusCode);
+    } catch (error) {
+      throw new HttpException(
+        error.response.data.message || error.message,
+        error.response.status,
+      );
     }
+
+    const fee = await this.feeService.getLatest();
 
     const transaction = this.transactionRepository.create({
       amount: withdrawFromWalletDto.amount,
       currency: TransactionCurrency.NGN,
       channel: TransactionChannel.BANK_TRANSFER,
+      method: TransactionMethod.DEBIT,
       wallet: user.wallet,
+      fee,
+      feeAmount: withdrawFromWalletDto.amount,
       reference: transferReferenceDetails.reference,
     });
     await transaction.save();
 
-    return new SuccessResponse({}, 'Withdrawal successfully initiated');
+    return new SuccessResponse(
+      transaction,
+      'Withdrawal successfully initiated',
+    );
   }
 
   async getBankList() {
