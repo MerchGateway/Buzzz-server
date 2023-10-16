@@ -21,6 +21,8 @@ export default () => ({
   appUrl: process.env.APP_URL,
   clientUrl: process.env.CLIENT_URL,
   designClientUrl: process.env.DESIGN_CLIENT_URL,
+  debugClientUrl: process.env.DEBUG_CLIENT_URL,
+  debugDesignClientUrl: process.env.DEBUG_DESIGN_CLIENT_URL,
   port: parseInt(process.env.PORT, 10) || 5000,
   database: {
     connection: process.env.TYPEORM_CONNECTION,
