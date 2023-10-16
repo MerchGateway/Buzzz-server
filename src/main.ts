@@ -21,15 +21,13 @@ async function bootstrap() {
       exceptionFactory: validationExceptionFactory,
     }),
   );
-  // app.enableCors({
-  //   origin: [
-  //     config.get<string>('clientUrl'),
-  //     config.get<string>('designClientUrl'),
-  //   ],
-  //   credentials: true,
-  // });
   app.enableCors({
-    origin: '*',
+    origin: [
+      config.get<string>('clientUrl'),
+      config.get<string>('designClientUrl'),
+      config.get<string>('debugClientUrl'),
+      config.get<string>('debugDesignClientUrl'),
+    ],
     credentials: true,
   });
   app.use(express.static(join(__dirname, 'public')));
