@@ -46,7 +46,7 @@ export class Cart extends Timestamp {
   total: number;
 
   @Column({ type: 'enum', enum: Size, nullable: true, default: Size.M })
-  size: Size;
+  size: Size | null;
 
   @Column({
     type: 'enum',

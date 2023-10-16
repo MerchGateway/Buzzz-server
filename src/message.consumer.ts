@@ -22,7 +22,7 @@ export class MessageConsumer {
   @Process(DESIGN_MERCH)
   async readOperationJob(job: Job<unknown>) {
     console.log('entered queue');
-    let jobData: any = job.data;
+    const jobData: any = job.data;
     let isDesignExist: { design: Design };
 
     try {
@@ -40,12 +40,6 @@ export class MessageConsumer {
           throw new WsException('You are not an authorized contributor');
         }
       } else {
-        // isDesignExist = jobData.user
-        //   ? await this.designService.fetchLatestDesignForCurrentUser(
-        //       jobData.user,
-        //     )
-        //   : { design: null };
-
         isDesignExist = { design: null };
       }
       console.log(isDesignExist);
@@ -58,24 +52,24 @@ export class MessageConsumer {
           contributors: [],
         });
 
-        let updatedDesign = await this.designService.sortAssets(
+        const updatedDesign = await this.designService.sortAssets(
           newDesign,
           jobData.payload,
         );
         console.log('came back here', updatedDesign);
         return updatedDesign;
       } else {
-        if( isDesignExist.design.published===true){
-           throw new WsException('Design already published');
+        if (isDesignExist.design.published === true) {
+          throw new WsException('Design already published');
         }
-        
+
         console.log('updating old design');
         isDesignExist.design.images = [];
         isDesignExist.design.texts = [];
 
         // delete old images from cloudinary
         await this.imageStorage.deletePhotosByPrefix(isDesignExist.design.id);
-        let updatedDesign = await this.designService.sortAssets(
+        const updatedDesign = await this.designService.sortAssets(
           isDesignExist.design,
           jobData.payload,
         );

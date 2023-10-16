@@ -8,6 +8,8 @@ import {
   BeforeInsert,
   BeforeUpdate,
   JoinColumn,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { Status } from '../../../types/order';
 import { Cart } from '../../cart/entities/cart.entity';
@@ -28,11 +30,11 @@ export class Order extends Timestamp {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => Transaction, (transaction) => transaction.orders, {
+  @ManyToMany(() => Transaction, (transaction) => transaction.orders, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'transaction_id' })
-  transaction: Transaction;
+  @JoinTable({ name: 'order_transaction' })
+  transactions: Transaction[];
 
   @ManyToOne(() => Cart, (cart) => cart.orders, {
     eager: true,

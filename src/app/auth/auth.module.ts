@@ -37,7 +37,7 @@ import { SessionSerializer } from './guards/session.serializer';
     NotificationModule,
     TypeOrmModule.forFeature([User, PasswordReset]),
     LoggerModule,
-    WalletModule,
+    forwardRef(() => WalletModule),
   ],
   controllers: [AuthController],
   providers: [

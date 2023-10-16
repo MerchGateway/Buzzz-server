@@ -8,7 +8,7 @@ import { UsersModule } from './users/users.module';
 import configuration from '../config/configuration';
 import { WinstonLoggerService } from '../logger/winston-logger/winston-logger.service';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-import { RequestLoggingInterceptor } from '../request-logging.interceptor';
+import { RequestLoggingInterceptor } from '../interceptor/request-logging.interceptor';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
@@ -27,6 +27,7 @@ import { DesignModule } from './design/design.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { FeeModule } from './fee/fee.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -56,6 +57,7 @@ import { join } from 'path';
     AnalyticsModule,
     NotificationModule,
     DesignModule,
+    FeeModule,
   ],
   controllers: [AppController, DesignController],
   providers: [

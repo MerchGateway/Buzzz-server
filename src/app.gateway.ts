@@ -6,9 +6,7 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
-
 import { Inject } from '@nestjs/common';
-
 import { Socket, Server } from 'socket.io';
 import { DesignService } from './app/design/design.service';
 import { User } from './app/users/entities/user.entity';

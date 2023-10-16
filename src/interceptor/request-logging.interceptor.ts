@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { nanoid } from 'nanoid';
 import { Observable, tap } from 'rxjs';
-import { WinstonLoggerService } from './logger/winston-logger/winston-logger.service';
+import { WinstonLoggerService } from '../logger/winston-logger/winston-logger.service';
 
 @Injectable()
 export class RequestLoggingInterceptor implements NestInterceptor {
@@ -19,8 +19,6 @@ export class RequestLoggingInterceptor implements NestInterceptor {
       // do something that is only important in the context of regular HTTP requests (REST)
       const req = context.switchToHttp().getRequest();
       return this.handleHTTPRequest(req, next);
-    } else if (context.getType() === 'rpc') {
-      // do something that is only important in the context of Microservice requests
     }
   }
 

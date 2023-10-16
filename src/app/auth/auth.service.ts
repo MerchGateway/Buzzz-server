@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
+  forwardRef,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -44,6 +45,7 @@ export class AuthService {
     private readonly logger: WinstonLoggerService,
     @Inject(EMAIL_PROVIDER)
     private emailProvider: EmailProvider,
+    @Inject(forwardRef(() => WalletService))
     private readonly walletService: WalletService,
     private readonly twoFactorAuthService: TwoFactorAuthService,
     private readonly usersService: UsersService,
@@ -95,6 +97,7 @@ export class AuthService {
       .andWhere('user.identityProviderId = :identityProviderId', {
         identityProviderId,
       })
+      .leftJoinAndSelect('user.wallet', 'wallet')
       .getOne();
 
     return user;
@@ -103,6 +106,15 @@ export class AuthService {
   async postAdminSignin(user: User) {
     const payload: JwtPayload = { sub: user.id, role: user.role };
     user.password && delete user.password;
+
+    if (!user.wallet) {
+      const wallet = await this.walletService.createWallet();
+      user = await this.userRepository.save({
+        ...user,
+        wallet,
+      });
+    }
+
     return {
       user,
       accessToken: this.jwtService.sign(payload),
@@ -169,13 +181,7 @@ export class AuthService {
   }
 
   async signup(signupUserDto: SignupUserDto, designId?: string) {
-    const nameParts = signupUserDto.name.split(' ');
-
-    const user = this.userRepository.create({
-      ...signupUserDto,
-      firstName: nameParts[0],
-      lastName: nameParts[1] || '',
-    });
+    const user = this.userRepository.create(signupUserDto);
     await this.userRepository.save(user);
 
     const data = await this.postSignin(user, designId);

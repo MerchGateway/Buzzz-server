@@ -18,6 +18,7 @@ import { UsersModule } from '../users/users.module';
 import { PolymailerContent } from '../order/entities/polymailer-content.entity';
 import { BullModule } from '@nestjs/bull';
 import { getRedisConfiguration } from 'src/config/redis-configuration';
+import { FeeModule } from '../fee/fee.module';
 @Module({
   imports: [
     BullModule.forRoot({
@@ -35,6 +36,7 @@ import { getRedisConfiguration } from 'src/config/redis-configuration';
     PaystackBrokerModule,
     ProductModule,
     CartModule,
+    FeeModule,
   ],
   providers: [
     DesignService,

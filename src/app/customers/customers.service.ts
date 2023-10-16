@@ -5,7 +5,6 @@ import { Customer } from './entities/customer.entity';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
 import { OrderService } from '../order/order.service';
-import { Order } from '../order/entities/order.entity';
 import { Status } from 'src/types/status';
 import { SuccessResponse } from 'src/utils/response';
 
@@ -15,26 +14,21 @@ interface customerAnalyticsT {
   lastTwoMonthsCustomers: number;
 }
 
-interface CustomerParams {
-  customer: Customer | [];
-  order: Order[] | [];
-}
-
 @Injectable()
 export class CustomersService {
   constructor(
     @InjectRepository(Customer)
     private readonly customerRepository: Repository<Customer>,
-
     private readonly userRepository: UsersService,
     private readonly orderRepository: OrderService,
   ) {}
+
   async create(sellerId: any, user: User): Promise<Customer | []> {
     await this.userRepository.findOne(sellerId);
 
     const res = await this.customerRepository
       .createQueryBuilder('findCustomer')
-      .where('sellerId = :sellerId', { sellerId })
+      .where('seller_id = :sellerId', { sellerId })
       // .andWhere('customer = :customer', { customer: user })
       .getOne();
     // get order of customerId and add it to the rreturn value

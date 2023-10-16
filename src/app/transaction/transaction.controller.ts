@@ -1,7 +1,5 @@
 import {
-  Body,
   Controller,
-  Render,
   HttpCode,
   HttpStatus,
   Get,
@@ -9,10 +7,10 @@ import {
   Delete,
   UseGuards,
   Query,
-  Redirect,
   Res,
+  Post,
+  Req,
 } from '@nestjs/common';
-import { BASE_URL, FRONTEND_URL } from '../../constant';
 import { ParseIntPipe } from '@nestjs/common';
 import { DefaultValuePipe } from '@nestjs/common';
 import { Pagination } from 'nestjs-typeorm-paginate';
@@ -20,30 +18,19 @@ import { TransactionService } from './transaction.service';
 import { Transaction } from './entities/transaction.entity';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/types/general';
-
 import { RolesGuard } from '../auth/guards/roles.guard';
-// import { CreateTransactionDto } from './dto/transaction.dto';
 import { User } from '../users/entities/user.entity';
-
 import { CurrentUser } from 'src/decorators/user.decorator';
 import { Public } from 'src/decorators/public.decorator';
-import { Response } from 'express';
+import { Request } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('transaction')
 export class TransactionController {
-  constructor(private readonly transactionService: TransactionService) {}
-
-  @Public()
-  @Get('verify/')
-  @HttpCode(HttpStatus.ACCEPTED)
-  private async verifyTransaction(
-    @Query('reference') reference: string,
-    @Res() res: Response,
-  ) {
-    const response = await this.transactionService.verifyTransaction(reference);
-    // res.send(response).end()
-    return res.sendFile(response);
-  }
+  constructor(
+    private readonly transactionService: TransactionService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Roles(Role.SUPER_ADMIN)
   @UseGuards(RolesGuard)
@@ -56,7 +43,7 @@ export class TransactionController {
     return this.transactionService.getTransactions({
       page,
       limit,
-      route: `${BASE_URL}/transaction/all`,
+      route: `${this.configService.get<string>('appUrl')}/transaction/all`,
     });
   }
 
@@ -70,8 +57,15 @@ export class TransactionController {
     return this.transactionService.getTransactionsForAuthUser(user, {
       page,
       limit,
-      route: `${BASE_URL}/transaction`,
+      route: `${this.configService.get<string>('appUrl')}/transaction`,
     });
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Public()
+  @Post('/webhook')
+  private webhook(@Req() req: Request) {
+    return this.transactionService.handleWebhook(req);
   }
 
   @Roles(Role.SUPER_ADMIN)

@@ -7,6 +7,7 @@ export const AUTH_APP_NAME = 'BUZZZ';
 export const PUSH_NOTIFICATION = 'PUSH_NOTIFICATION';
 export const USERNAME_GENERATOR = 'USERNAME_GENERATOR';
 export const PAYSTACK_SUCCESS_MESSAGE = 'Verification successful';
+export const PAYSTACK_SUCCESS_STATUS = 'success';
 export const IMAGE_TYPE = 'image';
 export const TEXT_TYPE = 'i-text';
 export const JWT = 'JWT';
@@ -17,5 +18,3 @@ export const DESIGN_ERROR = 'design_error';
 export const SOCKET_CONNECT = 'socket_connect';
 export const DEFAULT_POLY_MAILER_CONTENT =
   'Idan!!! your face show your shoe shine';
-export const FRONTEND_URL = 'buzzz-chi.vercel.app/';
-export const BASE_URL = 'http://localhost:5000';

@@ -74,6 +74,7 @@ export class UsersService {
       .createQueryBuilder('user')
       .where('user.id = :id', { id })
       .addSelect('user.pin')
+      .leftJoinAndSelect('user.wallet', 'wallet')
       .getOne();
 
     if (!user) {

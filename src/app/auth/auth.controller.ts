@@ -22,7 +22,6 @@ import { TwitterOauthGuard } from './guards/twitter-oauth.guard';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { TwoFactorAuthService } from '../2fa/twoFactorAuth.service';
 import { TwoFactorJwtAuthGuard } from '../2fa/guard/twoFactor-jwt-auth-guard';
-import { SuccessResponse } from '../../utils/response';
 
 @Controller('auth')
 export class AuthController {
