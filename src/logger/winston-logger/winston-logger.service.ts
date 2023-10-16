@@ -4,7 +4,10 @@ import { createLogger, format, transports } from 'winston';
 const { combine, timestamp, prettyPrint } = format;
 
 const logger = createLogger({
-  format: combine(timestamp(), prettyPrint()),
+  format: combine(
+    timestamp({ format: new Date().toLocaleString() }),
+    prettyPrint(),
+  ),
   transports: [new transports.Console()],
 });
 
