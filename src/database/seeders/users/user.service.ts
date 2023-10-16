@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { User } from '../../../app/users/entities/user.entity';
 import { SUPER_ADMIN, TEMPORARY_CATEGORIES } from './data';
 import { Category } from '../../../app/category/entities/category.entity';
+import { WalletService } from '../../../app/wallet/wallet.service';
+import { Wallet } from '../../../app/wallet/entities/wallet.entity';
 
 @Injectable()
 export class UserSeederService {
@@ -12,6 +14,8 @@ export class UserSeederService {
     private userRepository: Repository<User>,
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
+    @InjectRepository(Wallet)
+    private walletRepository: Repository<Wallet>,
   ) {}
 
   async create() {
@@ -30,7 +34,10 @@ export class UserSeederService {
       return existingSuperAdmin;
     }
 
-    const superAdmin = this.userRepository.create(SUPER_ADMIN);
+    let wallet = this.walletRepository.create();
+    wallet = await this.walletRepository.save(wallet);
+
+    const superAdmin = this.userRepository.create({ ...SUPER_ADMIN, wallet });
 
     return await this.userRepository.save(superAdmin);
   }

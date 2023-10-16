@@ -300,8 +300,11 @@ export class TransactionService {
     const product = await this.productService.handleGetAProduct(
       res[0].orders[0].product.id,
     );
-    // add user to customer list
-    await this.customerService.create(product.seller.id, res[0].wallet.user);
+
+    // add user to customer list only if the buyer is not also the seller
+    if (product.seller.id !== res[0].wallet.user.id) {
+      await this.customerService.create(product.seller.id, res[0].wallet.user);
+    }
   }
 
   private async verifyWithdrawalTransaction(
@@ -331,26 +334,19 @@ export class TransactionService {
     await this.transactionRepository.save(transaction);
   }
 
-  public async deleteTransaction(
-    reference: string,
-  ): Promise<Transaction | undefined> {
-    try {
-      const isTransaction = await this.transactionRepository.findOneBy({
-        reference,
-      });
+  public async deleteTransaction(reference: string) {
+    const isTransaction = await this.transactionRepository.findOneBy({
+      reference,
+    });
 
-      if (!isTransaction) {
-        throw new NotFoundException(
-          `Transaction with reference ${reference} does not exist`,
-        );
-      }
-
-      await this.transactionRepository.delete({ reference });
-      return isTransaction;
-    } catch (err: any) {
-      console.log(err);
-      throw new HttpException(err.message, err.status);
+    if (!isTransaction) {
+      throw new NotFoundException(
+        `Transaction with reference ${reference} does not exist`,
+      );
     }
+
+    await this.transactionRepository.delete({ reference });
+    return isTransaction;
   }
 
   public async salesAnalytics(
@@ -358,60 +354,56 @@ export class TransactionService {
   ): Promise<Transaction[] | undefined> {
     const Moment = moment();
     let report: Transaction[];
-    try {
-      if (query === 'current-week') {
-        const start = Moment.startOf('week').format('YYYY-MM-DD');
+    if (query === 'current-week') {
+      const start = Moment.startOf('week').format('YYYY-MM-DD');
 
-        const end = Moment.endOf('week').format('YYYY-MM-DD');
+      const end = Moment.endOf('week').format('YYYY-MM-DD');
 
-        report = await this.transactionRepository
-          .createQueryBuilder('transaction')
-          .select('SUM(transaction.amount)', 'sum')
-          .addSelect('WEEKDAY(transaction.updated_at)', 'week-day')
-          .where('transaction.status = :status', {
-            status: TransactionStatus.SUCCESS,
-          })
-          .andWhere(`transaction.updated_at BETWEEN '${start}' AND '${end}'`)
-          .groupBy('WEEKDAY(transaction.updated_at)')
-          .orderBy('WEEKDAY(transaction.updated_at)')
-          .getRawMany();
-      } else if (query === 'current-month') {
-        const start = Moment.startOf('month').format('YYYY-MM-DD');
+      report = await this.transactionRepository
+        .createQueryBuilder('transaction')
+        .select('SUM(transaction.amount)', 'sum')
+        .addSelect('WEEKDAY(transaction.updated_at)', 'week-day')
+        .where('transaction.status = :status', {
+          status: TransactionStatus.SUCCESS,
+        })
+        .andWhere(`transaction.updated_at BETWEEN '${start}' AND '${end}'`)
+        .groupBy('WEEKDAY(transaction.updated_at)')
+        .orderBy('WEEKDAY(transaction.updated_at)')
+        .getRawMany();
+    } else if (query === 'current-month') {
+      const start = Moment.startOf('month').format('YYYY-MM-DD');
 
-        const end = Moment.endOf('month').format('YYYY-MM-DD');
+      const end = Moment.endOf('month').format('YYYY-MM-DD');
 
-        report = await this.transactionRepository
-          .createQueryBuilder('transaction')
-          .select('SUM(transaction.amount)', 'sum')
-          .addSelect('WEEKDAY(transaction.updated_at)', 'week-day')
-          .where('transaction.status = :status', {
-            status: TransactionStatus.SUCCESS,
-          })
-          .andWhere(`transaction.updated_at BETWEEN '${start}' AND '${end}'`)
-          .groupBy('WEEKDAY(transaction.updated_at)')
-          .orderBy('WEEKDAY(transaction.updated_at)')
-          .getRawMany();
-      } else {
-        const start = Moment.startOf('year').format('YYYY-MM-DD');
+      report = await this.transactionRepository
+        .createQueryBuilder('transaction')
+        .select('SUM(transaction.amount)', 'sum')
+        .addSelect('WEEKDAY(transaction.updated_at)', 'week-day')
+        .where('transaction.status = :status', {
+          status: TransactionStatus.SUCCESS,
+        })
+        .andWhere(`transaction.updated_at BETWEEN '${start}' AND '${end}'`)
+        .groupBy('WEEKDAY(transaction.updated_at)')
+        .orderBy('WEEKDAY(transaction.updated_at)')
+        .getRawMany();
+    } else {
+      const start = Moment.startOf('year').format('YYYY-MM-DD');
 
-        const end = Moment.endOf('year').format('YYYY-MM-DD');
+      const end = Moment.endOf('year').format('YYYY-MM-DD');
 
-        report = await this.transactionRepository
-          .createQueryBuilder('transaction')
-          .select('SUM(transaction.amount)', 'sum')
-          .addSelect('EXTRACT (MONTH FROM transaction.updated_at)', 'month')
-          .where('transaction.status = :status', {
-            status: TransactionStatus.SUCCESS,
-          })
-          .andWhere(`transaction.updated_at BETWEEN '${start}' AND '${end}'`)
-          .groupBy('EXTRACT (MONTH FROM transaction.updated_at)')
-          .orderBy('EXTRACT (MONTH FROM transaction.updated_at)')
-          .getRawMany();
-      }
-      return report;
-    } catch (err: any) {
-      throw new HttpException(err.message, err.status);
+      report = await this.transactionRepository
+        .createQueryBuilder('transaction')
+        .select('SUM(transaction.amount)', 'sum')
+        .addSelect('EXTRACT (MONTH FROM transaction.updated_at)', 'month')
+        .where('transaction.status = :status', {
+          status: TransactionStatus.SUCCESS,
+        })
+        .andWhere(`transaction.updated_at BETWEEN '${start}' AND '${end}'`)
+        .groupBy('EXTRACT (MONTH FROM transaction.updated_at)')
+        .orderBy('EXTRACT (MONTH FROM transaction.updated_at)')
+        .getRawMany();
     }
+    return report;
   }
 
   async getBalanceForWalletId(walletId: string) {

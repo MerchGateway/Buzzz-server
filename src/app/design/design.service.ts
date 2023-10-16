@@ -45,21 +45,25 @@ export class DesignService {
     private readonly polyMailerContentRepository: Repository<PolymailerContent>,
     private readonly feeService: FeeService,
   ) {}
+
   async viewAllDesigns(user: User): Promise<Design[] | undefined> {
     return await this.designRepository.find({
       where: { user: { id: user.id } },
       order: { updatedAt: 'DESC' },
     });
   }
+
   async fetchLatestDesignForCurrentUser(
     user: User,
   ): Promise<{ design: Design }> {
-    const design = await this.viewAllDesigns(user);
-    const latestDesign = design[0];
-
-    console.log(design);
+    const latestDesign = await this.designRepository.findOne({
+      where: { user: { id: user.id } },
+      order: { createdAt: 'DESC' },
+      relations: ['product'],
+    });
     return { design: latestDesign };
   }
+
   async fetchSingleDesign(id: string): Promise<Design> {
     try {
       const design = await this.designRepository.findOne({ where: { id } });
