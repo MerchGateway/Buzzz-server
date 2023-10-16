@@ -47,10 +47,10 @@ export class User extends Timestamp {
   @Column({ unique: true })
   email: string;
 
-  @Column({ name: 'first_name', nullable: true })
+  @Column({ name: 'first_name', nullable: true, default: '' })
   firstName: string | null;
 
-  @Column({ name: 'last_name', nullable: true })
+  @Column({ name: 'last_name', nullable: true, default: '' })
   lastName: string | null;
 
   @Column({ select: false, nullable: true })
