@@ -76,8 +76,7 @@ export class TransactionService {
 
     const fee = await this.feeService.getLatest();
 
-    const totalOwnerFees = ownerOrders.length * fee.owner;
-    const totalResellerFees = resellerOrders.length * fee.reseller;
+    const totalFeeAmount = resellerOrders.length * fee.reseller;
 
     const transactions: Transaction[] = [];
 
@@ -91,7 +90,7 @@ export class TransactionService {
         orders,
         amount: totalOwnerCost,
         fee,
-        feeAmount: totalOwnerFees,
+        feeAmount: totalOwnerCost,
         method: TransactionMethod.CREDIT,
         isHidden: true,
       });
@@ -103,7 +102,7 @@ export class TransactionService {
         orders,
         amount: totalOwnerCost,
         fee,
-        feeAmount: totalOwnerFees,
+        feeAmount: totalOwnerCost,
         method: TransactionMethod.DEBIT,
       });
       transactions.push(ownerCreditTransaction, ownerDebitTransaction);
@@ -118,7 +117,7 @@ export class TransactionService {
         orders,
         amount: totalResellerCost,
         fee,
-        feeAmount: totalResellerFees,
+        feeAmount: totalFeeAmount,
         method: TransactionMethod.CREDIT,
       });
       // create a hidden credit with the same amount for the buyer to enable debiting without encountering negative values
@@ -130,6 +129,7 @@ export class TransactionService {
         amount: totalResellerCost,
         fee,
         method: TransactionMethod.CREDIT,
+        feeAmount: totalResellerCost,
         isHidden: true,
       });
       // debit the buyer the same amount as the cost of the product and amount of hidden credit
@@ -421,7 +421,7 @@ export class TransactionService {
 
     const debitsResult = await this.transactionRepository
       .createQueryBuilder('transaction')
-      .select(`SUM(transaction.amount)`, 'sum')
+      .select(`SUM(transaction.amount - transaction.feeAmount)`, 'sum')
       .where('transaction.wallet_id = :walletId', { walletId })
       .andWhere('transaction.method = :method', {
         method: TransactionMethod.DEBIT,
