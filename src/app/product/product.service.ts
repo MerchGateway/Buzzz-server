@@ -138,6 +138,7 @@ export class ProductService {
       qb.alias,
       this.productRepository.metadata,
     );
+    qb.where('p.isPublic = :isPublic', { isPublic: true });
     qb.orderBy('p.createdAt', 'DESC');
 
     return paginate<Product>(qb, options);

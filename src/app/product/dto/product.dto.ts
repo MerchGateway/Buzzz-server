@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsUUID,
   MaxLength,
+  IsBoolean,
   MinLength,
 } from 'class-validator';
 
@@ -24,6 +25,10 @@ export class CreateProductDto {
   @IsString()
   @IsNotEmpty()
   public thumbnail: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isPublic?: boolean;
 
   @IsUUID()
   @IsNotEmpty()
@@ -48,6 +53,10 @@ export class EditProductDto {
   @MaxLength(40)
   @MinLength(10)
   public bio: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isPublic?: boolean;
 
   @IsString()
   @IsOptional()
