@@ -1,6 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { ArrayContains } from 'typeorm';
 import {
   BadRequestException,
   ConflictException,
@@ -29,6 +28,7 @@ import { TEXT_TYPE, IMAGE_TYPE } from 'src/constant';
 import { WsException } from '@nestjs/websockets/errors';
 import { Role } from 'src/types/general';
 import { FeeService } from '../fee/fee.service';
+import { Product } from '../product/entities/product.entity';
 @Injectable()
 export class DesignService {
   constructor(
@@ -273,14 +273,7 @@ export class DesignService {
     payload: PublishDesignAndCheckoutDto,
     id: string,
     category_id: string,
-  ): Promise<
-    | {
-        authorization_url: string;
-        access_code: string;
-        reference: string;
-      }
-    | undefined
-  > {
+  ): Promise<Product> {
     const fee = await this.feeService.getLatest();
 
     if (payload.price !== fee.owner) {
@@ -300,11 +293,8 @@ export class DesignService {
       },
       user,
     );
-    //   initialize payment
-    const generatePaymentRef = await this.paystackBrokerService.createPayRef(
-      user,
-    );
-    return generatePaymentRef;
+
+    return product;
   }
 
   public async createPolymailerContent(

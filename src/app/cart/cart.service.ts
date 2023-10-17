@@ -1,18 +1,10 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import {
-  Injectable,
-  HttpException,
-  NotFoundException,
-  Inject,
-  forwardRef,
-} from '@nestjs/common';
+import { Injectable, HttpException, NotFoundException } from '@nestjs/common';
 import { Cart } from './entities/cart.entity';
 import { User } from '../users/entities/user.entity';
 import { CreateCartDto, UpdateCartDto } from '../cart/dto/cart.dto';
 import { ProductService } from '../product/product.service';
-import { Product } from '../product/entities/product.entity';
-
 @Injectable()
 export class CartService {
   constructor(

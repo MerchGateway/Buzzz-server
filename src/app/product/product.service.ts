@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  Inject,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsUtils, Repository } from 'typeorm';
 import {
@@ -98,19 +93,24 @@ export class ProductService {
     { limit, page, route }: IPaginationOptions,
     searchQuery: any,
   ) {
-    const searchResult = this.productRepository
-      .createQueryBuilder('product')
-      .where(
-        'product.name = :name OR product.price = :price OR product.sellerId= :sellerId OR seller.username= :username ',
-        {
-          name: searchQuery?.name,
-          price: searchQuery?.price,
-          sellerId: searchQuery?.sellerId,
-          username: searchQuery?.username,
-        },
-      );
+    const qb = this.productRepository.createQueryBuilder('product');
+    FindOptionsUtils.joinEagerRelations(
+      qb,
+      qb.alias,
+      this.productRepository.metadata,
+    );
+    qb.where(
+      'product.name = :name OR product.price = :price OR product.sellerId= :sellerId OR seller.username= :username ',
+      {
+        name: searchQuery?.name,
+        price: searchQuery?.price,
+        sellerId: searchQuery?.sellerId,
+        username: searchQuery?.username,
+      },
+    );
+    qb.orderBy('p.createdAt', 'DESC');
 
-    return paginate<Product>(searchResult, { limit, page, route });
+    return paginate<Product>(qb, { limit, page, route });
   }
   async handleGetAProduct(id: string) {
     try {
