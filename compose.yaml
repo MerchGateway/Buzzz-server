@@ -1,0 +1,46 @@
+services:
+  redis:
+    image: redis:7.0-alpine
+    ports:
+      - '6379:6379'
+    restart: always
+    volumes:
+      - redis_data:/var/lib/redis
+    networks:
+      - buzzz_network
+  db:
+    image: mysql:8.0
+    cap_add:
+      - SYS_NICE
+    ports:
+      - '3306:3306'
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ''
+      MYSQL_USER: ''
+      MYSQL_PASSWORD: ''
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - buzzz_network
+  buzzz:
+    restart: always
+    build: ./
+    container_name: buzzz
+    hostname: buzzz
+    volumes:
+      - /usr/src/buzzz-server/node_modules
+      - .:/usr/src/buzzz-server/
+    ports:
+      - '6000:5000'
+    networks:
+      - buzzz_network
+    depends_on:
+      - redis
+      - db
+
+volumes:
+  mysql_data:
+  redis_data:
+networks:
+  buzzz_network:
