@@ -100,7 +100,7 @@ export class ProductService {
       this.productRepository.metadata,
     );
     qb.where(
-      'product.name = :name OR product.price = :price OR product.seller_id= :sellerId OR seller.username= :username ',
+      'product.name = :name OR product.price = :price OR product.seller_id = :sellerId OR seller.username = :username ',
       {
         name: searchQuery?.name,
         price: searchQuery?.price,
