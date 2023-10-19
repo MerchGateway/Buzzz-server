@@ -55,6 +55,7 @@ export default () => ({
   },
   sendgridApiKey: process.env.SENDGRID_API_KEY,
   fromEmail: process.env.FROM_EMAIL,
+  fromName: process.env.FROM_NAME,
   broker: {
     paystackSecretKey: process.env.PAYSTACK_SECRET_KEY,
   },
