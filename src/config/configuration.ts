@@ -32,7 +32,7 @@ export default () => ({
     name: process.env.TYPEORM_DATABASE,
     username: process.env.TYPEORM_USERNAME,
     password: process.env.TYPEORM_PASSWORD,
-    synchronize: Boolean(process.env.TYPEORM_SYNCHRONIZE),
+    synchronize: JSON.parse(process.env.TYPEORM_SYNCHRONIZE) as boolean,
     entities: process.env.TYPEORM_ENTITIES,
     migrations: process.env.TYPEORM_MIGRATIONS,
     migrationsDir: process.env.TYPEORM_MIGRATIONS_DIR,
