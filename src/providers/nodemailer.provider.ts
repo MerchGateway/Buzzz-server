@@ -11,6 +11,7 @@ export class NodemailerProvider implements EmailProvider {
   smtpPassword: string;
   fromEmail: string;
   fromName: string;
+  nodeEnv: string;
 
   constructor(private readonly configService: ConfigService) {
     this.smtpHost = configService.get<string>('smtpHost');
@@ -19,20 +20,20 @@ export class NodemailerProvider implements EmailProvider {
     this.smtpPassword = configService.get<string>('smtpPassword');
     this.fromEmail = configService.get<string>('fromEmail');
     this.fromName = configService.get<string>('fromName');
+    this.nodeEnv = configService.get<string>('nodeEnv');
   }
 
   async sendMail(options: MailOptions) {
     const transporter = createTransport({
       host: this.smtpHost,
       port: this.smtpPort,
-      secure: this.configService.get<string>('nodeEnv') === 'production',
+      secure: this.nodeEnv === 'production',
       auth: {
         user: this.smtpEmail,
         pass: this.smtpPassword,
       },
       tls: {
-        rejectUnauthorized:
-          this.configService.get<string>('nodeEnv') === 'production',
+        rejectUnauthorized: this.nodeEnv === 'production',
       },
     });
 
