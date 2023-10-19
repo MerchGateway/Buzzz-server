@@ -39,7 +39,7 @@ export class Product extends Timestamp {
   isPublished: boolean;
 
   @Column({ name: 'is_public', default: true })
-  isPublic?: boolean;
+  isPublic: boolean;
 
   @ManyToOne(() => Category, (category) => category.products, {
     eager: true,

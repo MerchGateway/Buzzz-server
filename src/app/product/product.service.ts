@@ -104,7 +104,7 @@ export class ProductService {
       {
         name: searchQuery?.name,
         price: searchQuery?.price,
-        sellerId: searchQuery?.sellerId,
+        seller_id: searchQuery?.sellerId,
         username: searchQuery?.username,
       },
     );
