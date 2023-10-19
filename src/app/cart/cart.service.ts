@@ -25,7 +25,8 @@ export class CartService {
         `Product  with id ${cartDto.product} does not exist`,
       );
     }
-    const isCart = await this.checkIfCartExist(cartDto.product);
+
+    const isCart = await this.checkIfCartExist(user.id, cartDto.product);
 
     if (isCart) {
       isCart.quantity += cartDto.quantity;
@@ -60,7 +61,8 @@ export class CartService {
             );
           }
 
-          const isCart = await this.checkIfCartExist(cart.product);
+          const isCart = await this.checkIfCartExist(user.id, cart.product);
+
           if (isCart) {
             isCart.quantity += cart.quantity;
             return await this.cartRepository.save(isCart);
@@ -83,12 +85,13 @@ export class CartService {
     }
   }
 
-  private async checkIfCartExist(product: string) {
-    // search if cart item exists already and update if it does
-    //  fetch new instance of the just updated cart item
+  private async checkIfCartExist(userId: string, productId: string) {
+    // search if cart item exists already for the specific user and update if it does
+    // fetch new instance of the just updated cart item
     return await this.cartRepository.findOne({
       where: {
-        product: { id: product },
+        user: { id: userId },
+        product: { id: productId },
       },
       relations: { product: true },
     });
