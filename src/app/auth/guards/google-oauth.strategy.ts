@@ -1,6 +1,6 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy } from 'passport-google-oauth20';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/app/users/users.service';
 import { IdentityProvider } from '../../../types/user';
@@ -43,7 +43,7 @@ export class GoogleOauthStrategy extends PassportStrategy(Strategy, 'google') {
       existingNonGoogleProviderUser &&
       existingNonGoogleProviderUser.identityProvider !== IdentityProvider.GOOGLE
     ) {
-      throw new UnauthorizedException(
+      throw new BadRequestException(
         'You cannot sign in with your Google account because an account with this email address already exists',
       );
     }
