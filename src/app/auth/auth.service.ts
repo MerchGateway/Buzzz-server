@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Inject,
@@ -181,6 +182,31 @@ export class AuthService {
   }
 
   async signup(signupUserDto: SignupUserDto, designId?: string) {
+    const existingUserWithEmail = await this.findOneUser(
+      {
+        email: signupUserDto.email,
+      },
+      {
+        id: true,
+        identityProvider: true,
+        identityProviderId: true,
+      },
+    );
+
+    if (existingUserWithEmail) {
+      if (existingUserWithEmail.identityProviderId) {
+        const identityProviderString =
+          existingUserWithEmail.identityProvider.toLowerCase();
+        throw new BadRequestException(
+          `It looks like you've already signed up with ${identityProviderString} using this email address. Please sign in with ${identityProviderString} to access your account.`,
+        );
+      }
+
+      throw new BadRequestException(
+        `It looks like you've already signed up with this email address. Please sign in to access your account.`,
+      );
+    }
+
     const user = this.userRepository.create(signupUserDto);
     await this.userRepository.save(user);
 
