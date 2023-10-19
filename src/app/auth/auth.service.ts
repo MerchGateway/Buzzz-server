@@ -211,7 +211,7 @@ export class AuthService {
         subject: 'Password Reset',
       });
     } catch (error) {
-      this.logger.log(`Error sending email: ${error.message}`);
+      this.logger.log(`Error sending email: ${error.message}`, error.stack);
       throw new HttpException(
         'Unable to send email',
         HttpStatus.INTERNAL_SERVER_ERROR,

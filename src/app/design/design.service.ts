@@ -1,6 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { ArrayContains } from 'typeorm';
 import {
   BadRequestException,
   ConflictException,

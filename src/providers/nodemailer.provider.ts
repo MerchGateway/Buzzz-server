@@ -9,33 +9,36 @@ export class NodemailerProvider implements EmailProvider {
   smtpPort: number;
   smtpEmail: string;
   smtpPassword: string;
+  fromEmail: string;
+  fromName: string;
 
   constructor(private readonly configService: ConfigService) {
     this.smtpHost = configService.get<string>('smtpHost');
     this.smtpPort = configService.get<number>('smtpPort');
     this.smtpEmail = configService.get<string>('smtpEmail');
     this.smtpPassword = configService.get<string>('smtpPassword');
+    this.fromEmail = configService.get<string>('fromEmail');
+    this.fromName = configService.get<string>('fromName');
   }
 
   async sendMail(options: MailOptions) {
     const transporter = createTransport({
       host: this.smtpHost,
       port: this.smtpPort,
-      secure: false,
+      secure: this.configService.get<string>('nodeEnv') === 'production',
       auth: {
         user: this.smtpEmail,
         pass: this.smtpPassword,
       },
       tls: {
-        rejectUnauthorized: false,
+        rejectUnauthorized:
+          this.configService.get<string>('nodeEnv') === 'production',
       },
     });
 
     const message = {
-      from: `${
-        options.fromName ? options.fromName : process.env.MAIL_FROM_NAME
-      } <${
-        options.fromEmail ? options.fromEmail : process.env.MAIL_FROM_EMAIL
+      from: `${options.fromName ? options.fromName : this.fromName} <${
+        options.fromEmail ? options.fromEmail : this.fromEmail
       }>`,
       to: options.to,
       subject: options.subject,
