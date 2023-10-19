@@ -23,7 +23,7 @@ export class CreateFullDB1697288634693 implements MigrationInterface {
       `CREATE TABLE \`transaction\` (\`created_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updated_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deleted_at\` datetime(6) NULL, \`id\` varchar(36) NOT NULL, \`reference\` varchar(255) NOT NULL, \`amount\` decimal(10,2) NOT NULL, \`currency\` enum ('NGN') NULL, \`message\` varchar(255) NULL, \`method\` enum ('DEBIT', 'CREDIT') NOT NULL, \`status\` enum ('FAILED', 'SUCCESS', 'PENDING') NOT NULL DEFAULT 'PENDING', \`channel\` enum ('CARD', 'BANK', 'USSD', 'QR', 'MOBILE_MONEY', 'BANK_TRANSFER') NOT NULL, \`wallet_id\` varchar(36) NULL, UNIQUE INDEX \`IDX_0b12a144bdc7678b6ddb0b913f\` (\`reference\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`,
     );
     await queryRunner.query(
-      `CREATE TABLE \`cart\` (\`created_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updated_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deleted_at\` datetime(6) NULL, \`id\` varchar(36) NOT NULL, \`quantity\` int NOT NULL, \`total\` int NOT NULL, \`size\` enum ('M', 'L', 'XL', 'S', 'XXL') NULL DEFAULT 'M', \`color\` enum ('#ffffff', '#808080', '#333333', '#ff0005', '#ff8c00', 'Green', 'Red', 'White', 'Blue', 'Orange', 'Black', 'Grey', 'Brown', 'Pink', 'Purple', 'Ash') NULL, \`user_id\` varchar(36) NULL, \`product_id\` varchar(36) NULL, UNIQUE INDEX \`REL_dccd1ec2d6f5644a69adf163bc\` (\`product_id\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`,
+      `CREATE TABLE \`cart\` (\`created_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updated_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deleted_at\` datetime(6) NULL, \`id\` varchar(36) NOT NULL, \`quantity\` int NOT NULL, \`total\` int NOT NULL, \`size\` enum ('M', 'L', 'XL', 'S', 'XXL') NULL DEFAULT 'M', \`color\` enum ('#ffffff', '#808080', '#333333', '#ff0005', '#ff8c00', 'Green', 'Red', 'White', 'Blue', 'Orange', 'Black', 'Grey', 'Brown', 'Pink', 'Purple', 'Ash') NULL, \`user_id\` varchar(36) NULL, \`product_id\` varchar(36) NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`,
     );
     await queryRunner.query(
       `CREATE TABLE \`printing_partner\` (\`created_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updated_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deleted_at\` datetime(6) NULL, \`id\` varchar(36) NOT NULL, \`name\` varchar(255) NOT NULL, \`address\` text NOT NULL, \`status\` enum ('enabled', 'disabled') NOT NULL DEFAULT 'enabled', UNIQUE INDEX \`IDX_058d21d734e33beeab6cd534c3\` (\`name\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`,
@@ -231,9 +231,6 @@ export class CreateFullDB1697288634693 implements MigrationInterface {
       `DROP INDEX \`IDX_058d21d734e33beeab6cd534c3\` ON \`printing_partner\``,
     );
     await queryRunner.query(`DROP TABLE \`printing_partner\``);
-    await queryRunner.query(
-      `DROP INDEX \`REL_dccd1ec2d6f5644a69adf163bc\` ON \`cart\``,
-    );
     await queryRunner.query(`DROP TABLE \`cart\``);
     await queryRunner.query(
       `DROP INDEX \`IDX_0b12a144bdc7678b6ddb0b913f\` ON \`transaction\``,

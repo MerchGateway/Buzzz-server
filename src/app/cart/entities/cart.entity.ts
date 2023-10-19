@@ -26,7 +26,7 @@ export class Cart extends Timestamp {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @OneToOne(() => Product, {
+  @ManyToOne(() => Product, {
     cascade: true,
     eager: true,
   })
