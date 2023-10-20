@@ -254,6 +254,7 @@ export class DesignService {
       {
         name: payload.title,
         price: payload.price,
+        isPublic: payload.isPublic,
         description: payload.description,
         categoryId: category_id,
         thumbnail: payload.thumbnail,
@@ -261,7 +262,8 @@ export class DesignService {
       user,
     );
 
-    (product.isPublished = true), (design.product = product);
+    product.isPublished = true;
+    design.product = product;
     design.published = true;
 
     await this.designRepository.save(design);

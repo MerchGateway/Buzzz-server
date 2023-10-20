@@ -16,6 +16,10 @@ export class PublishDesignDto {
   @IsNotEmpty()
   price: number;
 
+  @IsBoolean()
+  @IsOptional()
+  public readonly isPublic?: boolean;
+  
   @IsString()
   @IsOptional()
   description: string;
