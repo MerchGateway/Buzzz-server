@@ -19,7 +19,7 @@ export class PublishDesignDto {
   @IsBoolean()
   @IsOptional()
   public readonly isPublic?: boolean;
-  
+
   @IsString()
   @IsOptional()
   description: string;
