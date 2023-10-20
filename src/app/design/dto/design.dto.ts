@@ -1,4 +1,11 @@
-import { IsNumber,IsEnum, IsOptional, IsString, IsNotEmpty,IsUUID } from 'class-validator';
+import {
+  IsNumber,
+  IsEnum,
+  IsOptional,
+  IsString,
+  IsNotEmpty,
+  IsBoolean,
+} from 'class-validator';
 import { Color } from 'src/types/color';
 import { Size } from 'src/types/size';
 export class PublishDesignDto {
@@ -16,8 +23,6 @@ export class PublishDesignDto {
   @IsString()
   @IsNotEmpty()
   public thumbnail: string;
-
-
 }
 export class PublishDesignAndCheckoutDto {
   @IsString()
@@ -42,8 +47,11 @@ export class PublishDesignAndCheckoutDto {
   @IsOptional()
   public readonly color: Color;
 
+  @IsBoolean()
+  @IsOptional()
+  public readonly isPublic?: boolean;
+
   @IsString()
   @IsNotEmpty()
   public thumbnail: string;
-
 }

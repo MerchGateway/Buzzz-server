@@ -281,7 +281,6 @@ export class DesignService {
         `Design price must be the exact mandatory fee of ₦${fee.owner}.`,
       );
     }
-
     const product = await this.publishDesign(user, payload, id, category_id);
     //   save product to cart
     await this.cartService.createCartItem(
