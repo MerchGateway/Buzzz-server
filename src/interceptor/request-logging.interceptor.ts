@@ -39,10 +39,10 @@ export class RequestLoggingInterceptor implements NestInterceptor {
     return next
       .handle()
       .pipe(
-        tap(() =>
+        tap((responseBody) =>
           this.logger.log(
             `HTTP response ${requestHash} +${Date.now() - now}ms`,
-            req.response,
+            responseBody,
           ),
         ),
       );

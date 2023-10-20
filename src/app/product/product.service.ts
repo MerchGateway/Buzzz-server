@@ -99,8 +99,9 @@ export class ProductService {
       qb.alias,
       this.productRepository.metadata,
     );
+    qb.leftJoin('product.seller', 'seller');
     qb.where(
-      'product.name = :name OR product.price = :price OR product.seller_id = :sellerId OR seller.username = :username ',
+      'product.name = :name OR product.price = :price OR product.seller_id = :sellerId OR seller.username = :username',
       {
         name: searchQuery?.name,
         price: searchQuery?.price,
@@ -108,7 +109,7 @@ export class ProductService {
         username: searchQuery?.username,
       },
     );
-    qb.orderBy('p.createdAt', 'DESC');
+    qb.orderBy('product.createdAt', 'DESC');
 
     return paginate<Product>(qb, { limit, page, route });
   }

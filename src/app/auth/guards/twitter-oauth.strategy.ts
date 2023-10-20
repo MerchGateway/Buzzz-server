@@ -1,6 +1,6 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy } from 'passport-twitter';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/app/users/users.service';
 import { IdentityProvider } from '../../../types/user';
@@ -47,7 +47,7 @@ export class TwitterOauthStrategy extends PassportStrategy(
       existingNonTwitterProviderUser.identityProvider !==
         IdentityProvider.TWITTER
     ) {
-      throw new UnauthorizedException(
+      throw new BadRequestException(
         'You cannot sign in with your Twitter account because an account with this email address already exists',
       );
     }
