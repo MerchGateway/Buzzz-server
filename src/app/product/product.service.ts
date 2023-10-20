@@ -36,6 +36,7 @@ export class ProductService {
     product.price = body.price;
     product.category = body.categoryId as any;
     product.seller = user;
+    product.isPublic = body.isPublic;
     product.seller = user.id as any;
     product.description = body.description;
     product.thumbnail = {
