@@ -214,13 +214,21 @@ export class AuthService {
   }
 
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
-    const user = await this.userRepository.findOneBy({
-      email: forgotPasswordDto.email,
+    const user = await this.userRepository.findOne({
+      where: { email: forgotPasswordDto.email },
+      select: ['id', 'email', 'firstName', 'username', 'identityProvider'],
     });
 
     if (!user) {
       throw new NotFoundException(
         `User with email ${forgotPasswordDto.email} does not exist.`,
+      );
+    }
+
+    if (user.identityProvider) {
+      const identityProviderString = user.identityProvider.toLowerCase();
+      throw new BadRequestException(
+        `It looks like you signed up with your ${identityProviderString} account using this email address. Please sign in with ${identityProviderString} to access your account.`,
       );
     }
 
