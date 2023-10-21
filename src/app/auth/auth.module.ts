@@ -13,15 +13,13 @@ import { GoogleOauthStrategy } from './guards/google-oauth.strategy';
 import { TwitterOauthStrategy } from './guards/twitter-oauth.strategy';
 import { LoggerModule } from 'src/logger/logger.module';
 import { PasswordReset } from './entities/password-reset.entity';
-import { EMAIL_PROVIDER } from '../../constant';
-import { ConfigService } from '@nestjs/config';
-import { NodemailerProvider } from '../../providers/nodemailer.provider';
 import { WalletModule } from '../wallet/wallet.module';
 import { AdminModule } from '../admin/admin.module';
 import { NotificationModule } from '../notification/notification.module';
 import { TwoFactorAuthModule } from '../2fa/twoFactorAuth.module';
 import { DesignModule } from '../design/design.module';
 import { SessionSerializer } from './guards/session.serializer';
+import { MailModule } from '../../mail/mail.module';
 
 @Module({
   imports: [
@@ -38,6 +36,7 @@ import { SessionSerializer } from './guards/session.serializer';
     TypeOrmModule.forFeature([User, PasswordReset]),
     LoggerModule,
     forwardRef(() => WalletModule),
+    MailModule,
   ],
   controllers: [AuthController],
   providers: [
@@ -48,13 +47,6 @@ import { SessionSerializer } from './guards/session.serializer';
     SessionSerializer,
     AuthService,
     PasswordReset,
-    {
-      provide: EMAIL_PROVIDER,
-      useFactory: (configService: ConfigService) => {
-        return new NodemailerProvider(configService);
-      },
-      inject: [ConfigService],
-    },
   ],
   exports: [AuthService],
 })

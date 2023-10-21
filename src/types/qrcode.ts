@@ -1,9 +1,3 @@
-
-
-
-
-export interface  QrcodeProvider {
-   
-    generateQrCodeDataURL:(otpAuthUrl: string)  => Promise<any>;
-  }
-  
+export interface QrcodeProvider {
+  generateQrCodeDataURL: (otpAuthUrl: string) => Promise<any>;
+}

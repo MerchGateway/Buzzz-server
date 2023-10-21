@@ -9,6 +9,8 @@ import { TransactionModule } from '../transaction/transaction.module';
 import { PaystackBrokerModule } from '../payment/paystack/paystack.module';
 import { AuthModule } from '../auth/auth.module';
 import { FeeModule } from '../fee/fee.module';
+import { OtpModule } from '../otp/otp.module';
+import { MailModule } from '../../mail/mail.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { FeeModule } from '../fee/fee.module';
     PaystackBrokerModule,
     forwardRef(() => AuthModule),
     FeeModule,
+    OtpModule,
+    MailModule,
   ],
   controllers: [WalletController],
   providers: [WalletService],

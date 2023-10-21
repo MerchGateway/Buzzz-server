@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  HttpException,
   HttpStatus,
   Inject,
   Injectable,
@@ -23,16 +22,16 @@ import { JwtPayload } from './guards/jwt.strategy';
 import { IdentityProvider } from '../../types/user';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { WinstonLoggerService } from 'src/logger/winston-logger/winston-logger.service';
-import { EmailProvider } from '../../types/email';
 import { DesignService } from '../design/design.service';
 import { PasswordReset } from './entities/password-reset.entity';
-import { EMAIL_PROVIDER, PASSWORD_RESET_TOKEN_EXPIRY } from '../../constant';
+import { PASSWORD_RESET_TOKEN_EXPIRY } from '../../constant';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { WalletService } from '../wallet/wallet.service';
 import { AuthType } from 'src/types/authenticator';
 import { TwoFactorAuthService } from '../2fa/twoFactorAuth.service';
 import { UsersService } from '../users/users.service';
+import { MailService } from '../../mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -44,8 +43,7 @@ export class AuthService {
     @InjectRepository(PasswordReset)
     private readonly passwordResetRepository: Repository<PasswordReset>,
     private readonly logger: WinstonLoggerService,
-    @Inject(EMAIL_PROVIDER)
-    private emailProvider: EmailProvider,
+    private mailService: MailService,
     @Inject(forwardRef(() => WalletService))
     private readonly walletService: WalletService,
     private readonly twoFactorAuthService: TwoFactorAuthService,
@@ -222,29 +220,15 @@ export class AuthService {
 
     if (!user) {
       throw new NotFoundException(
-        `User with email ${forgotPasswordDto.email} does no exist`,
+        `User with email ${forgotPasswordDto.email} does not exist.`,
       );
     }
 
     const passwordResetToken = await this.findOrCreatePasswordReset(user);
 
-    const resetToken = passwordResetToken.token;
+    await this.mailService.sendResetPassword(user, passwordResetToken.token);
 
-    try {
-      await this.emailProvider.sendMail({
-        message: `Your password reset token is ${resetToken}`,
-        to: forgotPasswordDto.email,
-        subject: 'Password Reset',
-      });
-    } catch (error) {
-      this.logger.log(`Error sending email: ${error.message}`, error.stack);
-      throw new HttpException(
-        'Unable to send email',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-
-    return new SuccessResponse({}, 'Password reset email sent successfully');
+    return new SuccessResponse({}, 'Password reset email sent successfully.');
   }
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
@@ -259,7 +243,7 @@ export class AuthService {
     });
 
     if (!passwordReset) {
-      throw new UnauthorizedException('Invalid token');
+      throw new BadRequestException('Invalid token');
     }
 
     const user = passwordReset.user;

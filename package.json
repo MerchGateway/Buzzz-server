@@ -28,6 +28,7 @@
     "seed": "ts-node -r tsconfig-paths/register ./src/seed.ts"
   },
   "dependencies": {
+    "@nestjs-modules/mailer": "^1.9.1",
     "@nestjs/bull": "^0.6.3",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^2.3.2",
@@ -52,6 +53,7 @@
     "express-session": "^1.17.3",
     "firebase-admin": "^11.5.0",
     "google-auth-library": "^8.1.1",
+    "handlebars": "^4.7.8",
     "moment": "^2.29.4",
     "mysql2": "^2.3.3",
     "nanoid": "^3.3.2",

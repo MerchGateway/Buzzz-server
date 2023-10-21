@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TwoFactorAuthController } from './twoFactorAuth.controller';
 import { TwoFactorAuthService } from './twoFactorAuth.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -7,14 +7,11 @@ import { User } from '../users/entities/user.entity';
 import { Authenticator } from 'src/providers/authenticator.provider';
 import { Qrcode } from 'src/providers/qrcode.provider';
 import { QRCODE, AUTHENTICATOR } from 'src/constant';
-import { AuthModule } from '../auth/auth.module';
-import { EMAIL_PROVIDER } from '../../constant';
-import { ConfigService } from '@nestjs/config';
-import { NodemailerProvider } from '../../providers/nodemailer.provider';
 import { TwofactorJwtStrategy } from './guard/twoFactor-jwt-strategy';
+import { MailModule } from '../../mail/mail.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, TwoFactorAuth])],
+  imports: [TypeOrmModule.forFeature([User, TwoFactorAuth]), MailModule],
   providers: [
     TwoFactorAuthService,
     TwofactorJwtStrategy,
@@ -25,13 +22,6 @@ import { TwofactorJwtStrategy } from './guard/twoFactor-jwt-strategy';
     {
       provide: QRCODE,
       useClass: Qrcode,
-    },
-    {
-      provide: EMAIL_PROVIDER,
-      useFactory: (configService: ConfigService) => {
-        return new NodemailerProvider(configService);
-      },
-      inject: [ConfigService],
     },
   ],
   controllers: [TwoFactorAuthController],

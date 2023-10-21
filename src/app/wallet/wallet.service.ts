@@ -28,6 +28,9 @@ import { SetPinDto } from './dto/set-pin.dto';
 import { UpdatePinDto } from './dto/update-pin.dto';
 import { ResolveAccountNumberDto } from './dto/resolve-account-number.dto';
 import { FeeService } from '../fee/fee.service';
+import { OtpService } from '../otp/otp.service';
+import { OTPReason } from '../../types/otp';
+import { MailService } from '../../mail/mail.service';
 
 @Injectable()
 export class WalletService {
@@ -45,6 +48,8 @@ export class WalletService {
     @Inject(forwardRef(() => AuthService))
     private authService: AuthService,
     private feeService: FeeService,
+    private otpService: OtpService,
+    private mailService: MailService,
   ) {}
 
   async createWallet() {
@@ -126,14 +131,23 @@ export class WalletService {
     return result as User;
   }
 
+  async sendPinResetOTP(user: User) {
+    const opt = await this.otpService.generateOtp(OTPReason.PIN_RESET, user);
+
+    await this.mailService.sendOtp(user, opt);
+
+    return new SuccessResponse({}, 'OTP sent to email successfully');
+  }
+
   async setWalletPin(user: User, setPinDto: SetPinDto) {
-    const isValidPassword = await this.authService.validateUser(
-      user.email,
-      setPinDto.password,
+    const isValidOTP = await this.otpService.verifyOtp(
+      setPinDto.otp,
+      user,
+      OTPReason.PIN_RESET,
     );
 
-    if (!isValidPassword) {
-      throw new UnauthorizedException('Invalid password');
+    if (!isValidOTP) {
+      throw new BadRequestException('Invalid OTP.');
     }
 
     if (user.hasPin) {

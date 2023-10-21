@@ -44,6 +44,11 @@ export class WalletController {
     return this.walletService.withdrawFromWallet(withdrawFromWalletDto, user);
   }
 
+  @Post(':walletId/send-otp')
+  sendPinResetOTP(@CurrentUser() user: User) {
+    return this.walletService.sendPinResetOTP(user);
+  }
+
   @Put(':walletId/set-pin')
   setPin(@Body() setPinDto: SetPinDto, @CurrentUser() user: User) {
     return this.walletService.setWalletPin(user, setPinDto);
