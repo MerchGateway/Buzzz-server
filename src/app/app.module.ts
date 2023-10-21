@@ -28,6 +28,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { FeeModule } from './fee/fee.module';
+import { OtpModule } from './otp/otp.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -58,6 +59,7 @@ import { FeeModule } from './fee/fee.module';
     NotificationModule,
     DesignModule,
     FeeModule,
+    OtpModule,
   ],
   controllers: [AppController, DesignController],
   providers: [

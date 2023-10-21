@@ -31,7 +31,7 @@ export class CustomersService {
       .where('seller_id = :sellerId', { sellerId })
       // .andWhere('customer = :customer', { customer: user })
       .getOne();
-    // get order of customerId and add it to the rreturn value
+    // get order of customerId and add it to the return value
     if (!res) {
       const customer = new Customer();
       customer.sellerId = sellerId;

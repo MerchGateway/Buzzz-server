@@ -9,9 +9,10 @@
       },
       {
         "include": "./src/assets"
-      
+      },
+      {
+        "include": "mail/templates/**/*"
       }
-      
     ],
     "watchAssets": true
   }

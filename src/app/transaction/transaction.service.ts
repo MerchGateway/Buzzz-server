@@ -297,6 +297,7 @@ export class TransactionService {
         'wallet.user',
       ],
     });
+
     const product = await this.productService.handleGetAProduct(
       res[0].orders[0].product.id,
     );

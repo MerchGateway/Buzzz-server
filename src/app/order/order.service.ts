@@ -164,9 +164,7 @@ export class OrderService {
       qb.alias,
       this.orderRepository.metadata,
     );
-    qb.leftJoinAndSelect('order.user', 'user').where('user.id = :userId', {
-      userId: user.id,
-    });
+    qb.leftJoinAndSelect('order.user', 'user');
 
     return paginate<Order>(qb, { limit, page, route });
   }
