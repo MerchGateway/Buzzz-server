@@ -117,10 +117,14 @@ export class ProductService {
   async handleGetAProduct(id: string) {
     const product = await this.productRepository
       .createQueryBuilder('product')
+      .leftJoin('product.category', 'category')
+      .leftJoin('product.design', 'design')
       .leftJoin('product.seller', 'seller')
       .where('product.id = :id', { id })
       .select([
         'product',
+        'category',
+        'design',
         'seller.id',
         'seller.firstName',
         'seller.username',
