@@ -2,5 +2,12 @@
   "singleQuote": true,
   "trailingComma": "all",
   "endOfLine": "auto",
-  // "parser": "flow"
+  "overrides": [
+    {
+      "files": "*.hbs",
+      "options": {
+        "parser": "html"
+      }
+    }
+  ]
 }

@@ -1,6 +1,5 @@
 import {
   Injectable,
-  HttpException,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
@@ -37,6 +36,7 @@ import {
   PaystackEvent,
   TransferEventData,
 } from '../../types/paystack';
+import { MailService } from '../../mail/mail.service';
 
 @Injectable()
 export class TransactionService {
@@ -51,21 +51,24 @@ export class TransactionService {
     private readonly productService: ProductService,
     private readonly feeService: FeeService,
     private readonly configService: ConfigService,
+    private readonly mailService: MailService,
   ) {}
 
   public async createTransaction(
     reference: string,
-    user: User,
+    buyer: User,
     message: string,
   ) {
     //create order
     const orders: Order[] = await this.orderService.createOrder(
-      { shippingAddress: user.shippingAddress },
-      user,
+      { shippingAddress: buyer.shippingAddress },
+      buyer,
     );
 
-    const ownerOrders = orders.filter((order) => order.sellerId === user.id);
-    const resellerOrders = orders.filter((order) => order.sellerId !== user.id);
+    const ownerOrders = orders.filter((order) => order.sellerId === buyer.id);
+    const resellerOrders = orders.filter(
+      (order) => order.sellerId !== buyer.id,
+    );
 
     const totalOwnerCost = ownerOrders.reduce((acc, order) => {
       return acc + parseFloat(order.total.toString());
@@ -85,7 +88,7 @@ export class TransactionService {
       // create a hidden credit with the same amount for the buyer to enable debiting without encountering negative values
       const ownerCreditTransaction = this.transactionRepository.create({
         reference,
-        wallet: user.wallet,
+        wallet: buyer.wallet,
         message,
         orders,
         amount: totalOwnerCost,
@@ -97,7 +100,7 @@ export class TransactionService {
       // debit the buyer the same amount as the cost of the product and amount of hidden credit
       const ownerDebitTransaction = this.transactionRepository.create({
         reference,
-        wallet: user.wallet,
+        wallet: buyer.wallet,
         message,
         orders,
         amount: totalOwnerCost,
@@ -123,7 +126,7 @@ export class TransactionService {
       // create a hidden credit with the same amount for the buyer to enable debiting without encountering negative values
       const ownerCreditTransaction = this.transactionRepository.create({
         reference,
-        wallet: user.wallet,
+        wallet: buyer.wallet,
         message,
         orders,
         amount: totalResellerCost,
@@ -135,7 +138,7 @@ export class TransactionService {
       // debit the buyer the same amount as the cost of the product and amount of hidden credit
       const ownerDebitTransaction = this.transactionRepository.create({
         reference,
-        wallet: user.wallet,
+        wallet: buyer.wallet,
         message,
         orders,
         amount: totalResellerCost,
@@ -227,8 +230,6 @@ export class TransactionService {
       return;
     }
 
-    //verify transaction status
-
     if (status === PAYSTACK_SUCCESS_STATUS) {
       transactionsToVerify.forEach((transaction) => {
         transaction.currency = currency;
@@ -249,25 +250,61 @@ export class TransactionService {
 
           // get a random polymailer content
           const random = Math.floor(Math.random() * polymailerContents.length);
-          console.log(
-            random,
-            order.user.firstName.split(' ')[0],
-            order.product.seller.firstName.split(' ')[0],
-          );
 
           // set polymailer details
           order.polymailerDetails = {
-            to: order.user.firstName.split(' ')[0],
-            from: order.product.seller.firstName.split(' ')[0],
+            to: order.user.firstName,
+            from: order.product.seller.firstName,
             content: polymailerContents[0]
               ? polymailerContents[random].content
               : DEFAULT_POLY_MAILER_CONTENT,
           };
-          console.log(order);
 
           await order.save();
         }),
       );
+
+      // TODO: map through the orders and do this for all product in the order
+      const transactions = await this.transactionRepository.find({
+        where: { reference },
+        relations: [
+          'orders',
+          'orders.product',
+          'orders.product.seller',
+          'wallet',
+          'wallet.user',
+        ],
+      });
+
+      const product = await this.productService.handleGetAProduct(
+        transactions[0].orders[0].product.id,
+      );
+
+      const totalOrderQuantity = transactions[0].orders.reduce((acc, order) => {
+        return acc + order.quantity;
+      }, 0);
+
+      const notBuyingFromOneself =
+        product.seller.id !== transactions[0].wallet.user.id;
+
+      if (notBuyingFromOneself) {
+        // add user to customer list only if the buyer is not also the seller
+        await this.customerService.create(
+          product.seller.id,
+          transactions[0].wallet.user,
+        );
+
+        // send a confirmation mail to the seller only if the buyer is not also the seller
+        this.mailService.sendSellerOrderConfirmation(product.seller, {
+          ...transactions[0].orders[0],
+          quantity: totalOrderQuantity,
+        } as Order);
+      }
+
+      this.mailService.sendBuyerOrderConfirmation(transactions[0].wallet.user, {
+        ...transactions[0].orders[0],
+        quantity: totalOrderQuantity,
+      } as Order);
     } else {
       transactionsToVerify.forEach((transaction) => {
         transaction.currency = currency;
@@ -285,27 +322,6 @@ export class TransactionService {
     }
 
     await this.transactionRepository.save(transactionsToVerify);
-
-    // TODO: map through the orders and do this for all product in the order
-    const res = await this.transactionRepository.find({
-      where: { reference },
-      relations: [
-        'orders',
-        'orders.product',
-        'orders.product.seller',
-        'wallet',
-        'wallet.user',
-      ],
-    });
-
-    const product = await this.productService.handleGetAProduct(
-      res[0].orders[0].product.id,
-    );
-
-    // add user to customer list only if the buyer is not also the seller
-    if (product.seller.id !== res[0].wallet.user.id) {
-      await this.customerService.create(product.seller.id, res[0].wallet.user);
-    }
   }
 
   private async verifyWithdrawalTransaction(

@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { ContactUsDto } from '../app/contact/dto/contact.dto';
 import { OTP } from '../app/otp/entities/otp.entity';
 import { OTPReasonText } from '../types/otp';
+import { Order } from '../app/order/entities/order.entity';
 
 @Injectable()
 export class MailService {
@@ -67,6 +68,36 @@ export class MailService {
         otp: otp.code,
         name: user.firstName || user.username,
         email: user.email,
+      },
+    });
+  }
+
+  async sendBuyerOrderConfirmation(buyer: User, order: Order) {
+    await this.mailerService.sendMail({
+      from: `"Tonia from Buzzz💜" <${this.configService.get<string>(
+        'fromEmail',
+      )}>`,
+      to: buyer.email,
+      subject: 'Thanks for Your Order with Buzzz! 🐝',
+      template: './buyerOrderConfirmation',
+      context: {
+        name: buyer.firstName || buyer.username,
+        email: buyer.email,
+        orderId: order.id,
+        orderCount: order.quantity,
+      },
+    });
+  }
+
+  async sendSellerOrderConfirmation(seller: User, order: Order) {
+    await this.mailerService.sendMail({
+      to: seller.email,
+      subject: 'New Order Alert!',
+      template: './sellerOrderConfirmation',
+      context: {
+        name: seller.firstName || seller.username,
+        email: seller.email,
+        orderId: order.id,
       },
     });
   }

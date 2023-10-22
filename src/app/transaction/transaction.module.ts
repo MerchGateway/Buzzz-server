@@ -9,6 +9,7 @@ import { ProductModule } from '../product/product.module';
 import { CustomersModule } from '../customers/customers.module';
 import { PolymailerContent } from '../order/entities/polymailer-content.entity';
 import { FeeModule } from '../fee/fee.module';
+import { MailModule } from '../../mail/mail.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { FeeModule } from '../fee/fee.module';
     ProductModule,
     CustomersModule,
     FeeModule,
+    MailModule,
   ],
   controllers: [TransactionController],
   providers: [TransactionService],
