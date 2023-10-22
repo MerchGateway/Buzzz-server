@@ -115,18 +115,18 @@ export class ProductService {
     return paginate<Product>(qb, { limit, page, route });
   }
   async handleGetAProduct(id: string) {
-    const product = await this.productRepository.findOne({
-      where: { id },
-      relations: {
-        receipt: true,
-        seller: {
-          id: true,
-          firstName: true,
-          username: true,
-          email: true,
-        },
-      },
-    });
+    const product = await this.productRepository
+      .createQueryBuilder('product')
+      .leftJoin('product.seller', 'seller')
+      .where('product.id = :id', { id })
+      .select([
+        'product',
+        'seller.id',
+        'seller.firstName',
+        'seller.username',
+        'seller.email',
+      ])
+      .getOne();
 
     if (!product) {
       throw new NotFoundException('No product with this credential(s) found');
