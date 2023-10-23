@@ -22,5 +22,5 @@ export class Customer extends Timestamp {
 
   @ManyToMany(() => User)
   @JoinTable({ name: 'customer_user' })
-  user: User[];
+  users: User[];
 }

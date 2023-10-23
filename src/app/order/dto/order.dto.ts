@@ -6,8 +6,7 @@ export class CreateOrderDto {
     streetNumber: number;
     state: string;
     LGA: string;
-    nearestBusStop: string;
-    street: string;
+    address: string;
   };
 }
 export class UpdateOrderDto {
