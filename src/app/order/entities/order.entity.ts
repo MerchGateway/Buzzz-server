@@ -71,8 +71,7 @@ export class Order extends Timestamp {
       streetNumber: number;
       state: string;
       LGA: string;
-      street: string;
-      nearestBusStop: string;
+      address: string;
     };
   } | null;
 

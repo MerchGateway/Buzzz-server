@@ -76,8 +76,7 @@ export class User extends Timestamp {
     streetNumber: number;
     state: string;
     LGA: string;
-    nearestBusStop: string;
-    street: string;
+    address: string;
   } | null;
 
   @Column({ name: 'is_public', default: true })

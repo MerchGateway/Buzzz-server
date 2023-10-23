@@ -26,20 +26,29 @@ export class CustomersService {
   async create(sellerId: any, user: User): Promise<Customer | []> {
     await this.userRepository.findOne(sellerId);
 
-    const res = await this.customerRepository
-      .createQueryBuilder('findCustomer')
-      .where('seller_id = :sellerId', { sellerId })
-      // .andWhere('customer = :customer', { customer: user })
+    let customer: Customer;
+
+    customer = await this.customerRepository
+      .createQueryBuilder('customer')
+      .where('seller_id = :sellerId', {
+        sellerId,
+      })
+      .leftJoin('customer.users', 'users')
+      .where('users.id = :userId', {
+        userId: user.id,
+      })
+      .select(['customer', 'users.id'])
       .getOne();
+
     // get order of customerId and add it to the return value
-    if (!res) {
-      const customer = new Customer();
+    if (!customer) {
+      customer = new Customer();
       customer.sellerId = sellerId;
-      customer.user = [user];
-      return await this.customerRepository.save(customer);
+      customer.users = [user];
+      customer = await this.customerRepository.save(customer);
     }
 
-    return res;
+    return customer;
   }
 
   async findAll(userId: string): Promise<any> {
@@ -48,15 +57,15 @@ export class CustomersService {
         sellerId: userId,
       },
       relations: {
-        user: true,
+        users: true,
       },
     });
 
     const sort = async (customer: Customer) => {
-      const orders = await this.orderRepository.getOrders(customer.user[0]);
+      const orders = await this.orderRepository.getOrders(customer.users[0]);
       const data = {
         customer: customer,
-        order: orders,
+        orders: orders,
       };
       return data;
     };
@@ -71,12 +80,12 @@ export class CustomersService {
   async findAllCustomersAvailable(): Promise<any> {
     const res = await this.customerRepository.find({
       relations: {
-        user: true,
+        users: true,
       },
     });
 
     const sort = async (customer: Customer) => {
-      const orders = await this.orderRepository.getOrders(customer.user[0]);
+      const orders = await this.orderRepository.getOrders(customer.users[0]);
       const data = {
         customer: customer,
         order: orders,
@@ -96,7 +105,7 @@ export class CustomersService {
       const res = await this.customerRepository.findOne({
         where: { sellerId },
         relations: {
-          user: true,
+          users: true,
         },
       });
 
