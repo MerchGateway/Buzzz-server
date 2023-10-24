@@ -165,6 +165,7 @@ export class OrderService {
       this.orderRepository.metadata,
     );
     qb.leftJoinAndSelect('order.user', 'user');
+    qb.orderBy('order.created_at', 'DESC');
 
     return paginate<Order>(qb, { limit, page, route });
   }
@@ -247,7 +248,10 @@ export class OrderService {
         .where('orders.sellerId = :sellerId', { sellerId: userId })
         .andWhere('orders.status = :status', { status: Status.PAID })
         //get the total orders within the last month,
-        .andWhere(`orders.created_at BETWEEN ${lastMonth} AND ${presentMonth}`)
+        .andWhere('orders.created_at BETWEEN :startDate AND :endDate', {
+          startDate: lastMonth,
+          endDate: presentMonth,
+        })
         .getCount();
 
       const lastTwoMonthsOrder = await this.orderRepository
@@ -255,7 +259,10 @@ export class OrderService {
         .where('orders_.sellerId = :sellerId', { sellerId: userId })
         .andWhere('orders_.status = :status', { status: Status.PAID })
         // get the total orders within the last two months
-        .andWhere(`orders_.created_at BETWEEN ${twoMonths} AND ${lastMonth}`)
+        .andWhere('orders_.created_at BETWEEN :startDate AND :endDate', {
+          startDate: twoMonths,
+          endDate: lastMonth,
+        })
         .getCount();
 
       // compare the numbers, and show the percentage increase or decrease
