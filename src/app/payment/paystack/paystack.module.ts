@@ -14,7 +14,7 @@ import { TransactionModule } from 'src/app/transaction/transaction.module';
     ProductModule,
     CartModule,
     forwardRef(() => UsersModule),
-    TransactionModule,
+    forwardRef(() => TransactionModule),
   ],
   controllers: [PaystackBrokerController],
   providers: [PaystackBrokerService],

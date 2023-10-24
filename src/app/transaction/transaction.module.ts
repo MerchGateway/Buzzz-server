@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TransactionController } from './transaction.controller';
 import { TransactionService } from './transaction.service';
 import { Transaction } from './entities/transaction.entity';
@@ -10,6 +10,7 @@ import { CustomersModule } from '../customers/customers.module';
 import { PolymailerContent } from '../order/entities/polymailer-content.entity';
 import { FeeModule } from '../fee/fee.module';
 import { MailModule } from '../../mail/mail.module';
+import { PaystackBrokerModule } from '../payment/paystack/paystack.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { MailModule } from '../../mail/mail.module';
     CustomersModule,
     FeeModule,
     MailModule,
+    forwardRef(() => PaystackBrokerModule),
   ],
   controllers: [TransactionController],
   providers: [TransactionService],

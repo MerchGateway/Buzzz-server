@@ -23,7 +23,6 @@ import {
   TransactionCurrency,
   TransactionMethod,
 } from '../../types/transaction';
-import { AuthService } from '../auth/auth.service';
 import { SetPinDto } from './dto/set-pin.dto';
 import { UpdatePinDto } from './dto/update-pin.dto';
 import { ResolveAccountNumberDto } from './dto/resolve-account-number.dto';
@@ -45,8 +44,6 @@ export class WalletService {
     private transactionService: TransactionService,
     @Inject(forwardRef(() => PaystackBrokerService))
     private paystackBrokerService: PaystackBrokerService,
-    @Inject(forwardRef(() => AuthService))
-    private authService: AuthService,
     private feeService: FeeService,
     private otpService: OtpService,
     private mailService: MailService,

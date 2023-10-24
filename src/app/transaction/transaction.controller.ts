@@ -67,6 +67,11 @@ export class TransactionController {
     return this.transactionService.handleWebhook(req);
   }
 
+  @Get('/:id/revalidate')
+  private revalidateTransaction(@Param('id') id: string) {
+    return this.transactionService.revalidateTransaction(id);
+  }
+
   @Roles(Role.SUPER_ADMIN)
   @UseGuards(RolesGuard)
   @Delete(':reference')
