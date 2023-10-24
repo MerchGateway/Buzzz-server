@@ -2,6 +2,9 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Inject,
+  forwardRef,
+  HttpException,
 } from '@nestjs/common';
 import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -37,6 +40,7 @@ import {
   TransferEventData,
 } from '../../types/paystack';
 import { MailService } from '../../mail/mail.service';
+import { PaystackBrokerService } from '../payment/paystack/paystack.service';
 
 @Injectable()
 export class TransactionService {
@@ -52,6 +56,8 @@ export class TransactionService {
     private readonly feeService: FeeService,
     private readonly configService: ConfigService,
     private readonly mailService: MailService,
+    @Inject(forwardRef(() => PaystackBrokerService))
+    private readonly paystackBrokerService: PaystackBrokerService,
   ) {}
 
   public async createTransaction(
@@ -276,9 +282,7 @@ export class TransactionService {
         ],
       });
 
-      const product = await this.productService.handleGetAProduct(
-        transactions[0].orders[0].product.id,
-      );
+      const product = transactions[0].orders[0].product;
 
       const totalOrderQuantity = transactions[0].orders.reduce((acc, order) => {
         return acc + parseInt(order.quantity.toString());
@@ -443,8 +447,8 @@ export class TransactionService {
       .andWhere('transaction.method = :method', {
         method: TransactionMethod.CREDIT,
       })
-      .andWhere('transaction.status != :status', {
-        status: TransactionStatus.FAILED,
+      .andWhere('transaction.status = :status', {
+        status: TransactionStatus.SUCCESS,
       })
       .getRawOne();
 
@@ -455,8 +459,8 @@ export class TransactionService {
       .andWhere('transaction.method = :method', {
         method: TransactionMethod.DEBIT,
       })
-      .andWhere('transaction.status != :status', {
-        status: TransactionStatus.FAILED,
+      .andWhere('transaction.status = :status', {
+        status: TransactionStatus.SUCCESS,
       })
       .getRawOne();
 
@@ -466,7 +470,7 @@ export class TransactionService {
     return availableBalance;
   }
 
-  async handleWebhook(req: Request) {
+  handleWebhook(req: Request) {
     const paystackSecretKey = this.configService.get<string>('paystack.secret');
 
     const hash = crypto
@@ -480,17 +484,97 @@ export class TransactionService {
 
     switch (req.body.event) {
       case PaystackEvent.CHARGE_SUCCESS:
-        await this.verifyPaymentTransaction(req.body.data);
+        this.verifyPaymentTransaction(req.body.data);
         break;
       case PaystackEvent.TRANSFER_SUCCESS:
       case PaystackEvent.TRANSFER_FAILED:
       case PaystackEvent.TRANSFER_REVERSED:
-        await this.verifyWithdrawalTransaction(req.body.data);
+        this.verifyWithdrawalTransaction(req.body.data);
         break;
       default:
+        this.verifyPaymentTransaction(req.body.data);
         break;
     }
 
     return new SuccessResponse({}, 'Webhook received successfully');
+  }
+
+  async revalidateTransaction(transactionId: string) {
+    let transaction = await this.transactionRepository.findOne({
+      where: { id: transactionId },
+      relations: [
+        'orders',
+        'orders.user',
+        'orders.product',
+        'orders.product.seller',
+      ],
+    });
+
+    if (!transaction) {
+      throw new NotFoundException(
+        `Transaction with id ${transactionId} does not exist`,
+      );
+    }
+
+    try {
+      const data = await this.paystackBrokerService.verifyTransaction(
+        transaction.reference,
+      );
+
+      if (data.status === PAYSTACK_SUCCESS_STATUS) {
+        transaction.status = TransactionStatus.SUCCESS;
+        transaction.amount = parseFloat((data.amount / 100).toFixed(2));
+        transaction.currency = data.currency;
+        transaction.message = 'Transaction successful';
+
+        await Promise.all(
+          transaction.orders.map(async (order) => {
+            // await order.updateStatus(orderStatus.PAID);
+
+            // fetch polymailerContents
+            const polymailerContents: PolymailerContent[] =
+              await this.polyMailerContentRepository.find();
+
+            // get a random polymailer content
+            const random = Math.floor(
+              Math.random() * polymailerContents.length,
+            );
+
+            // set polymailer details
+            order.polymailerDetails = {
+              to: order.user.firstName,
+              from: order.product.seller.firstName,
+              content: polymailerContents[0]
+                ? polymailerContents[random].content
+                : DEFAULT_POLY_MAILER_CONTENT,
+            };
+
+            await order.save();
+          }),
+        );
+      } else {
+        transaction.status = TransactionStatus.FAILED;
+        transaction.message = data.message || 'Transaction verification failed';
+
+        await Promise.all(
+          transaction.orders.map(async (order) => {
+            await order.updateStatus(orderStatus.CANCELLED);
+            await order.save();
+          }),
+        );
+      }
+
+      transaction = await this.transactionRepository.save(transaction);
+    } catch (error) {
+      throw new HttpException(
+        error.response.data.message || error.message,
+        error.response.status,
+      );
+    }
+
+    return new SuccessResponse(
+      transaction,
+      'Transaction revalidated successfully',
+    );
   }
 }

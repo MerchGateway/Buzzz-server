@@ -77,6 +77,7 @@ export class DesignService {
       throw new HttpException(err.message, err.status);
     }
   }
+
   async sortAssets(design: Design, payload: any) {
     // save updated assets
     try {
@@ -103,12 +104,9 @@ export class DesignService {
         }
       }
       design.designData = payload;
-      console.log(design);
       design = await this.designRepository.save(design);
-      console.log(design);
       return design;
     } catch (error) {
-      console.log(error);
       throw new WsException(error.message);
     }
   }
@@ -309,5 +307,16 @@ export class DesignService {
     PolymailerContent[] | undefined
   > {
     return await this.polyMailerContentRepository.find();
+  }
+
+  async attachDesignToUser(user: User, designId: string) {
+    const design = await this.fetchSingleDesign(designId);
+    design.user = user;
+    await design.save();
+
+    return new SuccessResponse(
+      design,
+      `Design with id ${designId} attached to user ${user.id}`,
+    );
   }
 }

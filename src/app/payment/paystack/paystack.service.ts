@@ -17,6 +17,7 @@ import connection from 'src/app/payment/paystack/utils/connection';
 import { CartService } from 'src/app/cart/cart.service';
 import { TransactionService } from 'src/app/transaction/transaction.service';
 import { Cart } from 'src/app/cart/entities/cart.entity';
+import { TransactionCurrency } from '../../../types/transaction';
 
 envConfig();
 
@@ -28,7 +29,6 @@ export class PaystackBrokerService {
     @InjectRepository(PaymentReceipt)
     private readonly paymentRepository: Repository<PaymentReceipt>,
     private readonly cartService: CartService,
-
     private readonly transactionService: TransactionService,
   ) {
     this.axiosConnection = connection();
@@ -137,6 +137,20 @@ export class PaystackBrokerService {
     });
   }
 
+  public async verifyTransaction(reference: string) {
+    const response = await this.axiosConnection.get(
+      `/transaction/verify/${reference}`,
+    );
+    const data = response.data.data;
+
+    return {
+      status: data.status as string,
+      amount: data.amount as number,
+      currency: data.currency as TransactionCurrency,
+      message: data.message as string,
+    };
+  }
+
   private async handleGetPayRecord(id: string) {
     const record = await this.paymentRepository.findOne({ where: { id } });
     if (!record) {
@@ -159,31 +173,27 @@ export class PaystackBrokerService {
   }
 
   public async handleRemovePaymentRecord(recordId: string) {
-    try {
-      const record = await this.handleGetPayRecord(recordId);
-      await this.paymentRepository.delete(recordId);
-      return record;
-    } catch (err) {
-      throw err;
-    }
+    const record = await this.handleGetPayRecord(recordId);
+
+    await this.paymentRepository.delete(recordId);
+
+    return record;
   }
 
   public async handleGetARecord(id: string) {
-    try {
-      const record = await this.paymentRepository.findOne({
-        where: {
-          id,
-        },
-        relations: {
-          product: true,
-        },
-      });
-      if (!record) {
-        throw new NotFoundException('no record found');
-      }
-      return record;
-    } catch (err) {
-      throw err;
+    const record = await this.paymentRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        product: true,
+      },
+    });
+
+    if (!record) {
+      throw new NotFoundException('no record found');
     }
+
+    return record;
   }
 }

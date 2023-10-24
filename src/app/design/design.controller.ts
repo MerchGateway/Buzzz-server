@@ -146,4 +146,12 @@ export class DesignController {
       category_id,
     );
   }
+
+  @Post(':id/attach-to-user')
+  attachDesignToUser(
+    @CurrentUser() user: User,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.designService.attachDesignToUser(user, id);
+  }
 }
