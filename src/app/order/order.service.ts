@@ -231,47 +231,43 @@ export class OrderService {
   }
 
   public async orderAnalytics(userId: string): Promise<OrderAnalyticsT> {
-    try {
-      const date = new Date();
-      const day = date.getDate();
-      const month: number = date.getMonth();
-      const year = date.getFullYear();
+    const date = new Date();
+    const day = date.getDate();
+    const month: number = date.getMonth();
+    const year = date.getFullYear();
 
-      // month is indexed at 0
-      const presentMonth = year + '-' + (month + 1) + '-' + day;
-      const lastMonth = year + '-' + month + '-' + day;
-      const twoMonths = year + '-' + (month - 1) + '-' + day;
+    // month is indexed at 0
+    const presentMonth = year + '-' + (month + 1) + '-' + day;
+    const lastMonth = year + '-' + month + '-' + day;
+    const twoMonths = year + '-' + (month - 1) + '-' + day;
 
-      //Query the number of all orders with status paid
-      const thisMonthOrder = await this.orderRepository
-        .createQueryBuilder('orders')
-        .where('orders.sellerId = :sellerId', { sellerId: userId })
-        .andWhere('orders.status = :status', { status: Status.PAID })
-        //get the total orders within the last month,
-        .andWhere('orders.created_at BETWEEN :startDate AND :endDate', {
-          startDate: lastMonth,
-          endDate: presentMonth,
-        })
-        .getCount();
+    //Query the number of all orders with status paid
+    const thisMonthOrder = await this.orderRepository
+      .createQueryBuilder('order')
+      .where('order.sellerId = :sellerId', { sellerId: userId })
+      .andWhere('order.user_id != :userId', { userId })
+      .andWhere('order.status = :status', { status: Status.PAID })
+      .andWhere('order.created_at BETWEEN :startDate AND :endDate', {
+        startDate: lastMonth,
+        endDate: presentMonth,
+      })
+      .getCount();
 
-      const lastTwoMonthsOrder = await this.orderRepository
-        .createQueryBuilder('orders_')
-        .where('orders_.sellerId = :sellerId', { sellerId: userId })
-        .andWhere('orders_.status = :status', { status: Status.PAID })
-        // get the total orders within the last two months
-        .andWhere('orders_.created_at BETWEEN :startDate AND :endDate', {
-          startDate: twoMonths,
-          endDate: lastMonth,
-        })
-        .getCount();
+    const lastTwoMonthsOrder = await this.orderRepository
+      .createQueryBuilder('order')
+      .where('order.sellerId = :sellerId', { sellerId: userId })
+      .andWhere('order.user_id != :userId', { userId })
+      .andWhere('order.status = :status', { status: Status.PAID })
+      .andWhere('order.created_at BETWEEN :startDate AND :endDate', {
+        startDate: twoMonths,
+        endDate: lastMonth,
+      })
+      .getCount();
 
-      // compare the numbers, and show the percentage increase or decrease
-      return {
-        thisMonthOrder,
-        lastTwoMonthsOrder,
-      };
-    } catch (err: any) {
-      throw new HttpException(err.message, err.status);
-    }
+    // compare the numbers, and show the percentage increase or decrease
+    return {
+      thisMonthOrder,
+      lastTwoMonthsOrder,
+    };
   }
 }
