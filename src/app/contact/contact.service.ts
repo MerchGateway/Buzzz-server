@@ -17,7 +17,6 @@ export class ContactService {
     contactUsDto: ContactUsDto,
   ): Promise<Contact | undefined> {
     await this.mailService.sendContactUs(contactUsDto);
-
     const message = this.contactRepository.create({
       email: contactUsDto.email,
       message: contactUsDto.message,

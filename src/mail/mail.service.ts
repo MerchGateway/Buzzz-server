@@ -33,7 +33,6 @@ export class MailService {
 
   async sendContactUs(contactUsDto: ContactUsDto) {
     await this.mailerService.sendMail({
-      from: contactUsDto.email,
       to: this.configService.get<string>('fromEmail'),
       subject: 'Contact Message',
       template: './contactUs',
