@@ -127,6 +127,7 @@ export class ProductService {
         'design',
         'seller.id',
         'seller.firstName',
+        'seller.lastName',
         'seller.username',
         'seller.email',
       ])
