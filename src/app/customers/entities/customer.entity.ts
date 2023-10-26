@@ -4,8 +4,8 @@ import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
-  ManyToMany,
-  JoinTable,
+  JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 import { Timestamp } from '../../../database/timestamp.entity';
 
@@ -14,13 +14,14 @@ export class Customer extends Timestamp {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'seller_id' })
-  sellerId: string;
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'seller_id' })
+  seller: User;
 
   @Column({ type: 'enum', enum: Status, default: Status.ENABLED })
   status: Status;
 
-  @ManyToMany(() => User)
-  @JoinTable({ name: 'customer_user' })
-  users: User[];
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'buyer_id' })
+  buyer: User;
 }

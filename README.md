@@ -71,7 +71,7 @@ $ yarn docker:start
 Migrations are not manually written, instead we leverage typeorm's migration generator which checks the state of our database and generates a migration file to cover all changes made to the entities within the source code.
 
 ```
-$ yarn typeorm migration:generate -d ./src/database/ormconfig.ts ./src/database/migrations/<NAME-OF-MIGRATION>
+$ yarn typeorm migration:generate -d ./src/database/ormconfig.ts ./src/database/migrations/<NameOfMigration>
 ```
 
 ### Running Migrations
