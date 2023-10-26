@@ -60,9 +60,7 @@ export class CustomersController {
   @Roles(Role.SUPER_ADMIN)
   @UseGuards(RolesGuard)
   @Delete('/:sellerId')
-  private deleteCustomer(
-    @Param('sellerId', ParseUUIDPipe) sellerId: string,
-  ) {
+  private deleteCustomer(@Param('sellerId', ParseUUIDPipe) sellerId: string) {
     return this.customersService.deleteCustomer(sellerId);
   }
   //TODO: search or filter by sex, country(should be done on the frontend though)

@@ -163,6 +163,7 @@ export class OrderService {
       qb.alias,
       this.orderRepository.metadata,
     );
+    qb.where('order.user_id = :userId', { userId: user.id });
     qb.leftJoinAndSelect('order.user', 'user');
     qb.orderBy('order.created_at', 'DESC');
 
