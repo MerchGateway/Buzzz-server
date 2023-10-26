@@ -128,16 +128,17 @@ export class PaystackBrokerService {
     reason: string,
     reference: string,
   ) {
-    return this.axiosConnection.post('/transfer', {
+    const response = await this.axiosConnection.post('/transfer', {
       source: 'balance',
       amount,
       recipient,
       reason,
       reference,
     });
+    return (await response.data.data.transfer_code) as string;
   }
 
-  public async verifyTransaction(reference: string) {
+  public async verifyPaymentTransaction(reference: string) {
     const response = await this.axiosConnection.get(
       `/transaction/verify/${reference}`,
     );
@@ -148,6 +149,20 @@ export class PaystackBrokerService {
       amount: data.amount as number,
       currency: data.currency as TransactionCurrency,
       message: data.message as string,
+    };
+  }
+
+  public async verifyWithdrawalTransaction(reference: string) {
+    const response = await this.axiosConnection.get(
+      `/transfer/verify/${reference}`,
+    );
+    const data = response.data.data;
+
+    return {
+      status: data.status as string,
+      amount: data.amount as number,
+      currency: data.currency as TransactionCurrency,
+      message: '',
     };
   }
 

@@ -4,7 +4,6 @@ import {
   ManyToOne,
   JoinColumn,
   PrimaryGeneratedColumn,
-  OneToMany,
   ManyToMany,
 } from 'typeorm';
 import {
@@ -79,4 +78,7 @@ export class Transaction extends Timestamp {
 
   @Column({ name: 'is_hidden', default: false })
   isHidden: boolean;
+
+  @Column({ name: 'transfer_code', nullable: true })
+  transferCode: string | null;
 }

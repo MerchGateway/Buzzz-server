@@ -230,9 +230,11 @@ export class WalletService {
       recipient: recipientCode,
     };
 
+    let transferCode: string;
+
     try {
       const amountInKobo = transferReferenceDetails.amount * 100;
-      await this.paystackBrokerService.initiateTransfer(
+      transferCode = await this.paystackBrokerService.initiateTransfer(
         amountInKobo,
         transferReferenceDetails.recipient,
         transferReferenceDetails.reason,
@@ -256,6 +258,7 @@ export class WalletService {
       fee,
       feeAmount: withdrawFromWalletDto.amount,
       reference: transferReferenceDetails.reference,
+      transferCode,
     });
     await transaction.save();
 
