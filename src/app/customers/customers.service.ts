@@ -1,6 +1,6 @@
 import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { Customer } from './entities/customer.entity';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
@@ -23,7 +23,7 @@ export class CustomersService {
     private readonly orderRepository: OrderService,
   ) {}
 
-  async create(sellerId: string, buyer: User): Promise<Customer | []> {
+  async create(sellerId: string, buyer: User) {
     await this.usersService.findOne(sellerId);
 
     let customer = await this.customerRepository.findOne({
@@ -34,9 +34,10 @@ export class CustomersService {
     });
 
     if (!customer) {
-      customer = new Customer();
-      customer.seller = { id: sellerId } as unknown as User;
-      customer.buyer = buyer;
+      customer = this.customerRepository.create({
+        seller: { id: sellerId },
+        buyer: buyer,
+      });
       customer = await this.customerRepository.save(customer);
     }
 
