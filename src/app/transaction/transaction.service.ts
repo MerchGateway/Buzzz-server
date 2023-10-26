@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsUtils, Repository } from 'typeorm';
+import { FindOptionsUtils, Not, Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { Status as orderStatus } from '../../types/order';
 import { User } from '../users/entities/user.entity';
