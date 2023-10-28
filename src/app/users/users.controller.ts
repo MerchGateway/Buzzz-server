@@ -28,7 +28,6 @@ export class UsersController {
 
   @Get()
   findAll(@Query() query: FindOptionsWhere<User>) {
-    console.log(query);
     return this.usersService.findAll(query);
   }
 

@@ -6,9 +6,14 @@ import { User } from './entities/user.entity';
 import { WalletModule } from '../wallet/wallet.module';
 import { UsernameGenerator } from 'src/providers/usernameGenerator.provider';
 import { USERNAME_GENERATOR } from 'src/constant';
+import { MailModule } from '../../mail/mail.module';
 
 @Module({
-  imports: [forwardRef(() => WalletModule), TypeOrmModule.forFeature([User])],
+  imports: [
+    forwardRef(() => WalletModule),
+    TypeOrmModule.forFeature([User]),
+    MailModule,
+  ],
   controllers: [UsersController],
   providers: [
     UsersService,

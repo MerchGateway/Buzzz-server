@@ -68,7 +68,6 @@ export class Order extends Timestamp {
   shippingDetails: {
     shippingFee: number;
     shippingAddress: {
-      streetNumber: number;
       state: string;
       LGA: string;
       address: string;

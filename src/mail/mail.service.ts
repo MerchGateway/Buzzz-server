@@ -100,4 +100,21 @@ export class MailService {
       },
     });
   }
+
+  async sendEmailVerification(user: User, verificationToken: string) {
+    const url = `${this.configService.get<string>(
+      'clientUrl',
+    )}/auth/verify-email?token=${verificationToken}`;
+
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Verify Email',
+      template: './verifyEmail',
+      context: {
+        url,
+        name: user.firstName || user.username,
+        email: user.email,
+      },
+    });
+  }
 }

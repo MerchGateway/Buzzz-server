@@ -21,6 +21,7 @@ import { Product } from 'src/app/product/entities/product.entity';
 import { ForbiddenException } from '@nestjs/common';
 import { generateFromEmail } from 'unique-username-generator';
 import { Timestamp } from '../../../database/timestamp.entity';
+import { CapitalizeTransformer } from '../../../utils/transformers/capitalize';
 
 @Entity()
 export class User extends Timestamp {
@@ -47,10 +48,20 @@ export class User extends Timestamp {
   @Column({ unique: true })
   email: string;
 
-  @Column({ name: 'first_name', nullable: true, default: '' })
+  @Column({
+    name: 'first_name',
+    nullable: true,
+    default: '',
+    transformer: new CapitalizeTransformer(),
+  })
   firstName: string | null;
 
-  @Column({ name: 'last_name', nullable: true, default: '' })
+  @Column({
+    name: 'last_name',
+    nullable: true,
+    default: '',
+    transformer: new CapitalizeTransformer(),
+  })
   lastName: string | null;
 
   @Column({ select: false, nullable: true })
@@ -73,7 +84,6 @@ export class User extends Timestamp {
 
   @Column({ nullable: true, type: 'simple-json', name: 'shipping_address' })
   shippingAddress: {
-    streetNumber: number;
     state: string;
     LGA: string;
     address: string;
@@ -153,6 +163,20 @@ export class User extends Timestamp {
 
   @OneToMany(() => Product, (product) => product.seller)
   products: Product[];
+
+  @Column({
+    name: 'email_verification_token',
+    nullable: true,
+    unique: true,
+    select: false,
+  })
+  emailVerificationToken: string | null;
+
+  @Column({ name: 'email_verified', default: false })
+  emailVerified: boolean;
+
+  @Column({ name: 'socket_id', nullable: true, select: false })
+  socketId: string | null;
 
   hasPin?: boolean;
 
