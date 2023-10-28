@@ -17,4 +17,6 @@ export class CreateUserDto {
   identityProvider?: IdentityProvider;
 
   identityProviderId?: string;
+
+  emailVerified?: boolean;
 }

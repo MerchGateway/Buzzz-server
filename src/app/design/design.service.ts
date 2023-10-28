@@ -236,6 +236,13 @@ export class DesignService {
     category_id: string,
   ) {
     const design = await this.fetchMyDesign(id, user);
+
+    if (!user.emailVerified) {
+      throw new BadRequestException(
+        `Please verify your email to publish your designs`,
+      );
+    }
+
     if (design.published == true) {
       throw new ConflictException('Design already published');
     }

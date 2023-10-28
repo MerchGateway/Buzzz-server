@@ -312,8 +312,6 @@ export class AuthService {
     );
   }
 
-  // admin section
-
   async adminSignin(user: User) {
     const data = await this.postAdminSignin(user);
     return new SuccessResponse(data, 'Signin successful');
@@ -321,5 +319,38 @@ export class AuthService {
 
   findAuthUser(id: string) {
     return this.usersService.findOneProfile(id);
+  }
+
+  async sendEmailVerification(user: User) {
+    const emailVerificationToken =
+      await this.usersService.generateEmailVerificationToken();
+
+    await this.mailService.sendEmailVerification(user, emailVerificationToken);
+
+    await this.userRepository.update(user.id, {
+      emailVerificationToken,
+    });
+
+    return new SuccessResponse(
+      {},
+      'Email verification sent successfully. Please check your email',
+    );
+  }
+
+  async verifyEmail(verificationToken: string) {
+    const user = await this.userRepository.findOne({
+      where: { emailVerificationToken: verificationToken },
+    });
+
+    if (!user) {
+      throw new BadRequestException('Invalid verification token');
+    }
+
+    await this.userRepository.update(user.id, {
+      emailVerified: true,
+      emailVerificationToken: null,
+    });
+
+    return new SuccessResponse(null, 'Email verified successfully');
   }
 }

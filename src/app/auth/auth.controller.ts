@@ -22,6 +22,7 @@ import { TwitterOauthGuard } from './guards/twitter-oauth.guard';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { TwoFactorAuthService } from '../2fa/twoFactorAuth.service';
 import { TwoFactorJwtAuthGuard } from '../2fa/guard/twoFactor-jwt-auth-guard';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -117,5 +118,16 @@ export class AuthController {
   @Get('me')
   findAuthUser(@CurrentUser() user: User) {
     return this.authService.findAuthUser(user.id);
+  }
+
+  @Post('email/send-verification')
+  sendEmailVerification(@CurrentUser() user: User) {
+    return this.authService.sendEmailVerification(user);
+  }
+
+  @Public()
+  @Post('email/verify')
+  verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
+    return this.authService.verifyEmail(verifyEmailDto.token);
   }
 }

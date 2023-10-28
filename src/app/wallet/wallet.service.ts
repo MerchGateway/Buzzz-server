@@ -185,6 +185,12 @@ export class WalletService {
       .leftJoinAndSelect('user.wallet', 'wallet')
       .getOne();
 
+    if (!user.emailVerified) {
+      throw new BadRequestException(
+        'Please verify your email address first to withdraw your funds',
+      );
+    }
+
     const balance = await this.transactionService.getBalanceForWalletId(
       user.wallet.id,
     );

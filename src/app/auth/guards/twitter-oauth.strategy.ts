@@ -64,6 +64,7 @@ export class TwitterOauthStrategy extends PassportStrategy(
         firstName: name.givenName,
         lastName: name.familyName,
         email: emails[0].value,
+        emailVerified: true,
       });
     }
 

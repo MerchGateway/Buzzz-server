@@ -163,7 +163,7 @@ export class OrderService {
       qb.alias,
       this.orderRepository.metadata,
     );
-    qb.where('order.user_id = :userId', { userId: user.id });
+    qb.where('order.seller_id = :sellerId', { sellerId: user.id });
     qb.leftJoinAndSelect('order.user', 'user');
     qb.orderBy('order.created_at', 'DESC');
 
@@ -175,14 +175,6 @@ export class OrderService {
     { limit, page, route }: IPaginationOptions,
   ): Promise<Pagination<Order>> {
     try {
-      // const Orders = await this.orderRepository.find({
-      //   where: {
-      //     user: { id },
-      //     status: Status.PAID,
-      //   },
-      // });
-      // return Orders;
-
       const qb = this.orderRepository.createQueryBuilder('order');
       FindOptionsUtils.joinEagerRelations(
         qb,

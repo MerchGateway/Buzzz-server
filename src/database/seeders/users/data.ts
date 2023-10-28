@@ -1,8 +1,11 @@
-export const SUPER_ADMIN = {
+import { User } from '../../../app/users/entities/user.entity';
+
+export const SUPER_ADMIN: Partial<User> = {
   email: 'admin@gmail.com',
   password: 'admin123',
   firstName: 'Dev',
   lastName: 'admin',
+  emailVerified: true,
 };
 
 export const TEMPORARY_CATEGORIES = [
