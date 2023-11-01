@@ -10,6 +10,10 @@ export const getRedisConfiguration = (config: ConfigObject) => {
       host: parsedUrl.hostname,
       password: parsedUrl.password,
       port: Number(parsedUrl.port),
+      tls: {
+        rejectUnauthorized: false,
+        requestCert: true,
+      },
     };
   }
 
