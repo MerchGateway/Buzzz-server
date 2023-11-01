@@ -1,12 +1,12 @@
 import { User } from 'src/app/users/entities/user.entity';
 
-export enum Authtype {
-  GOOGLE = 'google',
-  INAPP = 'in-app',
+export enum AuthType {
+  GOOGLE = 'GOOGLE',
+  IN_APP = 'IN_APP',
 }
 export interface SecretResponse {
   secret: string;
-  otpauthUrl: string;
+  otpAuthUrl: string;
 }
 
 export interface AuthenticatorProvider {

@@ -9,25 +9,26 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DesignController } from './design.controller';
 import { ConfigService } from '@nestjs/config';
 import { AppGateway } from 'src/app.gateway';
-import { APP_GATEWAY,CLOUDINARY, JWT, EVENT_QUEUE } from 'src/constant';
+import { APP_GATEWAY, CLOUDINARY, JWT, EVENT_QUEUE } from 'src/constant';
 import { Jwt } from 'src/providers/jwt.provider';
 import { CloudinaryProvider } from 'src/providers/cloudinary.provider';
 import { JwtModule } from '@nestjs/jwt';
 import configuration from 'src/config/configuration';
 import { UsersModule } from '../users/users.module';
-import { PolyMailerContent } from '../order/entities/polymailer_content.entity';
+import { PolymailerContent } from '../order/entities/polymailer-content.entity';
 import { BullModule } from '@nestjs/bull';
 import { getRedisConfiguration } from 'src/config/redis-configuration';
+import { FeeModule } from '../fee/fee.module';
 @Module({
   imports: [
     BullModule.forRoot({
-      redis:getRedisConfiguration(configuration())
+      redis: getRedisConfiguration(configuration()),
     }),
     BullModule.registerQueue({
       name: EVENT_QUEUE,
     }),
     UsersModule,
-    TypeOrmModule.forFeature([Design, PolyMailerContent]),
+    TypeOrmModule.forFeature([Design, PolymailerContent]),
     JwtModule.register({
       secret: configuration().jwt.secret,
       signOptions: { expiresIn: configuration().jwt.expiresIn },
@@ -35,6 +36,7 @@ import { getRedisConfiguration } from 'src/config/redis-configuration';
     PaystackBrokerModule,
     ProductModule,
     CartModule,
+    FeeModule,
   ],
   providers: [
     DesignService,

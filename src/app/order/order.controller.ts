@@ -12,7 +12,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { BASE_URL } from '../../constant';
 import { ParseIntPipe } from '@nestjs/common';
 import { DefaultValuePipe } from '@nestjs/common';
 import { Pagination } from 'nestjs-typeorm-paginate';
@@ -24,10 +23,14 @@ import { User } from '../users/entities/user.entity';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/types/general';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { ConfigService } from '@nestjs/config';
 
-@Controller('order')
+@Controller('orders')
 export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(
+    private readonly orderService: OrderService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Post('')
   @HttpCode(HttpStatus.CREATED)
@@ -52,7 +55,6 @@ export class OrderController {
   @Delete('/:orderId')
   private deleteOrder(
     @Param('orderId', ParseUUIDPipe) orderId: string,
-    @CurrentUser() user: User,
   ): Promise<Order | undefined> {
     return this.orderService.deleteOrder(orderId);
   }
@@ -68,13 +70,12 @@ export class OrderController {
     return this.orderService.getAllOrders({
       page,
       limit,
-      route: `${BASE_URL}/order/all`,
+      route: `${this.configService.get<string>('appUrl')}/order/all`,
     });
   }
   @Get('/:orderId')
   private getOrder(
     @Param('orderId', ParseUUIDPipe) orderId: string,
-    @CurrentUser() user: User,
   ): Promise<Order | undefined> {
     return this.orderService.getOrder(orderId);
   }
@@ -84,12 +85,12 @@ export class OrderController {
     @CurrentUser() user: User,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
-  ): Promise<Pagination<Order>|Order[]> {
+  ): Promise<Pagination<Order> | Order[]> {
     limit = limit > 100 ? 100 : limit < 10 ? 10 : limit;
     return this.orderService.getOrders(user, {
       page,
       limit,
-      route: `${BASE_URL}/order/`,
+      route: `${this.configService.get<string>('appUrl')}/order/`,
     });
   }
 
@@ -105,7 +106,7 @@ export class OrderController {
     return this.orderService.getActiveOrders(id, {
       page,
       limit,
-      route: `${BASE_URL}/:userId/active`,
+      route: `${this.configService.get<string>('appUrl')}/:userId/active`,
     });
   }
 }

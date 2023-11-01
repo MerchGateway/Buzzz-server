@@ -1,5 +1,4 @@
-import { Module } from '@nestjs/common';
-// import { TypeOrmModule } from '@nestjs/typeorm';
+import { Module, forwardRef } from '@nestjs/common';
 import { PaystackBrokerService } from './paystack.service';
 import { PaystackBrokerController } from './paystack.controller';
 import { PaymentReceipt } from '../entities/payment.entity';
@@ -14,8 +13,8 @@ import { TransactionModule } from 'src/app/transaction/transaction.module';
     TypeOrmModule.forFeature([PaymentReceipt]),
     ProductModule,
     CartModule,
-    UsersModule,
-    TransactionModule,
+    forwardRef(() => UsersModule),
+    forwardRef(() => TransactionModule),
   ],
   controllers: [PaystackBrokerController],
   providers: [PaystackBrokerService],

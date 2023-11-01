@@ -1,11 +1,13 @@
-import { IsBoolean, IsEmail, IsObject, IsOptional, IsString } from 'class-validator';
-import { Authtype } from 'src/types/authenticator';
+import { IsEmail, IsString } from 'class-validator';
 export class SignupUserDto {
   @IsEmail()
   email: string;
 
   @IsString()
-  name: string;
+  firstName: string;
+
+  @IsString()
+  lastName: string;
 
   @IsString()
   password: string;

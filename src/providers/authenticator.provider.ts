@@ -1,5 +1,5 @@
 import { authenticator } from 'otplib';
-import { AuthenticatorProvider, SecretResponse } from 'src/types/authenticator';
+import { AuthenticatorProvider } from 'src/types/authenticator';
 
 import { User } from 'src/app/users/entities/user.entity';
 import { AUTH_APP_NAME } from 'src/constant';
@@ -10,23 +10,21 @@ export class Authenticator implements AuthenticatorProvider {
   async generateTwoFactorAuthenticationSecret(user: User) {
     const secret = authenticator.generateSecret();
 
-    const otpauthUrl = authenticator.keyuri(user.email, AUTH_APP_NAME, secret);
+    const otpAuthUrl = authenticator.keyuri(user.email, AUTH_APP_NAME, secret);
     return {
       secret,
-      otpauthUrl,
+      otpAuthUrl,
     };
   }
   verifyTwoFactorToken(token: string, secret: string) {
-    console.log(token,secret)
+    console.log(token, secret);
     return authenticator.verify({
       token,
       secret,
     });
   }
 
- generate(secret:string) {
-    return authenticator.generate(
-     secret
-  );
+  generate(secret: string) {
+    return authenticator.generate(secret);
   }
 }

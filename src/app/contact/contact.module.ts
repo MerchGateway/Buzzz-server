@@ -3,23 +3,12 @@ import { ContactController } from './contact.controller';
 import { ContactService } from './contact.service';
 import { Contact } from './entities/contact.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { EMAIL_PROVIDER } from '../../constant';
-import { ConfigService } from '@nestjs/config';
-import { NodemailerProvider } from '../../providers/nodemailer.provider';
+import { MailModule } from '../../mail/mail.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Contact])],
+  imports: [TypeOrmModule.forFeature([Contact]), MailModule],
   controllers: [ContactController],
-  providers: [
-    ContactService,
-    {
-      provide: EMAIL_PROVIDER,
-      useFactory: (configService: ConfigService) => {
-        return new NodemailerProvider(configService);
-      },
-      inject: [ConfigService],
-    },
-  ],
+  providers: [ContactService],
   exports: [ContactService],
 })
 export class ContactModule {}

@@ -8,7 +8,6 @@ import {
   HttpStatus,
   HttpCode,
   Body,
-  Patch,
   Put,
 } from '@nestjs/common';
 import { CurrentUser } from 'src/decorators/user.decorator';

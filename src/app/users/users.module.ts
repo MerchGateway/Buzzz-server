@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -8,7 +8,7 @@ import { UsernameGenerator } from 'src/providers/usernameGenerator.provider';
 import { USERNAME_GENERATOR } from 'src/constant';
 
 @Module({
-  imports: [WalletModule, TypeOrmModule.forFeature([User])],
+  imports: [forwardRef(() => WalletModule), TypeOrmModule.forFeature([User])],
   controllers: [UsersController],
   providers: [
     UsersService,

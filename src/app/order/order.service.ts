@@ -16,7 +16,6 @@ import { Order } from './entities/order.entity';
 import { User } from '../users/entities/user.entity';
 import { CartService } from '../cart/cart.service';
 import { Status } from 'src/types/order';
-import { PolyMailerContent } from './entities/polymailer_content.entity';
 
 interface OrderAnalyticsT {
   thisMonthOrder: number;
@@ -32,45 +31,60 @@ export class OrderService {
     private readonly cartService: CartService,
   ) {}
 
-  public async createOrder(
-    payload: CreateOrderDto,
-    user: User,
-  ): Promise<Order[] | undefined> {
-    try {
-      const userCartItems = await this.cartService.getCartItems(user);
+  public async createOrder(payload: CreateOrderDto, user: User) {
+    const userCartItems = await this.cartService.getCartItems(user);
 
-      // throw exception if there isnt any item in cart
-      if (!userCartItems[0]) {
-        throw new BadRequestException(
-          'Item{s} to create order for doesnt exist ',
-        );
-      }
-
-      const result: Order[] = await Promise.all(
-        userCartItems.map(async (cart) => {
-          const order = new Order();
-          order.user = user;
-          order.cart = cart;
-          order.sellerId = cart.product.sellerId;
-
-          if (payload.shipping_address !== null) {
-            order.shipping_details = {
-              shipping_fee: 0,
-              shipping_address: payload.shipping_address,
-            };
-          }
-
-          // // save cart items
-
-          return await this.orderRepository.save(order);
-          // return await connection.manager.save(order);
-        }),
+    // throw exception if there isn't any item in cart
+    if (!userCartItems[0]) {
+      throw new BadRequestException(
+        'Item{s} to create order for does not exist ',
       );
-
-      return result;
-    } catch (err: any) {
-      throw new HttpException(err.message, err.status);
     }
+
+    let result: Order[] = await Promise.all(
+      userCartItems.map(async (cart) => {
+        const order = new Order();
+        order.user = user;
+        order.cart = cart;
+        order.sellerId = cart.product.seller.id;
+        order.product = cart.product;
+
+        if (payload.shippingAddress !== null) {
+          order.shippingDetails = {
+            shippingFee: 0,
+            shippingAddress: payload.shippingAddress,
+          };
+        }
+
+        // save cart items
+        return await this.orderRepository.save(order);
+      }),
+    );
+
+    const orderIds = result.map((order) => order.id);
+
+    // order.total
+    // order.sellerId
+    // order.product
+    // order.product.seller
+    // order.product.seller.wallet
+    result = await this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.product', 'product')
+      .leftJoinAndSelect('product.seller', 'seller')
+      .leftJoinAndSelect('seller.wallet', 'wallet')
+      .where('order.id IN (:...orderIds)', { orderIds })
+      .select([
+        'order.id',
+        'order.total',
+        'order.sellerId',
+        'product.id',
+        'seller.id',
+        'wallet.id',
+      ])
+      .getMany();
+
+    return result;
   }
 
   public async deleteOrder(orderId: string): Promise<Order | undefined> {
@@ -118,8 +132,8 @@ export class OrderService {
       // const Orders = await this.orderRepository.find();
       // return Orders;
 
-          const qb = this.orderRepository.createQueryBuilder('order');
-       FindOptionsUtils.joinEagerRelations(
+      const qb = this.orderRepository.createQueryBuilder('order');
+      FindOptionsUtils.joinEagerRelations(
         qb,
         qb.alias,
         this.orderRepository.metadata,
@@ -134,30 +148,25 @@ export class OrderService {
     user: User,
     pagination?: IPaginationOptions,
   ): Promise<Pagination<Order> | Order[]> {
-    try {
-      if (!pagination) {
-        const Orders = await this.orderRepository.find({
-          where: {
-            user: { id: user.id },
-          },
-        });
-        return Orders;
-      }
-      const { limit, page, route } = pagination;
-      const qb = this.orderRepository.createQueryBuilder('order');
-      FindOptionsUtils.joinEagerRelations(
-        qb,
-        qb.alias,
-        this.orderRepository.metadata,
-      );
-      qb.leftJoinAndSelect('order.user', 'user').where('user.id=:user', {
-        user: user.id,
+    if (!pagination) {
+      const Orders = await this.orderRepository.find({
+        where: {
+          user: { id: user.id },
+        },
       });
-
-      return paginate<Order>(qb, { limit, page, route });
-    } catch (err: any) {
-      throw new HttpException(err.message, err.status);
+      return Orders;
     }
+    const { limit, page, route } = pagination;
+    const qb = this.orderRepository.createQueryBuilder('order');
+    FindOptionsUtils.joinEagerRelations(
+      qb,
+      qb.alias,
+      this.orderRepository.metadata,
+    );
+    qb.leftJoinAndSelect('order.user', 'user');
+    qb.orderBy('order.created_at', 'DESC');
+
+    return paginate<Order>(qb, { limit, page, route });
   }
 
   public async getActiveOrders(
@@ -221,41 +230,43 @@ export class OrderService {
   }
 
   public async orderAnalytics(userId: string): Promise<OrderAnalyticsT> {
-    try {
-      const date = new Date();
-      const day = date.getDate();
-      const month: number = date.getMonth();
-      const year = date.getFullYear();
+    const date = new Date();
+    const day = date.getDate();
+    const month: number = date.getMonth();
+    const year = date.getFullYear();
 
-      // month is indexed at 0
-      const presentMonth = year + '-' + (month + 1) + '-' + day;
-      const lastMonth = year + '-' + month + '-' + day;
-      const twoMonths = year + '-' + (month - 1) + '-' + day;
+    // month is indexed at 0
+    const presentMonth = year + '-' + (month + 1) + '-' + day;
+    const lastMonth = year + '-' + month + '-' + day;
+    const twoMonths = year + '-' + (month - 1) + '-' + day;
 
-      //Query the number of all orders with status paid
-      const thisMonthOrder = await this.orderRepository
-        .createQueryBuilder('orders')
-        .where('orders.sellerId = :sellerId', { sellerId: userId })
-        .andWhere('orders.status = :status', { status: Status.PAID })
-        //get the total orders within the last month,
-        .andWhere(`orders.created_at BETWEEN ${lastMonth} AND ${presentMonth}`)
-        .getCount();
+    //Query the number of all orders with status paid
+    const thisMonthOrder = await this.orderRepository
+      .createQueryBuilder('order')
+      .where('order.sellerId = :sellerId', { sellerId: userId })
+      .andWhere('order.user_id != :userId', { userId })
+      .andWhere('order.status = :status', { status: Status.PAID })
+      .andWhere('order.created_at BETWEEN :startDate AND :endDate', {
+        startDate: lastMonth,
+        endDate: presentMonth,
+      })
+      .getCount();
 
-      const lastTwoMonthsOrder = await this.orderRepository
-        .createQueryBuilder('orders_')
-        .where('orders_.sellerId = :sellerId', { sellerId: userId })
-        .andWhere('orders_.status = :status', { status: Status.PAID })
-        // get the total orders within the last two months
-        .andWhere(`orders_.created_at BETWEEN ${twoMonths} AND ${lastMonth}`)
-        .getCount();
+    const lastTwoMonthsOrder = await this.orderRepository
+      .createQueryBuilder('order')
+      .where('order.sellerId = :sellerId', { sellerId: userId })
+      .andWhere('order.user_id != :userId', { userId })
+      .andWhere('order.status = :status', { status: Status.PAID })
+      .andWhere('order.created_at BETWEEN :startDate AND :endDate', {
+        startDate: twoMonths,
+        endDate: lastMonth,
+      })
+      .getCount();
 
-      // compare the numbers, and show the percentage increase or decrease
-      return {
-        thisMonthOrder,
-        lastTwoMonthsOrder,
-      };
-    } catch (err: any) {
-      throw new HttpException(err.message, err.status);
-    }
+    // compare the numbers, and show the percentage increase or decrease
+    return {
+      thisMonthOrder,
+      lastTwoMonthsOrder,
+    };
   }
 }

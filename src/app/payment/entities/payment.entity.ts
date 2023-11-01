@@ -1,23 +1,22 @@
-import { Product } from 'src/app/product/product.entity';
+import { Product } from 'src/app/product/entities/product.entity';
 import {
-  BaseEntity,
   Entity,
   Column,
-  CreateDateColumn,
   PrimaryGeneratedColumn,
   JoinColumn,
   Unique,
   OneToMany,
 } from 'typeorm';
+import { Timestamp } from '../../../database/timestamp.entity';
 
 @Entity()
 @Unique(['reference'])
-export class PaymentReceipt extends BaseEntity {
+export class PaymentReceipt extends Timestamp {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  user_id: string;
+  @Column({ name: 'user_id' })
+  userId: string;
 
   @OneToMany(() => Product, (product) => product.receipt)
   @JoinColumn()
@@ -32,20 +31,6 @@ export class PaymentReceipt extends BaseEntity {
   @Column()
   broker: string;
 
-  @Column()
-  payment_status: string;
-
-  @CreateDateColumn()
-  created_at: Date;
+  @Column({ name: 'payment_status' })
+  paymentStatus: string;
 }
-
-// export enum PaymentStatus {
-//   'FAILED',
-//   'SUCCESS',
-// }
-
-// export enum Broker {
-//   'Paystack',
-//   'Flutterwave',
-//   'Kuda',
-// }

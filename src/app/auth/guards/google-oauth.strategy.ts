@@ -1,6 +1,6 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy } from 'passport-google-oauth20';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/app/users/users.service';
 import { IdentityProvider } from '../../../types/user';
@@ -13,12 +13,11 @@ export class GoogleOauthStrategy extends PassportStrategy(Strategy, 'google') {
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
   ) {
-    
     super({
       clientID: configService.get<string>('oauth.googleClientId'),
       clientSecret: configService.get<string>('oauth.googleClientSecret'),
       callbackURL:
-        configService.get<string>('appUrl') + 'v1/auth/google/redirect',
+        configService.get<string>('clientUrl') + '/auth/login/social-redirect',
       scope: ['email', 'profile'],
     });
   }
@@ -30,6 +29,25 @@ export class GoogleOauthStrategy extends PassportStrategy(Strategy, 'google') {
   ) {
     const { id, name, emails } = profile;
 
+    const existingNonGoogleProviderUser = await this.authService.findOneUser(
+      {
+        email: emails[0].value,
+      },
+      {
+        id: true,
+        identityProvider: true,
+      },
+    );
+
+    if (
+      existingNonGoogleProviderUser &&
+      existingNonGoogleProviderUser.identityProvider !== IdentityProvider.GOOGLE
+    ) {
+      throw new BadRequestException(
+        'You cannot sign in with your Google account because an account with this email address already exists',
+      );
+    }
+
     let user = await this.authService.findOauthUser(
       IdentityProvider.GOOGLE,
       id,
@@ -39,7 +57,8 @@ export class GoogleOauthStrategy extends PassportStrategy(Strategy, 'google') {
       user = await this.usersService.create({
         identityProvider: IdentityProvider.GOOGLE,
         identityProviderId: id,
-        name: name.givenName,
+        firstName: name.givenName,
+        lastName: name.familyName,
         email: emails[0].value,
       });
     }

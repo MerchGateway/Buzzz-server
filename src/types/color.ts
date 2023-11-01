@@ -7,11 +7,8 @@ export enum Color {
   BLACK = 'Black',
   GREY = 'Grey',
   BROWN = 'Brown',
-  PINK='Pink',
-  PURPLE='Purple',
-  ASH='Ash',
-  FFFFFF="#ffffff",
-  
-  
-  
+  PINK = 'Pink',
+  PURPLE = 'Purple',
+  ASH = 'Ash',
+  FFFFFF = '#ffffff',
 }

@@ -49,7 +49,6 @@ export class AdminService {
     }
   }
   async createLogisticPartner(data: CreateLogisticsPartnerDto) {
-  
     try {
       const logisticsPartner = this.logisticsPartnerRepository.create(data);
 
@@ -278,7 +277,7 @@ export class AdminService {
         email: data.email,
         role: Role.LOGISTIC_ADMIN,
         password: data.password,
-        logistics_partner: isLogisticsPartner,
+        logisticsPartner: isLogisticsPartner,
       });
 
       return await this.userRepository.save(logisticsAdmin);
@@ -297,7 +296,7 @@ export class AdminService {
         email: data.email,
         role: Role.PRINTING_ADMIN,
         password: data.password,
-        printing_partner: isPrintingPartner,
+        printingPartner: isPrintingPartner,
       });
 
       return await this.userRepository.save(printingsAdmin);
@@ -386,7 +385,7 @@ export class AdminService {
           });
 
           if (isOrderPaid) {
-            isOrderPaid.printing_partner = printingPartner;
+            isOrderPaid.printingPartner = printingPartner;
             return await this.orderRepository.save(isOrderPaid);
           }
         }),
@@ -426,7 +425,7 @@ export class AdminService {
           });
           console.log(isOrderPrinted);
           if (isOrderPrinted) {
-            isOrderPrinted.logistics_partner = logisticsPartner;
+            isOrderPrinted.logisticsPartner = logisticsPartner;
             return await this.orderRepository.save(isOrderPrinted);
           }
         }),

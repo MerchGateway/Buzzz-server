@@ -15,7 +15,7 @@ export class UpdateUserDto {
   @IsString()
   @IsOptional()
   name: string;
-  
+
   @IsString()
   @IsOptional()
   username: string;
@@ -34,12 +34,11 @@ export class UpdateUserDto {
 
   @IsObject()
   @IsOptional()
-  shipping_address: {
-    street_number: number;
+  shippingAddress: {
+    streetNumber: number;
     state: string;
     LGA: string;
-    Nearest_bustop: string;
-    street: string;
+    address: string;
   };
 
   @IsBoolean()

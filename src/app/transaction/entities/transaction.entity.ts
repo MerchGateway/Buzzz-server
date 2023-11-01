@@ -1,70 +1,82 @@
 import {
   Entity,
   Column,
-  BaseEntity,
-  CreateDateColumn,
   ManyToOne,
   JoinColumn,
-  UpdateDateColumn,
   PrimaryGeneratedColumn,
   OneToMany,
-  // TableColumn,
+  ManyToMany,
 } from 'typeorm';
-
-import { User } from '../../users/entities/user.entity';
-
-import connection from 'src/app/payment/paystack/utils/connection';
-import { Status } from 'src/types/transaction';
+import {
+  TransactionChannel,
+  TransactionCurrency,
+  TransactionMethod,
+  TransactionStatus,
+} from 'src/types/transaction';
 import { Order } from 'src/app/order/entities/order.entity';
+import { Wallet } from '../../wallet/entities/wallet.entity';
 
-@Entity('transaction')
-export class Transaction extends BaseEntity {
-
-  constructor() {
-    super();
-    
-  }
-
+import { Timestamp } from '../../../database/timestamp.entity';
+import { Fee } from '../../fee/entities/fee.entity';
+import { DecimalTransformer } from '../../../utils/transformers/decimal';
+@Entity()
+export class Transaction extends Timestamp {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User, {
-    cascade: true,
-  })
-  @JoinColumn({ name: 'client_id' })
-  user: User;
+  @ManyToOne(() => Wallet, (wallet) => wallet.transactions)
+  @JoinColumn({ name: 'wallet_id' })
+  wallet: Wallet;
 
-  @Column({ type: 'varchar', unique: true })
+  @Column()
   reference: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  fee: string;
-
-  @Column({ type: 'numeric', nullable: true })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    transformer: new DecimalTransformer(),
+  })
   amount: number;
 
-  @Column({ type: 'varchar', nullable: true })
-  currency: string;
+  @Column({ type: 'enum', enum: TransactionCurrency, nullable: true })
+  currency: TransactionCurrency | null;
 
-  @Column({ type: 'varchar', nullable: true })
-  message: string;
+  @Column({ nullable: true })
+  message: string | null;
 
-  @Column({ type: 'enum', enum: Status, default: Status.PENDING })
-  status: string;
-
-  @OneToMany(() => Order, (order) => order.transaction, { eager: true })
-  orders: Order[];
-
-  @CreateDateColumn()
-  created_at: Date;
+  @Column({ type: 'enum', enum: TransactionMethod })
+  method: TransactionMethod;
 
   @Column({
     type: 'enum',
-    enum: ['card', 'bank', 'ussd', 'qr', 'mobile_money', 'bank_transfer'],
+    enum: TransactionStatus,
+    default: TransactionStatus.PENDING,
   })
-  channel: string;
+  status: TransactionStatus;
 
-  @UpdateDateColumn()
-  updated_at: Date;
+  @ManyToMany(() => Order, (order) => order.transactions)
+  orders: Order[];
 
+  @Column({
+    type: 'enum',
+    enum: TransactionChannel,
+  })
+  channel: TransactionChannel;
+
+  @ManyToOne(() => Fee)
+  @JoinColumn({ name: 'fee_id' })
+  fee: Fee;
+
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    default: 0,
+    transformer: new DecimalTransformer(),
+  })
+  feeAmount: number;
+
+  @Column({ name: 'is_hidden', default: false })
+  isHidden: boolean;
 }

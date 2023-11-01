@@ -1,28 +1,18 @@
-import {
-  CreateDateColumn,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
-import { WalletTransaction } from '../../wallet-transactions/entities/wallet-transaction.entity';
+import { Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+import { Transaction } from '../../transaction/entities/transaction.entity';
+import { Timestamp } from '../../../database/timestamp.entity';
 
 @Entity()
-export class Wallet {
+export class Wallet extends Timestamp {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToMany(
-    () => WalletTransaction,
-    (walletTransaction) => walletTransaction.wallet,
-  )
-  transactions: WalletTransaction[];
+  @OneToOne(() => User, (user) => user.wallet)
+  user: User;
+
+  @OneToMany(() => Transaction, (transaction) => transaction.wallet)
+  transactions: Transaction[];
 
   balance?: number;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }

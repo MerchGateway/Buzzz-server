@@ -1,18 +1,10 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import {
-  Injectable,
-  HttpException,
-  NotFoundException,
-  Inject,
-  forwardRef,
-} from '@nestjs/common';
+import { Injectable, HttpException, NotFoundException } from '@nestjs/common';
 import { Cart } from './entities/cart.entity';
 import { User } from '../users/entities/user.entity';
 import { CreateCartDto, UpdateCartDto } from '../cart/dto/cart.dto';
 import { ProductService } from '../product/product.service';
-import { Product } from '../product/product.entity';
-
 @Injectable()
 export class CartService {
   constructor(
@@ -26,34 +18,32 @@ export class CartService {
     cartDto: CreateCartDto,
     user: User,
   ): Promise<Cart | undefined> {
-    try {
-      const productItem = await this.product.handleGetAProduct(cartDto.product);
+    const productItem = await this.product.handleGetAProduct(cartDto.product);
 
-      if (!productItem) {
-        throw new NotFoundException(
-          `Product  with id ${cartDto.product} does not exist`,
-        );
-      }
-      const isCart = await this.checkIfCartExist(cartDto.product);
+    if (!productItem) {
+      throw new NotFoundException(
+        `Product  with id ${cartDto.product} does not exist`,
+      );
+    }
 
-      if (isCart) {
-        isCart.quantity += cartDto.quantity;
-        return await this.cartRepository.save(isCart);
-      } else {
-        const cartItem = this.cartRepository.create({
-          owner: user,
-          quantity: cartDto.quantity,
-          product: productItem,
-          size: cartDto?.size,
-          color:cartDto?.color
-        });
+    const isCart = await this.checkIfCartExist(user.id, cartDto.product);
 
-        return await this.cartRepository.save(cartItem);
-      }
-    } catch (err: any) {
-      throw new HttpException(err.message, err.status);
+    if (isCart) {
+      isCart.quantity += cartDto.quantity;
+      return await this.cartRepository.save(isCart);
+    } else {
+      const cartItem = this.cartRepository.create({
+        user: user,
+        quantity: cartDto.quantity,
+        product: productItem,
+        size: cartDto?.size,
+        color: cartDto?.color,
+      });
+
+      return await this.cartRepository.save(cartItem);
     }
   }
+
   public async createMultipleCartItem(
     cartDto: CreateCartDto[],
     user: User,
@@ -71,17 +61,18 @@ export class CartService {
             );
           }
 
-          const isCart = await this.checkIfCartExist(cart.product);
+          const isCart = await this.checkIfCartExist(user.id, cart.product);
+
           if (isCart) {
             isCart.quantity += cart.quantity;
             return await this.cartRepository.save(isCart);
           } else {
             const cartItem = this.cartRepository.create({
-              owner: user,
+              user: user,
               quantity: cart.quantity,
               product: productItem,
               size: cart?.size,
-              color:cart?.color
+              color: cart?.color,
             });
 
             return await this.cartRepository.save(cartItem);
@@ -94,12 +85,13 @@ export class CartService {
     }
   }
 
-  private async checkIfCartExist(product: string) {
-    // search if cart item exists already and update if it does
-    //  fetch new instance of the just updated cart item
+  private async checkIfCartExist(userId: string, productId: string) {
+    // search if cart item exists already for the specific user and update if it does
+    // fetch new instance of the just updated cart item
     return await this.cartRepository.findOne({
       where: {
-        product: { id: product },
+        user: { id: userId },
+        product: { id: productId },
       },
       relations: { product: true },
     });
@@ -115,22 +107,18 @@ export class CartService {
       // update quantity if it exists
       cartItem.quantity = cartDto.quantity;
       cartDto.size && (cartItem.size = cartDto.size);
-      
+
       return await this.cartRepository.save(cartItem);
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
   }
   public async getCartItems(user: User): Promise<Cart[] | undefined> {
-    try {
-      const cartItems = await this.cartRepository.find({
-        where: { owner: { id: user.id } },
-        relations: { product: true },
-      });
-      return cartItems;
-    } catch (err: any) {
-      throw new HttpException(err.message, err.status);
-    }
+    const cartItems = await this.cartRepository.find({
+      where: { user: { id: user.id } },
+      relations: { product: true },
+    });
+    return cartItems;
   }
 
   public async getSingleCartItem(cartId: string): Promise<Cart | undefined> {

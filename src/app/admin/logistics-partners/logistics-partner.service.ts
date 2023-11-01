@@ -41,7 +41,7 @@ export class LogisticsPartnerService {
         .addSelect('quantity')
         .addSelect('status')
         .where('logistics_partner.id=:logistics_partner', {
-          logistics_partner: userWithLogisticsRelation.logistics_partner.id,
+          logistics_partner: userWithLogisticsRelation.logisticsPartner.id,
         })
         .getRawMany();
       return orders;
@@ -72,12 +72,12 @@ export class LogisticsPartnerService {
       });
 
       if (
-        !order.logistics_partner ||
-        order.logistics_partner.id !==
-          userWithLogisticsRelation.logistics_partner.id
+        !order.logisticsPartner ||
+        order.logisticsPartner.id !==
+          userWithLogisticsRelation.logisticsPartner.id
       ) {
         throw new UnauthorizedException(
-          'This order hasnt been assigned to you',
+          'This order has not been assigned to you',
         );
       }
 
@@ -91,26 +91,26 @@ export class LogisticsPartnerService {
     try {
       const userWithPartner = await this.userRepository.findOne({
         where: { id: user.id },
-        relations: { logistics_partner: true },
+        relations: { logisticsPartner: true },
       });
       const order = await this.orderRepository.findOne({
         where: {
           id,
-          logistics_partner: { id: userWithPartner.logistics_partner.id },
+          logisticsPartner: { id: userWithPartner.logisticsPartner.id },
         },
-        relations: { logistics_partner: true },
+        relations: { logisticsPartner: true },
       });
 
       if (!order) {
         throw new NotFoundException(
-          ` order with id ${id} does  not  exist or isnt asigned to you`,
+          `order with id ${id} does  not  exist or is not assigned to you`,
         );
       }
       return {
         status: order.status,
         thumbnail: order.product.thumbnail,
         quantity: order.quantity,
-        shipping_details: order.shipping_details,
+        shipping_details: order.shippingDetails,
       };
     } catch (err) {
       throw new HttpException(err.message, err.status);

@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  Inject,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsUtils, Repository } from 'typeorm';
 import {
@@ -11,8 +6,8 @@ import {
   Pagination,
   IPaginationOptions,
 } from 'nestjs-typeorm-paginate';
-import { CreateProductDto, EditProductDto } from './product.dto';
-import { Product } from './product.entity';
+import { CreateProductDto, EditProductDto } from './dto/product.dto';
+import { Product } from './entities/product.entity';
 import { User } from '../users/entities/user.entity';
 import { CloudinaryProvider } from 'src/providers/cloudinary.provider';
 import { CLOUDINARY } from 'src/constant';
@@ -31,21 +26,21 @@ export class ProductService {
     body: CreateProductDto,
     user: User,
   ): Promise<Product> {
-    let image: UploadApiResponse;
-
-    image = await this.imageStorage.uploadPhoto(body.thumbnail, {
+    const image = (await this.imageStorage.uploadPhoto(body.thumbnail, {
       asset_folder: user.username,
       public_id_prefix: 'thumbnail',
-    });
+    })) as UploadApiResponse;
+
     const product: Product = new Product();
     product.name = body.name;
     product.price = body.price;
-    product.categoryId = body.categoryId;
+    product.category = body.categoryId as any;
     product.seller = user;
-    product.sellerId = user.id;
+    product.isPublic = body.isPublic;
+    product.seller = user.id as any;
     product.description = body.description;
     product.thumbnail = {
-      public_id: image.public_id,
+      publicId: image.public_id,
       url: image.secure_url,
     };
     return this.productRepository.save(product);
@@ -61,7 +56,7 @@ export class ProductService {
         .set({
           name: body.name,
           price: body.price,
-          categoryId: body.categoryId,
+          category: { id: body.categoryId },
           description: body.description,
         })
         .execute();
@@ -75,7 +70,7 @@ export class ProductService {
     await this.productRepository
       .createQueryBuilder('addPayrecord')
       .update()
-      .where('id= :id', { id: id })
+      .where('id = :id', { id: id })
       .set({
         receiptId,
         purchased: true,
@@ -99,35 +94,50 @@ export class ProductService {
     { limit, page, route }: IPaginationOptions,
     searchQuery: any,
   ) {
-    const searchResult = this.productRepository
-      .createQueryBuilder('product')
-      .where(
-        'product.name = :name OR product.price = :price OR product.sellerId= :sellerId OR seller.username= :username ',
-        {
-          name: searchQuery?.name,
-          price: searchQuery?.price,
-          sellerId: searchQuery?.sellerId,
-          username: searchQuery?.username,
-        },
-      );
+    const qb = this.productRepository.createQueryBuilder('product');
+    FindOptionsUtils.joinEagerRelations(
+      qb,
+      qb.alias,
+      this.productRepository.metadata,
+    );
+    qb.leftJoin('product.seller', 'seller');
+    qb.where(
+      'product.name = :name OR product.price = :price OR product.seller_id = :sellerId OR seller.username = :username',
+      {
+        name: searchQuery?.name,
+        price: searchQuery?.price,
+        sellerId: searchQuery?.sellerId,
+        username: searchQuery?.username,
+      },
+    );
+    qb.orderBy('product.createdAt', 'DESC');
 
-    return paginate<Product>(searchResult, { limit, page, route });
+    return paginate<Product>(qb, { limit, page, route });
   }
   async handleGetAProduct(id: string) {
-    try {
-      const product = await this.productRepository.findOne({
-        where: { id },
-        relations: {
-          receipt: true,
-        },
-      });
-      if (!product) {
-        throw new NotFoundException('No product with this credentail(s) found');
-      }
-      return product;
-    } catch (err) {
-      throw err;
+    const product = await this.productRepository
+      .createQueryBuilder('product')
+      .leftJoin('product.category', 'category')
+      .leftJoin('product.design', 'design')
+      .leftJoin('product.seller', 'seller')
+      .where('product.id = :id', { id })
+      .select([
+        'product',
+        'category',
+        'design',
+        'seller.id',
+        'seller.firstName',
+        'seller.lastName',
+        'seller.username',
+        'seller.email',
+      ])
+      .getOne();
+
+    if (!product) {
+      throw new NotFoundException('No product with this credential(s) found');
     }
+
+    return product;
   }
 
   async handleGetAllProducts(
@@ -139,6 +149,7 @@ export class ProductService {
       qb.alias,
       this.productRepository.metadata,
     );
+    qb.where('p.isPublic = :isPublic', { isPublic: true });
     qb.orderBy('p.createdAt', 'DESC');
 
     return paginate<Product>(qb, options);

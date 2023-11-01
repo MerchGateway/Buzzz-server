@@ -5,7 +5,6 @@ import { Customer } from './entities/customer.entity';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
 import { OrderService } from '../order/order.service';
-import { Order } from '../order/entities/order.entity';
 import { Status } from 'src/types/status';
 import { SuccessResponse } from 'src/utils/response';
 
@@ -15,37 +14,41 @@ interface customerAnalyticsT {
   lastTwoMonthsCustomers: number;
 }
 
-interface CustomerParams {
-  customer: Customer | [];
-  order: Order[] | [];
-}
-
 @Injectable()
 export class CustomersService {
   constructor(
     @InjectRepository(Customer)
     private readonly customerRepository: Repository<Customer>,
-
     private readonly userRepository: UsersService,
     private readonly orderRepository: OrderService,
   ) {}
+
   async create(sellerId: any, user: User): Promise<Customer | []> {
     await this.userRepository.findOne(sellerId);
 
-    const res = await this.customerRepository
-      .createQueryBuilder('findCustomer')
-      .where('sellerId = :sellerId', { sellerId })
-      // .andWhere('customer = :customer', { customer: user })
+    let customer: Customer;
+
+    customer = await this.customerRepository
+      .createQueryBuilder('customer')
+      .where('seller_id = :sellerId', {
+        sellerId,
+      })
+      .leftJoin('customer.users', 'users')
+      .where('users.id = :userId', {
+        userId: user.id,
+      })
+      .select(['customer', 'users.id'])
       .getOne();
-    // get order of customerId and add it to the rreturn value
-    if (!res) {
-      const customer = new Customer();
+
+    // get order of customerId and add it to the return value
+    if (!customer) {
+      customer = new Customer();
       customer.sellerId = sellerId;
-      customer.customer = [user];
-      return await this.customerRepository.save(customer);
+      customer.users = [user];
+      customer = await this.customerRepository.save(customer);
     }
 
-    return res;
+    return customer;
   }
 
   async findAll(userId: string): Promise<any> {
@@ -54,15 +57,15 @@ export class CustomersService {
         sellerId: userId,
       },
       relations: {
-        customer: true,
+        users: true,
       },
     });
 
     const sort = async (customer: Customer) => {
-      const orders = await this.orderRepository.getOrders(customer.customer[0]);
+      const orders = await this.orderRepository.getOrders(customer.users[0]);
       const data = {
         customer: customer,
-        order: orders,
+        orders: orders,
       };
       return data;
     };
@@ -77,12 +80,12 @@ export class CustomersService {
   async findAllCustomersAvailable(): Promise<any> {
     const res = await this.customerRepository.find({
       relations: {
-        customer: true,
+        users: true,
       },
     });
 
     const sort = async (customer: Customer) => {
-      const orders = await this.orderRepository.getOrders(customer.customer[0]);
+      const orders = await this.orderRepository.getOrders(customer.users[0]);
       const data = {
         customer: customer,
         order: orders,
@@ -94,19 +97,15 @@ export class CustomersService {
       return Promise.all(res?.map((h) => sort(h)));
     };
 
-    
     return caller();
   }
 
-  public async toggleStatus(
-    Status: Status,
-    sellerId: string,
-  ): Promise<any> {
+  public async toggleStatus(Status: Status, sellerId: string): Promise<any> {
     try {
       const res = await this.customerRepository.findOne({
         where: { sellerId },
         relations: {
-          customer: true,
+          users: true,
         },
       });
 

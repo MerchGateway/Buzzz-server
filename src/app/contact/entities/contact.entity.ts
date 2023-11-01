@@ -1,14 +1,8 @@
-import {
-  BaseEntity,
-  Entity,
-  CreateDateColumn,
-  UpdateDateColumn,
-  Column,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Timestamp } from '../../../database/timestamp.entity';
 
-@Entity('contact_us')
-export class Contact extends BaseEntity {
+@Entity()
+export class Contact extends Timestamp {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -17,12 +11,6 @@ export class Contact extends BaseEntity {
   })
   email: string;
 
-  @Column({name:'message'})
+  @Column()
   message: string;
-
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
 }

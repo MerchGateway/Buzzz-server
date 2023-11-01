@@ -6,7 +6,6 @@ import {
   HttpCode,
   Get,
   Patch,
-  Res,
   Query,
   HttpStatus,
 } from '@nestjs/common';
@@ -15,7 +14,6 @@ import { CurrentUser } from '../../decorators/user.decorator';
 import { User } from 'src/app/users/entities/user.entity';
 import { AuthService } from './auth.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { LocalSigninDto } from './dto/local-signin.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
 import { GoogleOauthGuard } from './guards/google-oauth.guard';
@@ -32,22 +30,19 @@ export class AuthController {
     private readonly twoFactorAuthService: TwoFactorAuthService,
   ) {}
 
-  
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('signin')
   @HttpCode(200)
-  signin(@CurrentUser() user: User,@Query("designId") designId:string) {
-    return this.authService.signin(user,designId);
+  signin(@CurrentUser() user: User, @Query('designId') designId: string) {
+    return this.authService.signin(user, designId);
   }
 
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('admin-signin')
   @HttpCode(200)
-  superAdminSignin(
-    @CurrentUser() user: User,
-  ) {
+  superAdminSignin(@CurrentUser() user: User) {
     return this.authService.adminSignin(user);
   }
 
@@ -61,31 +56,42 @@ export class AuthController {
   @Public()
   @UseGuards(GoogleOauthGuard)
   @Get('/signin/google')
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   googleOauthSignin() {}
 
   @Public()
   @UseGuards(GoogleOauthGuard)
   @Get('/signin/google/redirect')
-  googleOauthRedirect(@CurrentUser() user: User) {
-    return this.authService.postSignin(user);
+  googleOauthRedirect(
+    @CurrentUser() user: User,
+    @Query('designId') designId: string,
+  ) {
+    return this.authService.socialSignin(user, designId);
   }
 
   @Public()
   @UseGuards(TwitterOauthGuard)
   @Get('/signin/twitter')
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   twitterOauthSignin() {}
 
   @Public()
   @UseGuards(TwitterOauthGuard)
   @Get('/signin/twitter/redirect')
-  twitterOauthRedirect(@CurrentUser() user: User) {
-    return this.authService.postSignin(user);
+  twitterOauthRedirect(
+    @CurrentUser() user: User,
+    @Query('designId') designId: string,
+  ) {
+    return this.authService.socialSignin(user, designId);
   }
 
   @Public()
   @Post('signup')
-  signup(@Body() signupUserDto: SignupUserDto) {
-    return this.authService.signup(signupUserDto);
+  signup(
+    @Body() signupUserDto: SignupUserDto,
+    @Query('designId') designId: string,
+  ) {
+    return this.authService.signup(signupUserDto, designId);
   }
 
   @Public()
@@ -106,5 +112,10 @@ export class AuthController {
     @Body() updatePasswordDto: UpdatePasswordDto,
   ) {
     return this.authService.updatePassword(user, updatePasswordDto);
+  }
+
+  @Get('me')
+  findAuthUser(@CurrentUser() user: User) {
+    return this.authService.findAuthUser(user.id);
   }
 }

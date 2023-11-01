@@ -3,31 +3,24 @@ import { User } from 'src/app/users/entities/user.entity';
 import {
   BeforeInsert,
   Column,
-  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
+import { Timestamp } from '../../../database/timestamp.entity';
 
 @Entity()
-export class PasswordReset {
+export class PasswordReset extends Timestamp {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })
-  user: User
+  user: User;
 
   @Column()
   token: string;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
 
   @BeforeInsert()
   private generateToken() {

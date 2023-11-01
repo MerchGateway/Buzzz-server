@@ -12,9 +12,17 @@ export interface DatabaseConfig {
   entities: string;
   migrations: string;
   migrationsDir: string;
+  charset: string; // Set charset to utf8mb4
+  collation: string; // Set collation to utf8mb4_unicode_ci
 }
 
 export default () => ({
+  nodeEnv: process.env.NODE_ENV,
+  appUrl: process.env.APP_URL,
+  clientUrl: process.env.CLIENT_URL,
+  designClientUrl: process.env.DESIGN_CLIENT_URL,
+  debugClientUrl: process.env.DEBUG_CLIENT_URL,
+  debugDesignClientUrl: process.env.DEBUG_DESIGN_CLIENT_URL,
   port: parseInt(process.env.PORT, 10) || 5000,
   database: {
     connection: process.env.TYPEORM_CONNECTION,
@@ -24,10 +32,12 @@ export default () => ({
     name: process.env.TYPEORM_DATABASE,
     username: process.env.TYPEORM_USERNAME,
     password: process.env.TYPEORM_PASSWORD,
-    synchronize: process.env.TYPEORM_SYNCHRONIZE,
+    synchronize: JSON.parse(process.env.TYPEORM_SYNCHRONIZE) as boolean,
     entities: process.env.TYPEORM_ENTITIES,
     migrations: process.env.TYPEORM_MIGRATIONS,
     migrationsDir: process.env.TYPEORM_MIGRATIONS_DIR,
+    charset: 'utf8mb4',
+    collation: 'utf8mb4_unicode_ci',
   },
   jwt: {
     secret: process.env.JWT_SECRET,
@@ -45,6 +55,7 @@ export default () => ({
   },
   sendgridApiKey: process.env.SENDGRID_API_KEY,
   fromEmail: process.env.FROM_EMAIL,
+  fromName: process.env.FROM_NAME,
   broker: {
     paystackSecretKey: process.env.PAYSTACK_SECRET_KEY,
   },
@@ -68,8 +79,8 @@ export default () => ({
     cloudinary_url: process.env.CLOUDINARY_URL,
   },
   redis: {
-    port: parseInt(process.env.REDIS_PORT,10)||6379,
-    redis_url:process.env.REDIS_URL
+    port: parseInt(process.env.REDIS_PORT, 10) || 6379,
+    redis_url: process.env.REDIS_URL,
   },
 
   firebaseDatabaseUrl: process.env.FIREBASE_DATABASE_URL,
@@ -77,4 +88,5 @@ export default () => ({
   smtpPort: process.env.SMTP_PORT,
   smtpEmail: process.env.SMTP_EMAIL,
   smtpPassword: process.env.SMTP_PASSWORD,
+  passportSessionSecret: process.env.PASSPORT_SESSION_SECRET,
 });

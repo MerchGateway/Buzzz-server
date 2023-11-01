@@ -27,10 +27,10 @@ export class ContactController {
   ): Promise<Contact | undefined> {
     return this.contactService.sendMessage(payload);
   }
-  @Public()
+
   @Get('')
-  // @Roles(Role.ADMIN, Role.SUPER_ADMIN)
-  // @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @UseGuards(RolesGuard)
   private getAllmessages(): Promise<Contact[] | undefined> {
     return this.contactService.getAllMessages();
   }

@@ -1,27 +1,46 @@
-import { Injectable, HttpException, NotFoundException } from '@nestjs/common';
-import { CreateTransactionDto } from './dto/transaction.dto';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Inject,
+  forwardRef,
+  HttpException,
+} from '@nestjs/common';
 import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsUtils, MoreThanOrEqual, Repository } from 'typeorm';
+import { FindOptionsUtils, Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
-import connection from '../payment/paystack/utils/connection';
 import { Status as orderStatus } from '../../types/order';
 import { User } from '../users/entities/user.entity';
 import { OrderService } from '../order/order.service';
 import moment from 'moment';
 import { AxiosInstance } from 'axios';
 import {
-  DEFAULT_POLYMAILER_CONTENT,
-  PAYSTACK_SUCCESS_MESSAGE,
+  DEFAULT_POLY_MAILER_CONTENT,
+  PAYSTACK_SUCCESS_STATUS,
 } from '../../constant';
 import { Order } from '../order/entities/order.entity';
-import { PolyMailerContent } from '../order/entities/polymailer_content.entity';
-import { Status } from 'src/types/transaction';
+import { PolymailerContent } from '../order/entities/polymailer-content.entity';
+import {
+  TransactionChannel,
+  TransactionMethod,
+  TransactionStatus,
+} from 'src/types/transaction';
 import { CustomersService } from '../customers/customers.service';
 import { ProductService } from '../product/product.service';
 import { paginate } from 'nestjs-typeorm-paginate';
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import { FeeService } from '../fee/fee.service';
+import { Request } from 'express';
+import { SuccessResponse } from '../../utils/response';
+import * as crypto from 'crypto';
+import { ConfigService } from '@nestjs/config';
+import {
+  PaystackChargeEventData,
+  PaystackEvent,
+  TransferEventData,
+} from '../../types/paystack';
+import { MailService } from '../../mail/mail.service';
+import { PaystackBrokerService } from '../payment/paystack/paystack.service';
 
 @Injectable()
 export class TransactionService {
@@ -29,255 +48,338 @@ export class TransactionService {
   constructor(
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
-    @InjectRepository(PolyMailerContent)
-    private readonly polyMailerContentRepository: Repository<PolyMailerContent>,
+    @InjectRepository(PolymailerContent)
+    private readonly polyMailerContentRepository: Repository<PolymailerContent>,
     private readonly orderService: OrderService,
     private readonly customerService: CustomersService,
     private readonly productService: ProductService,
+    private readonly feeService: FeeService,
+    private readonly configService: ConfigService,
+    private readonly mailService: MailService,
+    @Inject(forwardRef(() => PaystackBrokerService))
+    private readonly paystackBrokerService: PaystackBrokerService,
   ) {}
 
   public async createTransaction(
     reference: string,
-    user: User,
+    buyer: User,
     message: string,
-  ): Promise<Transaction | undefined> {
-    try {
-      //create order
-      const orders: Order[] = await this.orderService.createOrder(
-        { shipping_address: user.shipping_address },
-        user,
-      );
-      const transaction = this.transactionRepository.create({
+  ) {
+    //create order
+    const orders: Order[] = await this.orderService.createOrder(
+      { shippingAddress: buyer.shippingAddress },
+      buyer,
+    );
+
+    const ownerOrders = orders.filter((order) => order.sellerId === buyer.id);
+    const resellerOrders = orders.filter(
+      (order) => order.sellerId !== buyer.id,
+    );
+
+    const totalOwnerCost = ownerOrders.reduce((acc, order) => {
+      return acc + parseFloat(order.total.toString());
+    }, 0);
+    const totalResellerCost = resellerOrders.reduce((acc, order) => {
+      return acc + parseFloat(order.total.toString());
+    }, 0);
+
+    const fee = await this.feeService.getLatest();
+
+    const totalFeeAmount = resellerOrders.length * fee.reseller;
+
+    const transactions: Transaction[] = [];
+
+    // buying your own product
+    if (ownerOrders.length > 0) {
+      // create a hidden credit with the same amount for the buyer to enable debiting without encountering negative values
+      const ownerCreditTransaction = this.transactionRepository.create({
         reference,
-        user,
+        wallet: buyer.wallet,
         message,
         orders,
+        amount: totalOwnerCost,
+        fee,
+        feeAmount: totalOwnerCost,
+        method: TransactionMethod.CREDIT,
+        isHidden: true,
       });
-
-      return await this.transactionRepository.save(transaction);
-    } catch (err: any) {
-      throw new HttpException(err.message, err.status);
+      // debit the buyer the same amount as the cost of the product and amount of hidden credit
+      const ownerDebitTransaction = this.transactionRepository.create({
+        reference,
+        wallet: buyer.wallet,
+        message,
+        orders,
+        amount: totalOwnerCost,
+        fee,
+        feeAmount: totalOwnerCost,
+        method: TransactionMethod.DEBIT,
+      });
+      transactions.push(ownerCreditTransaction, ownerDebitTransaction);
     }
+
+    if (resellerOrders.length > 0) {
+      // credit the owner of the product
+      const resellerCreditTransaction = this.transactionRepository.create({
+        reference,
+        wallet: resellerOrders[0].product.seller.wallet,
+        message,
+        orders,
+        amount: totalResellerCost,
+        fee,
+        feeAmount: totalFeeAmount,
+        method: TransactionMethod.CREDIT,
+      });
+      // create a hidden credit with the same amount for the buyer to enable debiting without encountering negative values
+      const ownerCreditTransaction = this.transactionRepository.create({
+        reference,
+        wallet: buyer.wallet,
+        message,
+        orders,
+        amount: totalResellerCost,
+        fee,
+        method: TransactionMethod.CREDIT,
+        feeAmount: totalResellerCost,
+        isHidden: true,
+      });
+      // debit the buyer the same amount as the cost of the product and amount of hidden credit
+      const ownerDebitTransaction = this.transactionRepository.create({
+        reference,
+        wallet: buyer.wallet,
+        message,
+        orders,
+        amount: totalResellerCost,
+        fee,
+        feeAmount: totalResellerCost,
+        method: TransactionMethod.DEBIT,
+      });
+      transactions.push(
+        resellerCreditTransaction,
+        ownerCreditTransaction,
+        ownerDebitTransaction,
+      );
+    }
+
+    return await this.transactionRepository.save(transactions);
   }
 
   public async getTransactionsForAuthUser(
     user: User,
     { limit, page, route }: IPaginationOptions,
   ): Promise<Pagination<Transaction>> {
-    try {
-      // const transactions = await this.transactionRepository.find({
-      //   where: {
-      //     user: { id: user.id },
-      //   },
-      // });
+    const qb = this.transactionRepository.createQueryBuilder('transaction');
+    FindOptionsUtils.joinEagerRelations(
+      qb,
+      qb.alias,
+      this.transactionRepository.metadata,
+    );
+    // select nested relations
+    qb.leftJoinAndSelect('transaction.wallet', 'wallet');
+    qb.leftJoinAndSelect('transaction.orders', 'orders');
+    qb.leftJoinAndSelect('orders.product', 'product');
+    qb.orderBy('transaction.created_at', 'DESC');
+    qb.where('transaction.wallet_id = :walletId', { walletId: user.wallet.id });
+    qb.andWhere('transaction.is_hidden = :isHidden', { isHidden: false });
 
-      const qb = this.transactionRepository.createQueryBuilder('transaction');
-      FindOptionsUtils.joinEagerRelations(
-        qb,
-        qb.alias,
-        this.transactionRepository.metadata,
-      );
-      qb.leftJoinAndSelect('transaction.user', 'user').where('user.id=:user', {
-        user: user.id,
-      });
-
-      return paginate<Transaction>(qb, { limit, page, route });
-    } catch (err: any) {
-      throw new HttpException(err.message, err.status);
-    }
+    return paginate<Transaction>(qb, { limit, page, route });
   }
   public async getTransactions({
     limit,
     page,
     route,
   }: IPaginationOptions): Promise<Pagination<Transaction>> {
-    try {
-      const qb = this.transactionRepository.createQueryBuilder('transaction');
-      FindOptionsUtils.joinEagerRelations(
-        qb,
-        qb.alias,
-        this.transactionRepository.metadata,
-      );
-      qb.leftJoinAndSelect('transaction.user', 'user');
-
-      // const transactions = await this.transactionRepository.find({
-      //   relations: ['user'],
-      // });
-      return paginate<Transaction>(qb, { limit, page, route });
-    } catch (err: any) {
-      throw new HttpException(err.message, err.status);
-    }
+    const qb = this.transactionRepository.createQueryBuilder('transaction');
+    FindOptionsUtils.joinEagerRelations(
+      qb,
+      qb.alias,
+      this.transactionRepository.metadata,
+    );
+    qb.leftJoinAndSelect('transaction.user', 'user');
+    qb.orderBy('transaction.created_at', 'DESC');
+    return paginate<Transaction>(qb, { limit, page, route });
   }
-  private async getATransaction(
-    transactionId: string,
-  ): Promise<Transaction | undefined> {
+
+  private async getATransaction(transactionId: string): Promise<Transaction> {
     const transaction = await this.transactionRepository.findOne({
       where: { id: transactionId },
-      relations: { user: true, orders: true },
+      // TODO: select only necessary fields
+      relations: { orders: true },
     });
 
     if (!transaction) {
       throw new NotFoundException(
-        `transaction with id ${transactionId} not found`,
+        `Transaction with id ${transactionId} not found`,
       );
     }
     return transaction;
   }
 
-  public async verifyTransaction(reference: string): Promise<string> {
-    let response: string;
+  private async verifyPaymentTransaction(
+    paystackEventData: PaystackChargeEventData,
+  ) {
+    const { reference, status, currency, channel, amount, message } =
+      paystackEventData;
 
-    // read files
-    // const transactionSuccess = readFileSync(
-    //   resolve(__dirname,'..','..','..','public/transaction-success.html'),
-    //   { encoding: 'utf-8' },
-    // );
-    // const transactionFail = readFileSync(
-    //   resolve(__dirname,'..','..','..','public/transaction-fail.html'),
-    //   { encoding: 'utf-8' },
-    // );
-    const transactionSuccess = resolve(
-      __dirname,
-      '..',
-      '..',
-      '..',
-      'public/transaction-success.html',
-    );
-    const transactionFail = resolve(
-      __dirname,
-      '..',
-      '..',
-      '..',
-      'public/transaction-fail.html',
-    );
-    // create connection instance of axios
-    this.axiosConnection = connection();
-    try {
-      const isTransaction = await this.transactionRepository.findOneBy({
-        reference,
+    const transactionsToVerify = await this.transactionRepository.find({
+      where: { reference },
+      relations: [
+        'orders',
+        'orders.user',
+        'orders.product',
+        'orders.product.seller',
+        'wallet',
+        'wallet.user',
+      ],
+    });
+
+    if (transactionsToVerify.length == 0) {
+      // don't throw error here to avoid paystack retrying the webhook
+      return;
+    }
+
+    if (status === PAYSTACK_SUCCESS_STATUS) {
+      transactionsToVerify.forEach((transaction) => {
+        transaction.currency = currency;
+        transaction.channel = channel.toUpperCase() as TransactionChannel;
+        transaction.amount = parseFloat((amount / 100).toFixed(2));
+        transaction.message = 'Transaction successful';
+        transaction.status = TransactionStatus.SUCCESS;
       });
 
-      if (!isTransaction) {
-        throw new NotFoundException(
-          `Transaction with reference ${reference} does not exist`,
-        );
+      // set the status of order to paid on successful payment verification
+      await Promise.all(
+        transactionsToVerify[0].orders.map(async (order) => {
+          await order.updateStatus(orderStatus.PAID);
+
+          // fetch polymailerContents
+          const polymailerContents: PolymailerContent[] =
+            await this.polyMailerContentRepository.find();
+
+          // get a random polymailer content
+          const random = Math.floor(Math.random() * polymailerContents.length);
+
+          // set polymailer details
+          order.polymailerDetails = {
+            to: order.user.firstName,
+            from: order.product.seller.firstName,
+            content: polymailerContents[0]
+              ? polymailerContents[random].content
+              : DEFAULT_POLY_MAILER_CONTENT,
+          };
+
+          await order.save();
+        }),
+      );
+
+      // TODO: map through the orders and do this for all product in the order
+      const transactions = await this.transactionRepository.find({
+        where: { reference },
+        relations: [
+          'orders',
+          'orders.product',
+          'orders.product.seller',
+          'wallet',
+          'wallet.user',
+        ],
+      });
+
+      const product = transactions[0].orders[0].product;
+
+      const totalOrderQuantity = transactions[0].orders.reduce((acc, order) => {
+        return acc + parseInt(order.quantity.toString());
+      }, 0);
+
+      // find a transaction where the buyer is not also the seller:
+      // (in the case where a user buys their own merch)
+      const nonSellerBuyerTransaction = transactions.find(
+        (transaction) => transaction.wallet.user.id !== product.seller.id,
+      );
+
+      let buyer: User;
+
+      if (!nonSellerBuyerTransaction) {
+        // if the buyer is also the seller, then the buyer is the product seller
+        buyer = product.seller;
+      } else {
+        // if the buyer is not also the seller, then the buyer is the user in the nonSellerBuyerTransaction
+        buyer = nonSellerBuyerTransaction.wallet.user;
       }
 
-      //verify transactiion status
-      await this.axiosConnection
-        .get(`/transaction/verify/${reference}`)
-        .then(async (res: any) => {
-          if (
-            res.data &&
-            res.data.data.status === 'success' &&
-            res.data.message === PAYSTACK_SUCCESS_MESSAGE
-          ) {
-            isTransaction.fee = res.data.data.fees;
-            isTransaction.currency = res.data.data.currency;
-            isTransaction.channel = res.data.data.channel;
-            isTransaction.amount = res.data.data.amount;
-            isTransaction.message = 'Transaction successful';
-            isTransaction.status = Status.SUCCESS;
+      const notBuyingFromOneself = product.seller.id !== buyer.id;
 
-            // set the status of order to paid on successful payment verification
-            await Promise.all(
-              isTransaction.orders.map(async (order) => {
-                await order.updateStatus(orderStatus.PAID);
+      if (notBuyingFromOneself) {
+        // add user to customer list only if the buyer is not also the seller
+        await this.customerService.create(product.seller.id, buyer);
 
-                // fetch polymailerContents
-                const polymailerContents: PolyMailerContent[] =
-                  await this.polyMailerContentRepository.find();
+        // send a confirmation mail to the seller only if the buyer is not also the seller
+        this.mailService.sendSellerOrderConfirmation(product.seller, {
+          ...transactions[0].orders[0],
+          quantity: totalOrderQuantity,
+        } as Order);
+      }
 
-                // get a random polymailer content
-                const random = Math.floor(
-                  Math.random() * polymailerContents.length,
-                );
-                console.log(
-                  random,
-                  order.user.name.split(' ')[0],
-                  order.product.seller.name.split(' ')[0],
-                );
-
-                // set polymailer details
-                order.polymailer_details = {
-                  to: order.user.name.split(' ')[0],
-                  from: order.product.seller.name.split(' ')[0],
-                  content: polymailerContents[0]
-                    ? polymailerContents[random].content
-                    : DEFAULT_POLYMAILER_CONTENT,
-                };
-                console.log(order);
-
-                await order.save();
-              }),
-            );
-            response = transactionSuccess;
-          } else {
-            isTransaction.fee = res.data.data.fees;
-            isTransaction.currency = res.data.data.currency;
-            isTransaction.channel = res.data.data.channel;
-            isTransaction.amount = res.data.data.amount;
-            isTransaction.status = Status.FAILED;
-            isTransaction.message = 'Transaction verification failed';
-            await Promise.all(
-              isTransaction.orders.map(async (order) => {
-                await order.updateStatus(orderStatus.CANCELLED);
-                await order.save();
-              }),
-            );
-            response = transactionFail;
-          }
-        })
-        .catch(async (err: any) => {
-          isTransaction.status = Status.FAILED;
-          isTransaction.message = err.message;
-          await Promise.all(
-            isTransaction.orders.map(async (order) => {
-              await order.updateStatus(orderStatus.CANCELLED);
-              return await order.save();
-            }),
-          );
-          response = transactionFail;
-        });
-      //
-
-      await this.transactionRepository.save(isTransaction);
-
-      // TODO: map throught the orders and do this for all product in the order
-      const res = await this.getATransaction(isTransaction.id);
-      const product = await this.productService.handleGetAProduct(
-        res.orders[0].product.id,
+      this.mailService.sendBuyerOrderConfirmation(buyer, {
+        ...transactions[0].orders[0],
+        quantity: totalOrderQuantity,
+      } as Order);
+    } else {
+      transactionsToVerify.forEach((transaction) => {
+        transaction.currency = currency;
+        transaction.channel = channel.toUpperCase() as TransactionChannel;
+        transaction.amount = parseFloat((amount / 100).toFixed(2));
+        transaction.status = TransactionStatus.FAILED;
+        transaction.message = message || 'Transaction verification failed';
+      });
+      await Promise.all(
+        transactionsToVerify[0].orders.map(async (order) => {
+          await order.updateStatus(orderStatus.CANCELLED);
+          await order.save();
+        }),
       );
-      // console.log(res)
-      // add user to customer list
-      await this.customerService.create(product.seller.id, res.user);
-      // return res;
-      return response;
-    } catch (err: any) {
-      throw new HttpException(err.message, err.status);
     }
+
+    await this.transactionRepository.save(transactionsToVerify);
   }
 
-  public async deleteTransaction(
-    reference: string,
-  ): Promise<Transaction | undefined> {
-    try {
-      const isTransaction = await this.transactionRepository.findOneBy({
-        reference,
-      });
+  private async verifyWithdrawalTransaction(
+    paystackEventData: TransferEventData,
+  ) {
+    const { status, reference, amount, currency } = paystackEventData;
 
-      if (!isTransaction) {
-        throw new NotFoundException(
-          `Transaction with reference ${reference} does not exist`,
-        );
-      }
+    const transaction = await this.transactionRepository.findOne({
+      where: { reference },
+    });
 
-      await this.transactionRepository.delete({ reference });
-      return isTransaction;
-    } catch (err: any) {
-      console.log(err);
-      throw new HttpException(err.message, err.status);
+    if (!transaction) {
+      // don't throw error here to avoid paystack retrying the webhook
+      return;
     }
+
+    if (status === PAYSTACK_SUCCESS_STATUS) {
+      transaction.status = TransactionStatus.SUCCESS;
+      transaction.amount = parseFloat((amount / 100).toFixed(2));
+      transaction.currency = currency;
+      transaction.message = 'Withdrawal successful';
+    } else {
+      transaction.status = TransactionStatus.FAILED;
+      transaction.message = 'Withdrawal failed';
+    }
+
+    await this.transactionRepository.save(transaction);
+  }
+
+  public async deleteTransaction(reference: string) {
+    const isTransaction = await this.transactionRepository.findOneBy({
+      reference,
+    });
+
+    if (!isTransaction) {
+      throw new NotFoundException(
+        `Transaction with reference ${reference} does not exist`,
+      );
+    }
+
+    await this.transactionRepository.delete({ reference });
+    return isTransaction;
   }
 
   public async salesAnalytics(
@@ -285,59 +387,194 @@ export class TransactionService {
   ): Promise<Transaction[] | undefined> {
     const Moment = moment();
     let report: Transaction[];
-    try {
-      if (query === 'current-week') {
-        const start = Moment.startOf('week').format('YYYY-MM-DD');
+    if (query === 'current-week') {
+      const start = Moment.startOf('week').format('YYYY-MM-DD');
 
-        const end = Moment.endOf('week').format('YYYY-MM-DD');
+      const end = Moment.endOf('week').format('YYYY-MM-DD');
 
-        report = await this.transactionRepository
-          .createQueryBuilder('transaction')
-          .select('SUM(transaction.amount)', 'sum')
-          .addSelect('WEEKDAY(transaction.updated_at)', 'week-day')
-          .where('transaction.status = :status', {
-            status: Status.SUCCESS,
-          })
-          .andWhere(`transaction.updated_at BETWEEN '${start}' AND '${end}'`)
-          .groupBy('WEEKDAY(transaction.updated_at)')
-          .orderBy('WEEKDAY(transaction.updated_at)')
-          .getRawMany();
-      } else if (query === 'current-month') {
-        const start = Moment.startOf('month').format('YYYY-MM-DD');
+      report = await this.transactionRepository
+        .createQueryBuilder('transaction')
+        .select('SUM(transaction.amount)', 'sum')
+        .addSelect('WEEKDAY(transaction.updated_at)', 'week-day')
+        .where('transaction.status = :status', {
+          status: TransactionStatus.SUCCESS,
+        })
+        .andWhere(`transaction.updated_at BETWEEN '${start}' AND '${end}'`)
+        .groupBy('WEEKDAY(transaction.updated_at)')
+        .orderBy('WEEKDAY(transaction.updated_at)')
+        .getRawMany();
+    } else if (query === 'current-month') {
+      const start = Moment.startOf('month').format('YYYY-MM-DD');
 
-        const end = Moment.endOf('month').format('YYYY-MM-DD');
+      const end = Moment.endOf('month').format('YYYY-MM-DD');
 
-        report = await this.transactionRepository
-          .createQueryBuilder('transaction')
-          .select('SUM(transaction.amount)', 'sum')
-          .addSelect('WEEKDAY(transaction.updated_at)', 'week-day')
-          .where('transaction.status = :status', {
-            status: Status.SUCCESS,
-          })
-          .andWhere(`transaction.updated_at BETWEEN '${start}' AND '${end}'`)
-          .groupBy('WEEKDAY(transaction.updated_at)')
-          .orderBy('WEEKDAY(transaction.updated_at)')
-          .getRawMany();
-      } else {
-        const start = Moment.startOf('year').format('YYYY-MM-DD');
+      report = await this.transactionRepository
+        .createQueryBuilder('transaction')
+        .select('SUM(transaction.amount)', 'sum')
+        .addSelect('WEEKDAY(transaction.updated_at)', 'week-day')
+        .where('transaction.status = :status', {
+          status: TransactionStatus.SUCCESS,
+        })
+        .andWhere(`transaction.updated_at BETWEEN '${start}' AND '${end}'`)
+        .groupBy('WEEKDAY(transaction.updated_at)')
+        .orderBy('WEEKDAY(transaction.updated_at)')
+        .getRawMany();
+    } else {
+      const start = Moment.startOf('year').format('YYYY-MM-DD');
 
-        const end = Moment.endOf('year').format('YYYY-MM-DD');
+      const end = Moment.endOf('year').format('YYYY-MM-DD');
 
-        report = await this.transactionRepository
-          .createQueryBuilder('transaction')
-          .select('SUM(transaction.amount)', 'sum')
-          .addSelect('EXTRACT (MONTH FROM transaction.updated_at)', 'month')
-          .where('transaction.status = :status', {
-            status: Status.SUCCESS,
-          })
-          .andWhere(`transaction.updated_at BETWEEN '${start}' AND '${end}'`)
-          .groupBy('EXTRACT (MONTH FROM transaction.updated_at)')
-          .orderBy('EXTRACT (MONTH FROM transaction.updated_at)')
-          .getRawMany();
-      }
-      return report;
-    } catch (err: any) {
-      throw new HttpException(err.message, err.status);
+      report = await this.transactionRepository
+        .createQueryBuilder('transaction')
+        .select('SUM(transaction.amount)', 'sum')
+        .addSelect('EXTRACT (MONTH FROM transaction.updated_at)', 'month')
+        .where('transaction.status = :status', {
+          status: TransactionStatus.SUCCESS,
+        })
+        .andWhere(`transaction.updated_at BETWEEN '${start}' AND '${end}'`)
+        .groupBy('EXTRACT (MONTH FROM transaction.updated_at)')
+        .orderBy('EXTRACT (MONTH FROM transaction.updated_at)')
+        .getRawMany();
     }
+    return report;
+  }
+
+  async getBalanceForWalletId(walletId: string) {
+    const creditsResult = await this.transactionRepository
+      .createQueryBuilder('transaction')
+      .select('SUM(transaction.amount - transaction.feeAmount)', 'sum')
+      .where('transaction.wallet_id = :walletId', { walletId })
+      .andWhere('transaction.method = :method', {
+        method: TransactionMethod.CREDIT,
+      })
+      .andWhere('transaction.status = :status', {
+        status: TransactionStatus.SUCCESS,
+      })
+      .getRawOne();
+
+    const debitsResult = await this.transactionRepository
+      .createQueryBuilder('transaction')
+      .select(`SUM(transaction.amount - transaction.feeAmount)`, 'sum')
+      .where('transaction.wallet_id = :walletId', { walletId })
+      .andWhere('transaction.method = :method', {
+        method: TransactionMethod.DEBIT,
+      })
+      .andWhere('transaction.status = :status', {
+        status: TransactionStatus.SUCCESS,
+      })
+      .getRawOne();
+
+    const availableBalance =
+      parseFloat(creditsResult.sum || 0) - parseFloat(debitsResult.sum || 0);
+
+    return availableBalance;
+  }
+
+  handleWebhook(req: Request) {
+    const paystackSecretKey = this.configService.get<string>('paystack.secret');
+
+    const hash = crypto
+      .createHmac('sha512', paystackSecretKey)
+      .update(JSON.stringify(req.body))
+      .digest('hex');
+
+    if (hash !== req.headers['x-paystack-signature']) {
+      throw new BadRequestException('Invalid signature');
+    }
+
+    switch (req.body.event) {
+      case PaystackEvent.CHARGE_SUCCESS:
+        this.verifyPaymentTransaction(req.body.data);
+        break;
+      case PaystackEvent.TRANSFER_SUCCESS:
+      case PaystackEvent.TRANSFER_FAILED:
+      case PaystackEvent.TRANSFER_REVERSED:
+        this.verifyWithdrawalTransaction(req.body.data);
+        break;
+      default:
+        this.verifyPaymentTransaction(req.body.data);
+        break;
+    }
+
+    return new SuccessResponse({}, 'Webhook received successfully');
+  }
+
+  async revalidateTransaction(transactionId: string) {
+    let transaction = await this.transactionRepository.findOne({
+      where: { id: transactionId },
+      relations: [
+        'orders',
+        'orders.user',
+        'orders.product',
+        'orders.product.seller',
+      ],
+    });
+
+    if (!transaction) {
+      throw new NotFoundException(
+        `Transaction with id ${transactionId} does not exist`,
+      );
+    }
+
+    try {
+      const data = await this.paystackBrokerService.verifyTransaction(
+        transaction.reference,
+      );
+
+      if (data.status === PAYSTACK_SUCCESS_STATUS) {
+        transaction.status = TransactionStatus.SUCCESS;
+        transaction.amount = parseFloat((data.amount / 100).toFixed(2));
+        transaction.currency = data.currency;
+        transaction.message = 'Transaction successful';
+
+        await Promise.all(
+          transaction.orders.map(async (order) => {
+            // await order.updateStatus(orderStatus.PAID);
+
+            // fetch polymailerContents
+            const polymailerContents: PolymailerContent[] =
+              await this.polyMailerContentRepository.find();
+
+            // get a random polymailer content
+            const random = Math.floor(
+              Math.random() * polymailerContents.length,
+            );
+
+            // set polymailer details
+            order.polymailerDetails = {
+              to: order.user.firstName,
+              from: order.product.seller.firstName,
+              content: polymailerContents[0]
+                ? polymailerContents[random].content
+                : DEFAULT_POLY_MAILER_CONTENT,
+            };
+
+            await order.save();
+          }),
+        );
+      } else {
+        transaction.status = TransactionStatus.FAILED;
+        transaction.message = data.message || 'Transaction verification failed';
+
+        await Promise.all(
+          transaction.orders.map(async (order) => {
+            await order.updateStatus(orderStatus.CANCELLED);
+            await order.save();
+          }),
+        );
+      }
+
+      transaction = await this.transactionRepository.save(transaction);
+    } catch (error) {
+      throw new HttpException(
+        error.response.data.message || error.message,
+        error.response.status,
+      );
+    }
+
+    return new SuccessResponse(
+      transaction,
+      'Transaction revalidated successfully',
+    );
   }
 }

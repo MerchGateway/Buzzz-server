@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TransactionController } from './transaction.controller';
 import { TransactionService } from './transaction.service';
 import { Transaction } from './entities/transaction.entity';
@@ -7,15 +7,21 @@ import { OrderModule } from '../order/order.module';
 import { CartModule } from '../cart/cart.module';
 import { ProductModule } from '../product/product.module';
 import { CustomersModule } from '../customers/customers.module';
-import { PolyMailerContent } from '../order/entities/polymailer_content.entity';
+import { PolymailerContent } from '../order/entities/polymailer-content.entity';
+import { FeeModule } from '../fee/fee.module';
+import { MailModule } from '../../mail/mail.module';
+import { PaystackBrokerModule } from '../payment/paystack/paystack.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Transaction,PolyMailerContent]),
+    TypeOrmModule.forFeature([Transaction, PolymailerContent]),
     OrderModule,
     CartModule,
     ProductModule,
     CustomersModule,
+    FeeModule,
+    MailModule,
+    forwardRef(() => PaystackBrokerModule),
   ],
   controllers: [TransactionController],
   providers: [TransactionService],

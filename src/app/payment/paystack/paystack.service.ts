@@ -17,8 +17,7 @@ import connection from 'src/app/payment/paystack/utils/connection';
 import { CartService } from 'src/app/cart/cart.service';
 import { TransactionService } from 'src/app/transaction/transaction.service';
 import { Cart } from 'src/app/cart/entities/cart.entity';
-import { UsersService } from 'src/app/users/users.service';
-// import { UpdateUserDto } from 'src/app/users/dto/update-user.dto';
+import { TransactionCurrency } from '../../../types/transaction';
 
 envConfig();
 
@@ -30,13 +29,9 @@ export class PaystackBrokerService {
     @InjectRepository(PaymentReceipt)
     private readonly paymentRepository: Repository<PaymentReceipt>,
     private readonly cartService: CartService,
-   
     private readonly transactionService: TransactionService,
   ) {
-
     this.axiosConnection = connection();
-
-
   }
   // Create payment Ref (initialize transaction)
   public async createPayRef(user: User): Promise<{
@@ -45,7 +40,7 @@ export class PaystackBrokerService {
     reference: string;
   }> {
     // create payload values to be sent to paystack
-    const payload: { email: string; amount: number } = {
+    const payload = {
       email: user.email,
       amount: 0,
     };
@@ -55,7 +50,7 @@ export class PaystackBrokerService {
     // console.log(cartItems.length);
     if (cartItems.length === 0) {
       throw new NotFoundException(
-        'you must have item(s) in your cart before creating a payment',
+        'You must have item(s) in your cart before creating a payment',
       );
     }
 
@@ -72,25 +67,88 @@ export class PaystackBrokerService {
     return await this.axiosConnection
       .post('/transaction/initialize', payload)
       .then(async (res) => {
-    
         // create transaction on payment initalize
         await this.transactionService.createTransaction(
-          res.data?.data.reference,
+          res.data.data.reference,
           user,
-          res.data?.message,
+          res.data.message,
         );
         return res.data.data;
       })
       .catch((err) => {
         throw new HttpException(err.message, err.statusCode || 500);
       });
-   
   }
 
   public async createRefund(transaction: string) {
-    // console.log(transaction);
     const refund = await this.axiosConnection.post('/refund', { transaction });
     return { data: refund.data };
+  }
+
+  public async getBankList() {
+    const response = await this.axiosConnection.get('/bank');
+    return response.data.data as {
+      id: string;
+      name: string;
+      code: string;
+      slug: string;
+    }[];
+  }
+
+  public async resolveAccountNumber(accountNumber: string, bankCode: string) {
+    const response = await this.axiosConnection.get(
+      `/bank/resolve?account_number=${accountNumber}&bank_code=${bankCode}`,
+    );
+    const res = response.data.data;
+
+    return {
+      accountName: res.account_name as string,
+      accountNumber: res.account_number as string,
+      bankId: res.bank_id as number,
+    };
+  }
+
+  public async createTransferRecipient(
+    name: string,
+    accountNumber: string,
+    bankCode: string,
+  ) {
+    return this.axiosConnection.post('/transferrecipient', {
+      type: 'nuban',
+      name,
+      account_number: accountNumber,
+      bank_code: bankCode,
+      currency: 'NGN',
+    });
+  }
+
+  public async initiateTransfer(
+    amount: number,
+    recipient: string,
+    reason: string,
+    reference: string,
+  ) {
+    return this.axiosConnection.post('/transfer', {
+      source: 'balance',
+      amount,
+      recipient,
+      reason,
+      reference,
+    });
+  }
+
+  public async verifyTransaction(reference: string) {
+    const response = await this.axiosConnection.get(
+      `/transaction/verify/${reference}`,
+    );
+    const data = response.data.data;
+
+    return {
+      status: data.status as string,
+      amount: data.amount as number,
+      currency: data.currency as TransactionCurrency,
+      message: data.message as string,
+    };
   }
 
   private async handleGetPayRecord(id: string) {
@@ -115,31 +173,27 @@ export class PaystackBrokerService {
   }
 
   public async handleRemovePaymentRecord(recordId: string) {
-    try {
-      const record = await this.handleGetPayRecord(recordId);
-      await this.paymentRepository.delete(recordId);
-      return record;
-    } catch (err) {
-      throw err;
-    }
+    const record = await this.handleGetPayRecord(recordId);
+
+    await this.paymentRepository.delete(recordId);
+
+    return record;
   }
 
   public async handleGetARecord(id: string) {
-    try {
-      const record = await this.paymentRepository.findOne({
-        where: {
-          id,
-        },
-        relations: {
-          product: true,
-        },
-      });
-      if (!record) {
-        throw new NotFoundException('no record found');
-      }
-      return record;
-    } catch (err) {
-      throw err;
+    const record = await this.paymentRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        product: true,
+      },
+    });
+
+    if (!record) {
+      throw new NotFoundException('no record found');
     }
+
+    return record;
   }
 }
