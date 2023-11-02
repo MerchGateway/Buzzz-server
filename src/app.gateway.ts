@@ -41,6 +41,7 @@ export class AppGateway
   // @UseGuards(WsGuard)
   @SubscribeMessage(DESIGN_MERCH)
   async handleDesign(client: ExtendedSocket, payload: any): Promise<void> {
+    console.log(payload);
     const tke = client.handshake.headers.authorization
       ? client.handshake.headers.authorization.split(' ')[1]
       : null;
