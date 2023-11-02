@@ -93,6 +93,7 @@ export class AppGateway
 
   async handleConnection(client: ExtendedSocket, ...args: any[]) {
     try {
+      console.log('Client connected. Headers:', client.handshake.headers);
       const tke = client.handshake.headers.authorization
         ? client.handshake.headers.authorization.split(' ')[1]
         : null;
