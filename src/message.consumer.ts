@@ -48,7 +48,6 @@ export class MessageConsumer {
       } else {
         isDesignExist = { design: null };
       }
-      console.log(isDesignExist);
       if (!isDesignExist.design) {
         console.log('creating new design');
         const newDesign = this.designRepository.create({
