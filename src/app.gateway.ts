@@ -42,9 +42,7 @@ export class AppGateway
   // @UseGuards(WsGuard)
   @SubscribeMessage(DESIGN_MERCH)
   async handleDesign(client: ExtendedSocket, payload: any): Promise<void> {
-    const tke = client.handshake.headers.authorization
-      ? client.handshake.headers.authorization.split(' ')[1]
-      : null;
+    let tke = client.handshake.headers.Authorization as string | null;
     console.log(tke);
     // const user: User = client.user;
     let user: User;
@@ -52,6 +50,7 @@ export class AppGateway
 
     try {
       if (tke) {
+        tke = tke.split(' ')[1];
         const jwtRes = await this.jwtService.verifyToken(tke);
 
         user = await this.userService.findOneProfile(jwtRes.sub);
@@ -94,10 +93,9 @@ export class AppGateway
   async handleConnection(client: ExtendedSocket, ...args: any[]) {
     try {
       console.log('Client connected. Headers:', client.handshake.headers);
-      const tke = client.handshake.headers.authorization
-        ? client.handshake.headers.authorization.split(' ')[1]
-        : null;
+      let tke = client.handshake.headers.Authorization as string | null;
       if (tke) {
+        tke = tke.split(' ')[1];
         const payload = await this.jwtService.verifyToken(tke);
         // join private room
         client.join(payload?.sub);
