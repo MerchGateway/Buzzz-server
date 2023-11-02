@@ -42,6 +42,7 @@ export class AppGateway
   // @UseGuards(WsGuard)
   @SubscribeMessage(DESIGN_MERCH)
   async handleDesign(client: ExtendedSocket, payload: any): Promise<void> {
+    console.log('Client connected. Headers:', client.handshake.headers);
     const tke = client.handshake.headers.authorization
       ? client.handshake.headers.authorization.split(' ')[1]
       : null;
@@ -93,6 +94,7 @@ export class AppGateway
 
   async handleConnection(client: ExtendedSocket, ...args: any[]) {
     try {
+      console.log('Client connected. Headers:', client.handshake.headers);
       const tke = client.handshake.headers.authorization
         ? client.handshake.headers.authorization.split(' ')[1]
         : null;
