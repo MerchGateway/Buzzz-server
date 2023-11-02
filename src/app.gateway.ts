@@ -42,9 +42,8 @@ export class AppGateway
   // @UseGuards(WsGuard)
   @SubscribeMessage(DESIGN_MERCH)
   async handleDesign(client: ExtendedSocket, payload: any): Promise<void> {
-    console.log('Client connected. Headers:', client.handshake);
-    const tke = client.handshake.headers.authorization
-      ? client.handshake.headers.authorization.split(' ')[1]
+    const tke = client.handshake.auth.headers.authorization
+      ? client.handshake.auth.headers.authorization.split(' ')[1]
       : null;
     console.log(tke);
     // const user: User = client.user;
@@ -95,8 +94,8 @@ export class AppGateway
   async handleConnection(client: ExtendedSocket, ...args: any[]) {
     try {
       console.log('Client connected. Headers:', client.handshake);
-      const tke = client.handshake.headers.authorization
-        ? client.handshake.headers.authorization.split(' ')[1]
+      const tke = client.handshake.auth.headers.authorization
+        ? client.handshake.auth.headers.authorization.split(' ')[1]
         : null;
       if (tke) {
         const payload = await this.jwtService.verifyToken(tke);
