@@ -10,7 +10,7 @@ export class CategoryService {
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
   ) {}
-  
+
   public async createCategory(
     payload: CreateCategoryDto,
   ): Promise<Category | undefined> {
@@ -19,8 +19,7 @@ export class CategoryService {
         name: payload.name,
         description: payload.description,
       });
-     return  await this.categoryRepository.save(category);
-      
+      return await this.categoryRepository.save(category);
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
