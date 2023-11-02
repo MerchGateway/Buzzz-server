@@ -44,6 +44,7 @@ export class AppGateway
     const tke = client.handshake.headers.authorization
       ? client.handshake.headers.authorization.split(' ')[1]
       : null;
+    console.log(tke);
     // const user: User = client.user;
     let user: User;
     let response: Job<Design>;
@@ -53,6 +54,7 @@ export class AppGateway
         const jwtRes = await this.jwtService.verifyToken(tke);
 
         user = await this.userService.findOneProfile(jwtRes.sub);
+        console.log(user, jwtRes);
         response = await this.designService.design(
           payload,
           user,
