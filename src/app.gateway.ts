@@ -6,6 +6,7 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
+import { createServer } from 'http';
 import { Inject } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { DesignService } from './app/design/design.service';
@@ -16,7 +17,7 @@ import { Jwt } from './providers/jwt.provider';
 import { UsersService } from './app/users/users.service';
 import { Job } from 'bull';
 import { Design } from './app/design/entities/design.entity';
-
+import configuration from './config/configuration';
 class ExtendedSocket extends Socket {
   user: User;
 }
@@ -34,7 +35,9 @@ export class AppGateway
     private readonly userService: UsersService,
     @Inject(JWT)
     private readonly jwtService: Jwt,
-  ) {}
+  ) {
+    this.configureWebSocketServer();
+  }
 
   @WebSocketServer() server: Server;
 
@@ -105,5 +108,17 @@ export class AppGateway
     } catch (error) {
       client.disconnect(true);
     }
+  }
+  private configureWebSocketServer() {
+    // Set the maximum payload size to 10MB (adjust as needed)
+    const httpServer = createServer();
+    const io = new Server(httpServer, {
+      maxHttpBufferSize: 10e7, // Set the maximum payload size to 10MB (adjust as needed)
+    });
+
+    io.attach(httpServer);
+    const port = configuration().port || 3000;
+
+    httpServer.listen(port);
   }
 }
