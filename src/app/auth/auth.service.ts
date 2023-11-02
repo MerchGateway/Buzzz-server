@@ -137,7 +137,7 @@ export class AuthService {
     if (designId) {
       // associate design with user
       const design = await this.designService.fetchSingleDesign(designId);
-      design.user = user;
+      !design.user && (design.user = user);
       await design.save();
     }
 
