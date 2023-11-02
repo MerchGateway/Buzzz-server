@@ -13,8 +13,10 @@ export class UpdateUserDto {
   email: string;
 
   @IsString()
-  @IsOptional()
-  name: string;
+  firstName: string;
+
+  @IsString()
+  lastName: string;
 
   @IsString()
   @IsOptional()
@@ -35,7 +37,6 @@ export class UpdateUserDto {
   @IsObject()
   @IsOptional()
   shippingAddress: {
-    streetNumber: number;
     state: string;
     LGA: string;
     address: string;

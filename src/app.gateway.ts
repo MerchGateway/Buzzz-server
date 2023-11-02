@@ -6,6 +6,7 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
+
 import { Inject } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { DesignService } from './app/design/design.service';
@@ -41,9 +42,10 @@ export class AppGateway
   // @UseGuards(WsGuard)
   @SubscribeMessage(DESIGN_MERCH)
   async handleDesign(client: ExtendedSocket, payload: any): Promise<void> {
-    const tke = client.handshake.headers.authorization
-      ? client.handshake.headers.authorization.split(' ')[1]
+    const tke = client.handshake.auth.headers.authorization
+      ? client.handshake.auth.headers.authorization.split(' ')[1]
       : null;
+    console.log(tke);
     // const user: User = client.user;
     let user: User;
     let response: Job<Design>;
@@ -53,6 +55,7 @@ export class AppGateway
         const jwtRes = await this.jwtService.verifyToken(tke);
 
         user = await this.userService.findOneProfile(jwtRes.sub);
+        console.log(user, jwtRes);
         response = await this.designService.design(
           payload,
           user,
@@ -90,8 +93,9 @@ export class AppGateway
 
   async handleConnection(client: ExtendedSocket, ...args: any[]) {
     try {
-      const tke = client.handshake.headers.authorization
-        ? client.handshake.headers.authorization.split(' ')[1]
+      console.log('Client connected. Headers:', client.handshake);
+      const tke = client.handshake.auth.headers.authorization
+        ? client.handshake.auth.headers.authorization.split(' ')[1]
         : null;
       if (tke) {
         const payload = await this.jwtService.verifyToken(tke);

@@ -3,7 +3,6 @@ import { Status } from '../../../types/order';
 export class CreateOrderDto {
   @IsObject()
   shippingAddress: {
-    streetNumber: number;
     state: string;
     LGA: string;
     address: string;

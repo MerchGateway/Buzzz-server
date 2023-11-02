@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsUtils, Repository } from 'typeorm';
+import { FindOptionsUtils, Not, Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { Status as orderStatus } from '../../types/order';
 import { User } from '../users/entities/user.entity';
@@ -452,20 +452,40 @@ export class TransactionService {
       })
       .getRawOne();
 
-    const debitsResult = await this.transactionRepository
+    const paymentDebitsResult = await this.transactionRepository
       .createQueryBuilder('transaction')
       .select(`SUM(transaction.amount - transaction.feeAmount)`, 'sum')
       .where('transaction.wallet_id = :walletId', { walletId })
       .andWhere('transaction.method = :method', {
         method: TransactionMethod.DEBIT,
       })
+      .andWhere('transaction.channel != :channel', {
+        channel: TransactionChannel.BANK_TRANSFER,
+      })
       .andWhere('transaction.status = :status', {
         status: TransactionStatus.SUCCESS,
       })
       .getRawOne();
 
+    const withDrawalDebitsResult = await this.transactionRepository
+      .createQueryBuilder('transaction')
+      .select(`SUM(transaction.amount)`, 'sum')
+      .where('transaction.wallet_id = :walletId', { walletId })
+      .andWhere('transaction.method = :method', {
+        method: TransactionMethod.DEBIT,
+      })
+      .andWhere('transaction.channel = :channel', {
+        channel: TransactionChannel.BANK_TRANSFER,
+      })
+      .andWhere('transaction.status IN (:...status)', {
+        status: [TransactionStatus.SUCCESS, TransactionStatus.PENDING],
+      })
+      .getRawOne();
+
     const availableBalance =
-      parseFloat(creditsResult.sum || 0) - parseFloat(debitsResult.sum || 0);
+      parseFloat(creditsResult.sum || 0) -
+      (parseFloat(paymentDebitsResult.sum || 0) +
+        parseFloat(withDrawalDebitsResult.sum || 0));
 
     return availableBalance;
   }
@@ -517,9 +537,17 @@ export class TransactionService {
     }
 
     try {
-      const data = await this.paystackBrokerService.verifyTransaction(
-        transaction.reference,
-      );
+      let data;
+
+      if (transaction.channel === TransactionChannel.BANK_TRANSFER) {
+        data = await this.paystackBrokerService.verifyWithdrawalTransaction(
+          transaction.reference,
+        );
+      } else {
+        data = await this.paystackBrokerService.verifyPaymentTransaction(
+          transaction.reference,
+        );
+      }
 
       if (data.status === PAYSTACK_SUCCESS_STATUS) {
         transaction.status = TransactionStatus.SUCCESS;

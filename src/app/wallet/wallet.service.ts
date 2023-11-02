@@ -185,6 +185,12 @@ export class WalletService {
       .leftJoinAndSelect('user.wallet', 'wallet')
       .getOne();
 
+    if (!user.emailVerified) {
+      throw new BadRequestException(
+        'Please verify your email address first to withdraw your funds',
+      );
+    }
+
     const balance = await this.transactionService.getBalanceForWalletId(
       user.wallet.id,
     );
@@ -230,9 +236,11 @@ export class WalletService {
       recipient: recipientCode,
     };
 
+    let transferCode: string;
+
     try {
       const amountInKobo = transferReferenceDetails.amount * 100;
-      await this.paystackBrokerService.initiateTransfer(
+      transferCode = await this.paystackBrokerService.initiateTransfer(
         amountInKobo,
         transferReferenceDetails.recipient,
         transferReferenceDetails.reason,
@@ -256,6 +264,7 @@ export class WalletService {
       fee,
       feeAmount: withdrawFromWalletDto.amount,
       reference: transferReferenceDetails.reference,
+      transferCode,
     });
     await transaction.save();
 

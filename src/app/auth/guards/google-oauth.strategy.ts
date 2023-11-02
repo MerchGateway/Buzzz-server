@@ -60,6 +60,7 @@ export class GoogleOauthStrategy extends PassportStrategy(Strategy, 'google') {
         firstName: name.givenName,
         lastName: name.familyName,
         email: emails[0].value,
+        emailVerified: true,
       });
     }
 

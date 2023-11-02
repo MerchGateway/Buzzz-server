@@ -2,6 +2,8 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  ForbiddenException,
+  BadRequestException,
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,6 +13,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { SuccessResponse } from '../../utils/response';
+import { generateToken } from '../../utils';
+import { MailService } from '../../mail/mail.service';
 
 @Injectable()
 export class UsersService {
@@ -18,6 +22,7 @@ export class UsersService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @Inject(forwardRef(() => WalletService))
     private readonly walletService: WalletService,
+    private readonly mailService: MailService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -58,11 +63,65 @@ export class UsersService {
   }
 
   async update(user: User, updateUserDto: UpdateUserDto) {
-    await this.userRepository.update(user.id, updateUserDto);
+    let updateData: Partial<User> = { ...updateUserDto };
+
+    if (updateUserDto.username && updateUserDto.username !== user.username) {
+      const userExists = await this.userRepository.findOne({
+        where: { username: updateUserDto.username },
+      });
+
+      if (userExists) {
+        throw new ForbiddenException(
+          `User with username ${updateUserDto.username} already exists`,
+        );
+      }
+    }
+
+    if (updateUserDto.email && updateUserDto.email !== user.email) {
+      const userExists = await this.userRepository.findOne({
+        where: { email: updateUserDto.email },
+      });
+
+      if (userExists) {
+        throw new ForbiddenException(
+          `User with email ${updateUserDto.email} already exists`,
+        );
+      }
+
+      const emailVerificationToken =
+        await this.generateEmailVerificationToken();
+
+      updateData = {
+        ...updateData,
+        emailVerified: false,
+        emailVerificationToken,
+      };
+
+      await this.mailService.sendEmailVerification(
+        { ...user, email: updateUserDto.email } as User,
+        emailVerificationToken,
+      );
+    }
+
+    await this.userRepository.update(user.id, updateData);
 
     user = await this.findOneProfile(user.id);
 
     return user;
+  }
+
+  async generateEmailVerificationToken() {
+    let emailVerificationToken = generateToken();
+
+    const userExists = await this.userRepository.findOne({
+      where: { emailVerificationToken },
+    });
+
+    if (userExists) {
+      emailVerificationToken = await this.generateEmailVerificationToken();
+    }
+
+    return emailVerificationToken;
   }
 
   remove(id: string) {

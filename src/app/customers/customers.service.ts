@@ -1,6 +1,6 @@
 import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { Customer } from './entities/customer.entity';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
@@ -19,32 +19,25 @@ export class CustomersService {
   constructor(
     @InjectRepository(Customer)
     private readonly customerRepository: Repository<Customer>,
-    private readonly userRepository: UsersService,
+    private readonly usersService: UsersService,
     private readonly orderRepository: OrderService,
   ) {}
 
-  async create(sellerId: any, user: User): Promise<Customer | []> {
-    await this.userRepository.findOne(sellerId);
+  async create(sellerId: string, buyer: User) {
+    await this.usersService.findOne(sellerId);
 
-    let customer: Customer;
+    let customer = await this.customerRepository.findOne({
+      where: {
+        seller: { id: sellerId },
+        buyer: { id: buyer.id },
+      },
+    });
 
-    customer = await this.customerRepository
-      .createQueryBuilder('customer')
-      .where('seller_id = :sellerId', {
-        sellerId,
-      })
-      .leftJoin('customer.users', 'users')
-      .where('users.id = :userId', {
-        userId: user.id,
-      })
-      .select(['customer', 'users.id'])
-      .getOne();
-
-    // get order of customerId and add it to the return value
     if (!customer) {
-      customer = new Customer();
-      customer.sellerId = sellerId;
-      customer.users = [user];
+      customer = this.customerRepository.create({
+        seller: { id: sellerId },
+        buyer: buyer,
+      });
       customer = await this.customerRepository.save(customer);
     }
 
@@ -54,15 +47,15 @@ export class CustomersService {
   async findAll(userId: string): Promise<any> {
     const res = await this.customerRepository.find({
       where: {
-        sellerId: userId,
+        seller: { id: userId },
       },
       relations: {
-        users: true,
+        buyer: true,
       },
     });
 
     const sort = async (customer: Customer) => {
-      const orders = await this.orderRepository.getOrders(customer.users[0]);
+      const orders = await this.orderRepository.getOrders(customer.buyer);
       const data = {
         customer: customer,
         orders: orders,
@@ -80,12 +73,12 @@ export class CustomersService {
   async findAllCustomersAvailable(): Promise<any> {
     const res = await this.customerRepository.find({
       relations: {
-        users: true,
+        buyer: true,
       },
     });
 
     const sort = async (customer: Customer) => {
-      const orders = await this.orderRepository.getOrders(customer.users[0]);
+      const orders = await this.orderRepository.getOrders(customer.buyer);
       const data = {
         customer: customer,
         order: orders,
@@ -101,33 +94,33 @@ export class CustomersService {
   }
 
   public async toggleStatus(Status: Status, sellerId: string): Promise<any> {
-    try {
-      const res = await this.customerRepository.findOne({
-        where: { sellerId },
-        relations: {
-          users: true,
-        },
-      });
+    const res = await this.customerRepository.findOne({
+      where: {
+        seller: { id: sellerId },
+      },
+      relations: {
+        buyer: true,
+      },
+    });
 
-      if (!res) {
-        throw new NotFoundException(
-          `customer with seller id ${sellerId} does not exist`,
-        );
-      }
-      res.status = Status;
-      return await this.customerRepository.save(res);
-    } catch (err) {
-      throw new HttpException(err.message, err.status);
+    if (!res) {
+      throw new NotFoundException(
+        `customer with seller id ${sellerId} does not exist`,
+      );
     }
+    res.status = Status;
+    return await this.customerRepository.save(res);
   }
 
   public async deleteCustomer(sellerId: string): Promise<any> {
     try {
-      await this.customerRepository.delete({ sellerId });
+      await this.customerRepository.delete({
+        seller: { id: sellerId },
+      });
 
       return new SuccessResponse(
         {},
-        `customer with sellerId ${sellerId} deleted succesfully`,
+        `customer with sellerId ${sellerId} deleted successfully`,
         200,
       );
     } catch (err) {
@@ -150,7 +143,7 @@ export class CustomersService {
       //Query the number of all customers with status paid
       const thisMonthCustomers = await this.customerRepository
         .createQueryBuilder('customers')
-        .where('customers.sellerId = :sellerId', { sellerId: user.id })
+        .where('customers.seller_id = :sellerId', { sellerId: user.id })
         //get the total customers within the last month,
         .andWhere(
           `customers.created_at BETWEEN ${lastMonth} AND ${presentMonth}`,
@@ -158,15 +151,15 @@ export class CustomersService {
         .getCount();
 
       const lastTwoMonthsCustomers = await this.customerRepository
-        .createQueryBuilder('customers_')
-        .where('customers_.sellerId = :sellerId', { sellerId: user.id })
+        .createQueryBuilder('customers')
+        .where('customers.seller_id = :sellerId', { sellerId: user.id })
         // get the total customers within the last two months
-        .andWhere(`customers_.created_at BETWEEN ${twoMonths} AND ${lastMonth}`)
+        .andWhere(`customers.created_at BETWEEN ${twoMonths} AND ${lastMonth}`)
         .getCount();
 
       const allCustomers = await this.customerRepository
-        .createQueryBuilder('customers__')
-        .where('customers__.sellerId = :sellerId', { sellerId: user.id })
+        .createQueryBuilder('customers')
+        .where('customers.seller_id = :sellerId', { sellerId: user.id })
         .getCount();
 
       // compare the numbers, and show the percentage increase or decrease
