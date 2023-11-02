@@ -17,7 +17,7 @@ async function bootstrap() {
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ extended: true, limit: '50mb' }));
   app.useWebSocketAdapter(
-    new CustomWebSocketAdapter({ maxHttpBufferSize: 4e6 }),
+    new CustomWebSocketAdapter({ maxHttpBufferSize: 6e6 }),
   );
   app.useGlobalPipes(
     new ValidationPipe({
