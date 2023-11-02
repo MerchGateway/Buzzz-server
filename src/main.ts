@@ -8,6 +8,7 @@ import * as express from 'express';
 import * as session from 'express-session';
 import * as passport from 'passport';
 import { validationExceptionFactory } from './utils/validation';
+import * as WebSocket from 'ws';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -15,6 +16,10 @@ async function bootstrap() {
   app.setGlobalPrefix('v1');
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+  new WebSocket.Server({
+    server: app.getHttpServer(),
+    maxPayload: 10485760, // Set the maximum payload size to 10MB (adjust as needed)
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
