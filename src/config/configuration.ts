@@ -53,6 +53,10 @@ export default () => ({
   paystack: {
     secret: process.env.PAYSTACK_SECRET_KEY,
   },
+  auth: {
+    superPassword: process.env.SUPER_PASSWORD,
+    superEmail: process.env.SUPER_EMAIL,
+  },
   sendgridApiKey: process.env.SENDGRID_API_KEY,
   fromEmail: process.env.FROM_EMAIL,
   fromName: process.env.FROM_NAME,

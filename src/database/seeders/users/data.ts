@@ -1,8 +1,9 @@
 import { User } from '../../../app/users/entities/user.entity';
+import configuration from 'src/config/configuration';
 import { Role } from '../../../types/general';
 export const SUPER_ADMIN: Partial<User> = {
-  email: 'admin@gmail.com',
-  password: 'admin123',
+  email: configuration().auth.superEmail,
+  password: configuration().auth.superEmail,
   firstName: 'Dev',
   lastName: 'admin',
   emailVerified: true,
