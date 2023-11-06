@@ -1,11 +1,12 @@
 import { User } from '../../../app/users/entities/user.entity';
-
+import { Role } from '../../../types/general';
 export const SUPER_ADMIN: Partial<User> = {
   email: 'admin@gmail.com',
   password: 'admin123',
   firstName: 'Dev',
   lastName: 'admin',
   emailVerified: true,
+  role: Role.SUPER_ADMIN,
 };
 
 export const TEMPORARY_CATEGORIES = [
