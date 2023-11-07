@@ -11,6 +11,7 @@ import { HttpException } from '@nestjs/common';
 import { Status } from 'src/types/order';
 import { OrderService } from 'src/app/order/order.service';
 import { Order } from 'src/app/order/entities/order.entity';
+import { Role } from 'src/types/general';
 
 @Injectable()
 export class PrintingPartnerService {
@@ -57,35 +58,40 @@ export class PrintingPartnerService {
     }
   }
   async viewOrder(user: User, id: string) {
-    try {
+    let order: Order;
+    if (user.role === Role.SUPER_ADMIN) {
+      order = await this.orderRepository.findOne({
+        where: {
+          id,
+        },
+        relations: { printingPartner: true },
+      });
+    } else {
       const userWithPartner = await this.userRepository.findOne({
         where: { id: user.id },
         relations: { printingPartner: true },
       });
-      const order = await this.orderRepository.findOne({
+      order = await this.orderRepository.findOne({
         where: {
           id,
           printingPartner: { id: userWithPartner.printingPartner.id },
         },
         relations: { printingPartner: true },
       });
-
-      if (!order) {
-        throw new NotFoundException(
-          ` order with id ${id} does  not  exist or isnt asigned to you`,
-        );
-      }
-      return {
-        design: order.product.design,
-        thumbnail: order.product.thumbnail,
-        quantity: order.quantity,
-        status: order.status,
-        polymailer_details: order.polymailerDetails,
-      };
-    } catch (err) {
-      user;
-      throw new HttpException(err.message, err.status);
     }
+
+    if (!order) {
+      throw new NotFoundException(
+        ` order with id ${id} does  not  exist or isnt asigned to you`,
+      );
+    }
+    return {
+      design: order.product.design,
+      thumbnail: order.product.thumbnail,
+      quantity: order.quantity,
+      status: order.status,
+      polymailer_details: order.polymailerDetails,
+    };
   }
 
   async viewPackagingContent(user: User, id: string) {

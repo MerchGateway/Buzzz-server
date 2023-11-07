@@ -101,18 +101,14 @@ export class AdminService {
 
   async getAllPrintingPartners() {
     try {
-      return await this.printingPartnerRepository.find({
-        relations: ['administrators'],
-      });
+      return await this.printingPartnerRepository.find();
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
   }
   async getAllLogisticsPartners() {
     try {
-      return await this.logisticsPartnerRepository.find({
-        relations: ['administrators'],
-      });
+      return await this.logisticsPartnerRepository.find();
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
