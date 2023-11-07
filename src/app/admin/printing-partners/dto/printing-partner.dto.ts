@@ -14,14 +14,12 @@ export class CreatePrintingPartnerDto {
   name: string;
 
   @IsObject()
-  partner_address: {
+  address: {
     address: string;
     state: string;
     LGA: string;
     city: string;
   };
-
-
 }
 
 export class UpdatePrintingPartnerDto {
@@ -30,20 +28,17 @@ export class UpdatePrintingPartnerDto {
   name: string;
 
   @IsEnum(Status)
- 
   @IsOptional()
-  status:Status;
+  status: Status;
 
   @IsObject()
   @IsOptional()
-  partner_address: {
+  address: {
     address: string;
     state: string;
     LGA: string;
     city: string;
   };
-
-
 }
 
 export class CreatePrintingAdminDto {
