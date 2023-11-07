@@ -60,7 +60,7 @@ export class PrintingPartnerService {
         where: {
           id,
         },
-        relations: { printingPartner: true },
+        select: ['id', 'quantity', 'polymailerDetails', 'product', 'status'],
       });
     } else {
       const userWithPartner = await this.userRepository.findOne({
@@ -73,6 +73,7 @@ export class PrintingPartnerService {
           printingPartner: { id: userWithPartner.printingPartner.id },
         },
         relations: { printingPartner: true },
+        select: ['id', 'quantity', 'polymailerDetails', 'status'],
       });
     }
 
