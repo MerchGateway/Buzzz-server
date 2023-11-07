@@ -188,12 +188,6 @@ export class TransactionService {
     route,
   }: IPaginationOptions): Promise<Pagination<Transaction>> {
     const qb = this.transactionRepository.createQueryBuilder('transaction');
-    FindOptionsUtils.joinEagerRelations(
-      qb,
-      qb.alias,
-      this.transactionRepository.metadata,
-    );
-    qb.leftJoinAndSelect('transaction.user', 'user');
     qb.orderBy('transaction.created_at', 'DESC');
     return paginate<Transaction>(qb, { limit, page, route });
   }

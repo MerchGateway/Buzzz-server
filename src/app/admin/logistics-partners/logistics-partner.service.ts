@@ -8,6 +8,7 @@ import { Order } from 'src/app/order/entities/order.entity';
 import { OrderService } from 'src/app/order/order.service';
 import { UnauthorizedException } from '@nestjs/common';
 import { Status } from 'src/types/order';
+import { Role } from 'src/types/general';
 
 @Injectable()
 export class LogisticsPartnerService {
@@ -89,17 +90,21 @@ export class LogisticsPartnerService {
 
   async viewOrder(user: User, id: string) {
     try {
-      const userWithPartner = await this.userRepository.findOne({
-        where: { id: user.id },
-        relations: { logisticsPartner: true },
-      });
-      const order = await this.orderRepository.findOne({
-        where: {
-          id,
-          logisticsPartner: { id: userWithPartner.logisticsPartner.id },
-        },
-        relations: { logisticsPartner: true },
-      });
+      let order: Order;
+      if (user.role === Role.SUPER_ADMIN) {
+      } else {
+        const userWithPartner = await this.userRepository.findOne({
+          where: { id: user.id },
+          relations: { logisticsPartner: true },
+        });
+        order = await this.orderRepository.findOne({
+          where: {
+            id,
+            logisticsPartner: { id: userWithPartner.logisticsPartner.id },
+          },
+          relations: { logisticsPartner: true },
+        });
+      }
 
       if (!order) {
         throw new NotFoundException(
