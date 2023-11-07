@@ -4,7 +4,7 @@ import { Role } from '../../../types/general';
 
 export const SUPER_ADMIN: Partial<User> = {
   email: configuration().auth.superEmail,
-  password: configuration().auth.superEmail,
+  password: configuration().auth.superPassword,
   firstName: 'Dev',
   lastName: 'admin',
   emailVerified: true,
