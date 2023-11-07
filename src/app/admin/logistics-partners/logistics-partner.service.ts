@@ -83,6 +83,12 @@ export class LogisticsPartnerService {
   async viewOrder(user: User, id: string) {
     let order: Order;
     if (user.role === Role.SUPER_ADMIN) {
+      order = await this.orderRepository.findOne({
+        where: {
+          id,
+        },
+        select: ['id', 'quantity', 'product', 'status', 'shippingDetails'],
+      });
     } else {
       const userWithPartner = await this.userRepository.findOne({
         where: { id: user.id },
@@ -94,6 +100,7 @@ export class LogisticsPartnerService {
           logisticsPartner: { id: userWithPartner.logisticsPartner.id },
         },
         relations: { logisticsPartner: true },
+        select: ['id', 'quantity', 'product', 'status', 'shippingDetails'],
       });
     }
 

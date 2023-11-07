@@ -4,7 +4,7 @@ import {
   IsOptional,
   IsString,
   IsUUID,
-  IsEnum
+  IsEnum,
 } from 'class-validator';
 import { Status } from 'src/types/status';
 
@@ -12,7 +12,7 @@ export class CreateLogisticsPartnerDto {
   @IsString()
   name: string;
   @IsObject()
-  partner_address: {
+  address: {
     address: string;
     state: string;
     LGA: string;
@@ -31,7 +31,7 @@ export class UpdateLogisticsPartnerDto {
 
   @IsObject()
   @IsOptional()
-  partner_address: {
+  address: {
     address: string;
     state: string;
     LGA: string;
@@ -44,16 +44,13 @@ export class CreateLogisticsAdminDto {
   email: string;
 
   @IsString()
-  password:string
-  
- 
+  password: string;
 }
 
 export class UpdateLogisticsAdminDto {
   @IsOptional()
   @IsEmail()
   email: string;
-
 
   @IsOptional()
   @IsString()
