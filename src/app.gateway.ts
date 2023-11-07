@@ -17,7 +17,6 @@ import { Jwt } from './providers/jwt.provider';
 import { UsersService } from './app/users/users.service';
 import { Job } from 'bull';
 import { Design } from './app/design/entities/design.entity';
-
 class ExtendedSocket extends Socket {
   user: User;
 }
