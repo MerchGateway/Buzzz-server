@@ -32,6 +32,7 @@ import { AuthType } from 'src/types/authenticator';
 import { TwoFactorAuthService } from '../2fa/twoFactorAuth.service';
 import { UsersService } from '../users/users.service';
 import { MailService } from '../../mail/mail.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -48,6 +49,7 @@ export class AuthService {
     private readonly walletService: WalletService,
     private readonly twoFactorAuthService: TwoFactorAuthService,
     private readonly usersService: UsersService,
+    private readonly configService: ConfigService,
   ) {
     this.logger.setContext(AuthService.name);
   }
@@ -117,6 +119,10 @@ export class AuthService {
     return {
       user,
       accessToken: this.jwtService.sign(payload),
+      refreshToken: this.jwtService.sign(payload, {
+        secret: this.configService.get<string>('jwt.refreshSecret'),
+        expiresIn: this.configService.get<string>('jwt.refreshExpiresIn'),
+      }),
     };
   }
 
@@ -144,6 +150,10 @@ export class AuthService {
     return {
       user,
       accessToken: this.jwtService.sign(payload),
+      refreshToken: this.jwtService.sign(payload, {
+        secret: this.configService.get<string>('jwt.refreshSecret'),
+        expiresIn: this.configService.get<string>('jwt.refreshExpiresIn'),
+      }),
     };
   }
 
@@ -352,5 +362,28 @@ export class AuthService {
     });
 
     return new SuccessResponse(null, 'Email verified successfully');
+  }
+
+  async refreshToken(refreshToken: string) {
+    let userId: string;
+
+    try {
+      const { sub: payloadSub } = this.jwtService.verify(refreshToken, {
+        secret: this.configService.get<string>('jwt.refreshSecret'),
+      });
+      userId = payloadSub;
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    const user = await this.userRepository.findOneBy({ id: userId });
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    const res = await this.postSignin(user);
+
+    return new SuccessResponse(res, 'Token refreshed successfully');
   }
 }

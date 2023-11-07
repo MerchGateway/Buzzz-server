@@ -42,6 +42,8 @@ export default () => ({
   jwt: {
     secret: process.env.JWT_SECRET,
     expiresIn: process.env.JWT_EXPIRE,
+    refreshSecret: process.env.REFRESH_JWT_SECRET,
+    refreshExpiresIn: process.env.REFRESH_JWT_EXPIRE,
     cookieExpire: process.env.JWT_COOKIE_EXPIRE,
   },
   oauth: {
