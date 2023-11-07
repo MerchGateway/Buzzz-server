@@ -28,34 +28,30 @@ export class PrintingPartnerService {
   ) {}
 
   async getOrders(user: User) {
-    try {
-      // load user  with  printing  partner relationship
-      const userWithPrintingRelation = await this.userRepository.findOne({
-        where: { id: user.id },
-        relations: ['printing_partner'],
-      });
+    // load user  with  printing  partner relationship
+    const userWithPrintingRelationship = await this.userRepository.findOne({
+      where: { id: user.id },
+      relations: ['printing_partner'],
+    });
 
-      // const partner = await this.printingPartnerRepository.findOneBy({
-      //   id: userWithPrintingRelation.printing_partner.id,
-      // });
-      const orders = await this.orderRepository
-        .createQueryBuilder('order')
-        .leftJoin('order.printing_partner', 'printing_partner')
-        .leftJoinAndSelect('order.product', 'product')
-        .select('product.design')
-        .select('product.thumbnail')
-        .addSelect('quantity')
-        .addSelect('polymailer_details')
-        .addSelect('order.status', 'status')
-        .where('printing_partner.id=:printing_partner', {
-          printing_partner: userWithPrintingRelation.printingPartner.id,
-        })
-        .getRawMany();
+    // const partner = await this.printingPartnerRepository.findOneBy({
+    //   id: userWithPrintingRelation.printing_partner.id,
+    // });
+    const orders = await this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoin('order.printing_partner', 'printing_partner')
+      .leftJoin('order.product', 'product')
+      .select('product.design')
+      .select('product.thumbnail')
+      .addSelect('quantity')
+      .addSelect('polymailer_details')
+      .addSelect('order.status', 'status')
+      .where('printing_partner.id=:printing_partner', {
+        printing_partner: userWithPrintingRelationship.printingPartner.id,
+      })
+      .getRawMany();
 
-      return orders;
-    } catch (err) {
-      throw new HttpException(err.message, err.status);
-    }
+    return orders;
   }
   async viewOrder(user: User, id: string) {
     let order: Order;
@@ -95,63 +91,45 @@ export class PrintingPartnerService {
   }
 
   async viewPackagingContent(user: User, id: string) {
-    try {
-      const order = await this.viewOrder(user, id);
-      return { polymailer_details: order.polymailer_details };
-    } catch (err) {
-      throw new HttpException(err.message, err.status);
-    }
+    const order = await this.viewOrder(user, id);
+    return { polymailer_details: order.polymailer_details };
   }
 
   async viewDesign(user: User, id: string) {
-    try {
-      const order = await this.viewOrder(user, id);
-      return { design: order.design };
-    } catch (err) {
-      throw new HttpException(err.message, err.status);
-    }
+    const order = await this.viewOrder(user, id);
+    return { design: order.design };
   }
 
   async updateStatus(user: User, body: { status: Status }, id: string) {
-    try {
-      const userWithPartner = await this.userRepository.findOne({
-        where: { id: user.id },
-        relations: { printingPartner: true },
-      });
-      const allowedStatuses = ['In-Progress', 'Printed'];
+    const userWithPartner = await this.userRepository.findOne({
+      where: { id: user.id },
+      relations: { printingPartner: true },
+    });
+    const allowedStatuses = ['In-Progress', 'Printed'];
 
-      if (!allowedStatuses.includes(body.status)) {
-        throw new UnauthorizedException(
-          'Printing partner  only allowed  to set status  to "In  Progress" or "Printed" ',
-        );
-      }
-
-      const order = await this.orderRepository.findOne({
-        where: { id },
-        relations: ['printing_partner'],
-      });
-      console.log(order.printingPartner);
-
-      if (
-        !order.printingPartner ||
-        order.printingPartner.id !== userWithPartner.printingPartner.id
-      ) {
-        throw new UnauthorizedException(
-          'This order hasnt been assigned to you',
-        );
-      }
-
-      return await this.orderRepository.update(id, { status: body.status });
-    } catch (err) {
-      throw new HttpException(err.message, err.status);
+    if (!allowedStatuses.includes(body.status)) {
+      throw new UnauthorizedException(
+        'Printing partner  only allowed  to set status  to "In  Progress" or "Printed" ',
+      );
     }
+
+    const order = await this.orderRepository.findOne({
+      where: { id },
+      relations: ['printing_partner'],
+    });
+    console.log(order.printingPartner);
+
+    if (
+      !order.printingPartner ||
+      order.printingPartner.id !== userWithPartner.printingPartner.id
+    ) {
+      throw new UnauthorizedException('This order hasnt been assigned to you');
+    }
+
+    return await this.orderRepository.update(id, { status: body.status });
   }
 
   async downloadDesign(user: User, id: string) {
-    try {
-      return 'downloads  a design  ';
-    } catch (err) {
-      throw new HttpException(err.message, err.status);
-    }
+    return 'downloads  a design  ';
   }
 }
