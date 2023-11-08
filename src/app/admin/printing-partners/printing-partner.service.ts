@@ -82,23 +82,17 @@ export class PrintingPartnerService {
         ` order with id ${id} does  not  exist or isnt asigned to you`,
       );
     }
-    return {
-      design: order.product.design,
-      thumbnail: order.product.thumbnail,
-      quantity: order.quantity,
-      status: order.status,
-      polymailer_details: order.polymailerDetails,
-    };
+    return order;
   }
 
   async viewPackagingContent(user: User, id: string) {
     const order = await this.viewOrder(user, id);
-    return { polymailer_details: order.polymailer_details };
+    return { polymailer_details: order.polymailerDetails };
   }
 
   async viewDesign(user: User, id: string) {
     const order = await this.viewOrder(user, id);
-    return { design: order.design };
+    return { design: order.product.design };
   }
 
   async updateStatus(user: User, body: { status: Status }, id: string) {

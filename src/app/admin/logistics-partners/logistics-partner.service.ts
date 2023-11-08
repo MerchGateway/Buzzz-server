@@ -109,11 +109,6 @@ export class LogisticsPartnerService {
         `order with id ${id} does  not  exist or is not assigned to you`,
       );
     }
-    return {
-      status: order.status,
-      thumbnail: order.product.thumbnail,
-      quantity: order.quantity,
-      shipping_details: order.shippingDetails,
-    };
+    return order
   }
 }
