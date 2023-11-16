@@ -30,7 +30,24 @@ export class MailService {
       },
     });
   }
+  async sendWaitlistConfirmatoryMessage(user: string) {
+    await this.mailerService.sendMail({
+      to: user,
+      subject: 'Waitlist Confirmation',
+      template: './watilistConfirmation',
+      context: {
+        email: user,
+      },
+    });
+  }
 
+  async sendNewProductUpdate(waitlist: string[]) {
+    await this.mailerService.sendMail({
+      to: waitlist,
+      subject: 'New Products Update',
+      template: './newProductUpdate',
+    });
+  }
   async sendContactUs(contactUsDto: ContactUsDto) {
     await this.mailerService.sendMail({
       to: this.configService.get<string>('fromEmail'),

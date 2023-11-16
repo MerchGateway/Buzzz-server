@@ -9,7 +9,7 @@ export class CreatePayRefDto {
 
   @IsString()
   @IsNotEmpty()
-  public amount: string;
+  public amount: number;
 }
 
 export class PaymentReceiptDto {

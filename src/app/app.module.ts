@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from '../database/database.module';
 import { AuthModule } from './auth/auth.module';
+import { WaitlistModule } from './waitlist/waitlist.module';
 import { UsersModule } from './users/users.module';
 import configuration from '../config/configuration';
 import { WinstonLoggerService } from '../logger/winston-logger/winston-logger.service';
@@ -47,7 +48,8 @@ import { OtpModule } from './otp/otp.module';
     AuthModule,
     UsersModule,
     CategoryModule,
-    CartModule,
+    CartModule, 
+    WaitlistModule,
     ProductModule,
     OrderModule,
     TransactionModule,

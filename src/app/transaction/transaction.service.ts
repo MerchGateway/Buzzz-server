@@ -10,7 +10,7 @@ import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsUtils, Not, Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
-import { Status as orderStatus } from '../../types/order';
+import { OrderType, Status as orderStatus } from '../../types/order';
 import { User } from '../users/entities/user.entity';
 import { OrderService } from '../order/order.service';
 import moment from 'moment';
@@ -41,6 +41,7 @@ import {
 } from '../../types/paystack';
 import { MailService } from '../../mail/mail.service';
 import { PaystackBrokerService } from '../payment/paystack/paystack.service';
+import { Gift } from '../gifting/entities/gift.entity';
 
 @Injectable()
 export class TransactionService {
@@ -64,12 +65,17 @@ export class TransactionService {
     reference: string,
     buyer: User,
     message: string,
+    gift?: Gift,
   ) {
     //create order
-    const orders: Order[] = await this.orderService.createOrder(
-      { shippingAddress: buyer.shippingAddress },
-      buyer,
-    );
+    let orders: Order[];
+    if (gift) {
+      orders = await this.orderService.createOrder(buyer, null, gift);
+    } else {
+      orders = await this.orderService.createOrder(buyer, {
+        shippingAddress: buyer.shippingAddress,
+      });
+    }
 
     const ownerOrders = orders.filter((order) => order.sellerId === buyer.id);
     const resellerOrders = orders.filter(

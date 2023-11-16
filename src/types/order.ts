@@ -9,3 +9,7 @@ export enum Status {
   NOT_DELIEVERED = 'Not-Delievered',
   COMPLETED = 'Completed',
 }
+export enum OrderType {
+  PERSONAL = 'Personal',
+  GIFT = 'Gift',
+}
