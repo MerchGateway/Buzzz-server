@@ -1,6 +1,11 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ArrayContains, FindOptionsWhere } from 'typeorm';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  forwardRef,
+  Inject,
+} from '@nestjs/common';
 import { Gift } from './entities/gift.entity';
 import { CreateGiftDto } from './dto/create-gift.dto';
 import { MailService } from '../../mail/mail.service';
@@ -23,8 +28,10 @@ export class GiftService {
     private readonly giftRepository: Repository<Gift>,
     private mailService: MailService,
     private orderService: OrderService,
+    @Inject(forwardRef(() => TransactionService))
     private transactionService: TransactionService,
     private productService: ProductService,
+    @Inject(forwardRef(() => PaystackBrokerService))
     private paystackService: PaystackBrokerService,
     private readonly configService: ConfigService,
   ) {}

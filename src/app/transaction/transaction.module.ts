@@ -16,13 +16,13 @@ import { GiftModule } from '../gifting/gift.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Transaction, PolymailerContent]),
-    forwardRef(() => GiftModule),
-    OrderModule,
+    forwardRef(() => OrderModule),
     CartModule,
     ProductModule,
     CustomersModule,
     FeeModule,
     MailModule,
+    GiftModule,
     forwardRef(() => PaystackBrokerModule),
   ],
   controllers: [TransactionController],
