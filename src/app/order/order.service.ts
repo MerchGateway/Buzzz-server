@@ -35,6 +35,25 @@ export class OrderService {
     private readonly cartService: CartService,
   ) {}
 
+  public async createGiftOrder(
+    user: User,
+    gift: Gift,
+    payload: CreateOrderDto,
+  ) {
+    // save cart items
+    let order = new Order();
+    order.user = user;
+    order.sellerId = gift.product.seller.id;
+    order.product = gift.product;
+    order.quantity = 1;
+    order.total = 0;
+    order.shippingDetails = {
+      shippingFee: 0,
+      shippingAddress: payload.shippingAddress,
+    };
+    order.type = OrderType.GIFT;
+    return await this.orderRepository.save(order);
+  }
   public async createOrder(user: User, payload?: CreateOrderDto, gift?: Gift) {
     let result: Order[];
     if (gift) {
@@ -43,10 +62,13 @@ export class OrderService {
       order.user = user;
       order.sellerId = gift.product.seller.id;
       order.product = gift.product;
-      order.type = OrderType.GIFT;
+      order.type = OrderType.PAYFORWARD;
+      order.quantity = gift.recievers.length;
+      order.total = gift.recievers.length * gift.product.price * 100;
       order = await this.orderRepository.save(order);
       gift.order = order;
       await this.giftRepository.save(gift);
+      result = [order];
     } else {
       const userCartItems = await this.cartService.getCartItems(user);
 

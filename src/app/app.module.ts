@@ -49,8 +49,8 @@ import { OtpModule } from './otp/otp.module';
     AuthModule,
     UsersModule,
     CategoryModule,
-    CartModule, 
-    WaitlistModule,
+    CartModule,
+
     ProductModule,
     OrderModule,
     TransactionModule,
@@ -63,7 +63,8 @@ import { OtpModule } from './otp/otp.module';
     DesignModule,
     FeeModule,
     OtpModule,
-    GiftModule
+    WaitlistModule,
+    GiftModule,
   ],
   controllers: [AppController, DesignController],
   providers: [

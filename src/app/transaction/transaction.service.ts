@@ -42,6 +42,7 @@ import {
 import { MailService } from '../../mail/mail.service';
 import { PaystackBrokerService } from '../payment/paystack/paystack.service';
 import { Gift } from '../gifting/entities/gift.entity';
+import { GiftService } from '../gifting/gift.service';
 
 @Injectable()
 export class TransactionService {
@@ -54,6 +55,8 @@ export class TransactionService {
     private readonly orderService: OrderService,
     private readonly customerService: CustomersService,
     private readonly productService: ProductService,
+    @Inject(forwardRef(() => GiftService))
+    private readonly giftService: GiftService,
     private readonly feeService: FeeService,
     private readonly configService: ConfigService,
     private readonly mailService: MailService,
@@ -61,6 +64,19 @@ export class TransactionService {
     private readonly paystackBrokerService: PaystackBrokerService,
   ) {}
 
+  public async createGiftTransaction(user: User, orders: Order[]) {
+    const fee = await this.feeService.getLatest();
+    const transaction = this.transactionRepository.create({
+      status: TransactionStatus.SUCCESS,
+      type: OrderType.GIFT,
+      amount: 0,
+      wallet: user.wallet,
+      fee,
+      orders,
+      method: TransactionMethod.CREDIT,
+      isHidden: true,
+    });
+  }
   public async createTransaction(
     reference: string,
     buyer: User,
@@ -103,6 +119,7 @@ export class TransactionService {
         wallet: buyer.wallet,
         message,
         orders,
+        type: gift ? OrderType.PAYFORWARD : OrderType.PERSONAL,
         amount: totalOwnerCost,
         fee,
         feeAmount: totalOwnerCost,
@@ -321,6 +338,19 @@ export class TransactionService {
         ...transactions[0].orders[0],
         quantity: totalOrderQuantity,
       } as Order);
+      if (transactions[0].orders[0].type === OrderType.PAYFORWARD) {
+        // send gift claim confirmation message
+        const gift = await this.giftService.fetchSingleGift({
+          order: { id: transactions[0].orders[0].id },
+        });
+        if (!gift) {
+          return;
+        }
+        await this.mailService.sendGiftNotificationMessageToBeneficiaries(
+          transactions[0].orders[0].user.email,
+          gift,
+        );
+      }
     } else {
       transactionsToVerify.forEach((transaction) => {
         transaction.currency = currency;

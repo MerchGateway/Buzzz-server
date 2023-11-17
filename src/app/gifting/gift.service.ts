@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ArrayContains } from 'typeorm';
+import { Repository, ArrayContains, FindOptionsWhere } from 'typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Gift } from './entities/gift.entity';
 import { CreateGiftDto } from './dto/create-gift.dto';
@@ -9,6 +9,12 @@ import { User } from '../users/entities/user.entity';
 import { PaystackBrokerService } from '../payment/paystack/paystack.service';
 import { ProductService } from '../product/product.service';
 import { Role } from 'src/types/general';
+import { OrderService } from '../order/order.service';
+import { TransactionService } from '../transaction/transaction.service';
+import { CreateOrderDto } from '../order/dto/order.dto';
+import { Order } from '../order/entities/order.entity';
+import { ConfigService } from '@nestjs/config';
+import { Status } from 'src/types/order';
 
 @Injectable()
 export class GiftService {
@@ -16,8 +22,11 @@ export class GiftService {
     @InjectRepository(Gift)
     private readonly giftRepository: Repository<Gift>,
     private mailService: MailService,
+    private orderService: OrderService,
+    private transactionService: TransactionService,
     private productService: ProductService,
     private paystackService: PaystackBrokerService,
+    private readonly configService: ConfigService,
   ) {}
 
   async fetchGiftsByCurrentUser(user: User): Promise<Gift[]> {
@@ -40,10 +49,10 @@ export class GiftService {
       select: ['product', 'id', 'createdAt'],
     });
   }
-  async fetchSingleGift(giftCode: string): Promise<Gift> {
+  async fetchSingleGift(filter: FindOptionsWhere<Gift>): Promise<Gift> {
     return await this.giftRepository.findOne({
       where: {
-        giftCode,
+        ...filter,
       },
       select: ['product', 'id', 'createdAt'],
     });
@@ -70,19 +79,47 @@ export class GiftService {
       });
     }
   }
-  async claimGift(giftCode: string, user: User): Promise<Gift> {
+  async claimGift(
+    giftCode: string,
+    user: User,
+    payload: CreateOrderDto,
+  ): Promise<SuccessResponse> {
     const gift = await this.giftRepository.findOne({
       where: {
         giftCode,
+        order: { status: Status.PAID },
         recievers: ArrayContains([user.email]),
       },
     });
+
     if (!gift) {
-      throw new NotFoundException(
-        `Gift associated with the  gift code '${giftCode}' does not exit`,
-      );
+      throw new NotFoundException(`Invalid gift code`);
     }
-    return gift;
+    const orders: Order[] = [
+      await this.orderService.createGiftOrder(user, gift, payload),
+    ];
+    await this.transactionService.createGiftTransaction(user, orders);
+    // make the provided gift code not apply to the user again after claiming the gift
+    let giftBenefactors = [...gift.recievers];
+    giftBenefactors = giftBenefactors.filter((benefactor) => {
+      return benefactor !== user.email;
+    });
+    // when all gift has been claimed and no longer applies to anyone, delete gift
+    if (!giftBenefactors[0]) {
+      await this.giftRepository.delete({ giftCode });
+    } else {
+      gift.recievers = giftBenefactors;
+      await this.giftRepository.save(gift);
+    }
+    // send gift claim confirmation message
+    await this.mailService.sendGiftClaimConfirmationMessage(
+      user,
+      orders[0].id,
+      `${gift.order.user.firstName} ${
+        (orders[0].id, gift.order.user.lastName)
+      }`,
+    );
+    return new SuccessResponse(gift, 'Gift claimed successfully.');
   }
   async createGift(
     data: CreateGiftDto,
@@ -99,7 +136,12 @@ export class GiftService {
     });
     await this.giftRepository.save(gift);
 
-    return await this.paystackService.createPayRefForGift(user, gift);
+    const paymentLink = await this.paystackService.createPayRefForGift(
+      user,
+      gift,
+    );
+
+    return paymentLink;
   }
 
   // async sendNewProductUpdatesToWaitlist(): Promise<SuccessResponse> {

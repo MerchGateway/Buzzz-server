@@ -12,4 +12,5 @@ export enum Status {
 export enum OrderType {
   PERSONAL = 'Personal',
   GIFT = 'Gift',
+  PAYFORWARD = 'Pay-Gift-Forward',
 }

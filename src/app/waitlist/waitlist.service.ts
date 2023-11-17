@@ -20,7 +20,7 @@ export class WaitlistService {
   async createwaitlist(waitlist: CreateWaitlistDto): Promise<Waitlist> {
     let newWaitlist = this.waitlistRepository.create(waitlist);
     newWaitlist = await this.waitlistRepository.save(newWaitlist);
-    await this.mailService.sendWaitlistConfirmatoryMessage(waitlist.client);
+    await this.mailService.sendWaitlistConfirmationMessage(waitlist.client);
     return newWaitlist;
   }
   // async sendNewProductUpdatesToWaitlist(): Promise<SuccessResponse> {

@@ -6,6 +6,7 @@ import { ContactUsDto } from '../app/contact/dto/contact.dto';
 import { OTP } from '../app/otp/entities/otp.entity';
 import { OTPReasonText } from '../types/otp';
 import { Order } from '../app/order/entities/order.entity';
+import { Gift } from 'src/app/gifting/entities/gift.entity';
 
 @Injectable()
 export class MailService {
@@ -30,13 +31,42 @@ export class MailService {
       },
     });
   }
-  async sendWaitlistConfirmatoryMessage(user: string) {
+  async sendWaitlistConfirmationMessage(user: string) {
     await this.mailerService.sendMail({
       to: user,
       subject: 'Waitlist Confirmation',
       template: './watilistConfirmation',
       context: {
         email: user,
+      },
+    });
+  }
+  async sendGiftClaimConfirmationMessage(
+    user: User,
+    orderId: string,
+    gifter: string,
+  ) {
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Gift Claim Confirmation',
+      template: './giftClaimConfirmation',
+      context: {
+        email: user.email,
+        name: user.firstName,
+        gifter,
+        orderId,
+      },
+    });
+  }
+  async sendGiftNotificationMessageToBeneficiaries(user: string, gift: Gift) {
+    await this.mailerService.sendMail({
+      to: gift.recievers,
+      subject: 'New Gift Alert!',
+      template: './newGiftNotification',
+      context: {
+        email: user,
+        gifter: `${gift.order.user.firstName} ${gift.order.user.lastName}`,
+        giftCode: gift.giftCode,
       },
     });
   }
