@@ -22,7 +22,7 @@ import { GiftModule } from '../gifting/gift.module';
     CustomersModule,
     FeeModule,
     MailModule,
-    GiftModule,
+    forwardRef(() => GiftModule),
     forwardRef(() => PaystackBrokerModule),
   ],
   controllers: [TransactionController],

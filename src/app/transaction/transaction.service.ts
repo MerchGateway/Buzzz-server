@@ -55,7 +55,6 @@ export class TransactionService {
     private readonly orderService: OrderService,
     private readonly customerService: CustomersService,
     private readonly productService: ProductService,
-    @Inject(forwardRef(() => GiftService))
     private readonly giftService: GiftService,
     private readonly feeService: FeeService,
     private readonly configService: ConfigService,
