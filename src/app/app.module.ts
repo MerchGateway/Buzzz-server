@@ -29,6 +29,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { FeeModule } from './fee/fee.module';
+import { GiftModule } from './gifting/gift.module';
 import { OtpModule } from './otp/otp.module';
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { OtpModule } from './otp/otp.module';
     DesignModule,
     FeeModule,
     OtpModule,
+    GiftModule
   ],
   controllers: [AppController, DesignController],
   providers: [
