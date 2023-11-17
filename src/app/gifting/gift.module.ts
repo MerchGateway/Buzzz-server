@@ -12,10 +12,11 @@ import { OrderModule } from '../order/order.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Gift]),
+    forwardRef(() => TransactionModule),
     MailModule,
     ProductModule,
     PaystackBrokerModule,
-    forwardRef(() => TransactionModule),
+
     OrderModule,
   ],
   controllers: [GiftController],
