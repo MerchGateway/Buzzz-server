@@ -347,7 +347,9 @@ export class TransactionService {
         if (!gift) {
           return;
         }
-        const giftPreviewLink = '';
+        const giftPreviewLink = `${this.configService.get(
+          'clientUrl',
+        )}/preview/${gift.product.id}`;
         await this.mailService.sendGiftNotificationMessageToBeneficiaries(
           transactions[0].orders[0].user.email,
           { gift, giftPreviewLink },
