@@ -130,8 +130,6 @@ export class AuthService {
     const payload: JwtPayload = { sub: user.id, role: user.role };
     user.password && delete user.password;
 
-    // get refreshed push notification registration token each time on signin to capture possible new device
-
     if (!user.wallet) {
       const wallet = await this.walletService.createWallet();
       user = await this.userRepository.save({
@@ -229,24 +227,28 @@ export class AuthService {
       select: ['id', 'email', 'firstName', 'username', 'identityProvider'],
     });
 
-    if (!user) {
-      throw new NotFoundException(
-        `User with email ${forgotPasswordDto.email} does not exist.`,
-      );
+    // if (!user) {
+    //   throw new NotFoundException(
+    //     `User with email ${forgotPasswordDto.email} does not exist.`,
+    //   );
+    // }
+    if (user) {
+      if (user.identityProvider) {
+        const identityProviderString = user.identityProvider.toLowerCase();
+        throw new BadRequestException(
+          `It looks like you signed up with your ${identityProviderString} account using this email address. Please sign in with ${identityProviderString} to access your account.`,
+        );
+      }
+
+      const passwordResetToken = await this.findOrCreatePasswordReset(user);
+
+      await this.mailService.sendResetPassword(user, passwordResetToken.token);
     }
 
-    if (user.identityProvider) {
-      const identityProviderString = user.identityProvider.toLowerCase();
-      throw new BadRequestException(
-        `It looks like you signed up with your ${identityProviderString} account using this email address. Please sign in with ${identityProviderString} to access your account.`,
-      );
-    }
-
-    const passwordResetToken = await this.findOrCreatePasswordReset(user);
-
-    await this.mailService.sendResetPassword(user, passwordResetToken.token);
-
-    return new SuccessResponse({}, 'Password reset email sent successfully.');
+    return new SuccessResponse(
+      {},
+      `If you  previously registered with email ${forgotPasswordDto.email} you will recieve a mail with a reset password link`,
+    );
   }
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
