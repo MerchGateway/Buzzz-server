@@ -1,4 +1,4 @@
-import { IsArray, IsEmail, IsUUID, isNotEmpty } from 'class-validator';
+import { IsArray, IsUUID } from 'class-validator';
 
 export class CreateGiftDto {
   @IsUUID()

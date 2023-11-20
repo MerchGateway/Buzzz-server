@@ -27,7 +27,7 @@ export class Gift extends Timestamp {
   product: Product;
 
   @OneToOne(() => Order, {
-    cascade: true
+    cascade: true,
   })
   @JoinColumn({ name: 'order_id' })
   order: Order;

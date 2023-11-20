@@ -18,6 +18,12 @@ export class WaitlistService {
     return await this.waitlistRepository.find();
   }
   async createwaitlist(waitlist: CreateWaitlistDto): Promise<Waitlist> {
+    const isAlreadyAdded = await this.waitlistRepository.findOneBy({
+      client: waitlist.client,
+    });
+    if (isAlreadyAdded) {
+      return isAlreadyAdded;
+    }
     let newWaitlist = this.waitlistRepository.create(waitlist);
     newWaitlist = await this.waitlistRepository.save(newWaitlist);
     await this.mailService.sendWaitlistConfirmationMessage(waitlist.client);
