@@ -13,7 +13,6 @@ export class WaitlistController {
   @Public()
   @Post('')
   createWaitlist(data: CreateWaitlistDto) {
-    console.log('edddd');
     return this.waitlistService.createwaitlist(data);
   }
   //   @Roles(Role.SUPER_ADMIN, Role.ADMIN)
