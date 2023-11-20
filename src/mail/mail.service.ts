@@ -35,7 +35,7 @@ export class MailService {
     await this.mailerService.sendMail({
       to: user,
       subject: 'Waitlist Confirmation',
-      template: './watilistConfirmation',
+      template: './waitlistConfirmation',
       context: {
         email: user,
       },
@@ -58,15 +58,19 @@ export class MailService {
       },
     });
   }
-  async sendGiftNotificationMessageToBeneficiaries(user: string, gift: Gift) {
+  async sendGiftNotificationMessageToBeneficiaries(
+    user: string,
+    payload: { gift: Gift; giftPreviewLink: string },
+  ) {
     await this.mailerService.sendMail({
-      to: gift.recievers,
-      subject: 'New Gift Alert!',
+      to: payload.gift.recievers,
+      subject: 'New Gift Alert 🎁!',
       template: './newGiftNotification',
       context: {
         email: user,
-        gifter: `${gift.order.user.firstName} ${gift.order.user.lastName}`,
-        giftCode: gift.giftCode,
+        gifter: `${payload.gift.order.user.firstName} ${payload.gift.order.user.lastName}`,
+        giftCode: payload.gift.giftCode,
+        giftPreviewLink: payload.giftPreviewLink,
       },
     });
   }

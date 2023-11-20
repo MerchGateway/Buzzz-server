@@ -18,6 +18,7 @@ export class WaitlistService {
     return await this.waitlistRepository.find();
   }
   async createwaitlist(waitlist: CreateWaitlistDto): Promise<Waitlist> {
+    console.log(waitlist);
     const isAlreadyAdded = await this.waitlistRepository.findOneBy({
       client: waitlist.client,
     });

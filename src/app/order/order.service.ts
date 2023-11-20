@@ -41,7 +41,7 @@ export class OrderService {
     payload: CreateOrderDto,
   ) {
     // save cart items
-    let order = new Order();
+    const order = new Order();
     order.user = user;
     order.sellerId = gift.product.seller.id;
     order.product = gift.product;

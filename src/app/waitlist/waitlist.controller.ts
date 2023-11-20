@@ -1,4 +1,4 @@
-import { Controller, Post, UseGuards, Get } from '@nestjs/common';
+import { Controller, Post, UseGuards, Get, Body } from '@nestjs/common';
 import { CreateWaitlistDto } from './dto/create-waitlist.dto';
 import { Role } from 'src/types/general';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -12,7 +12,7 @@ export class WaitlistController {
 
   @Public()
   @Post('')
-  createWaitlist(data: CreateWaitlistDto) {
+  createWaitlist(@Body() data: CreateWaitlistDto) {
     return this.waitlistService.createwaitlist(data);
   }
   //   @Roles(Role.SUPER_ADMIN, Role.ADMIN)
