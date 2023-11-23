@@ -104,28 +104,6 @@ export class AuthService {
     return user;
   }
 
-  async postAdminSignin(user: User) {
-    const payload: JwtPayload = { sub: user.id, role: user.role };
-    user.password && delete user.password;
-
-    if (!user.wallet) {
-      const wallet = await this.walletService.createWallet();
-      user = await this.userRepository.save({
-        ...user,
-        wallet,
-      });
-    }
-
-    return {
-      user,
-      accessToken: this.jwtService.sign(payload),
-      refreshToken: this.jwtService.sign(payload, {
-        secret: this.configService.get<string>('jwt.refreshSecret'),
-        expiresIn: this.configService.get<string>('jwt.refreshExpiresIn'),
-      }),
-    };
-  }
-
   async postSignin(user: User, designId?: string) {
     const payload: JwtPayload = { sub: user.id, role: user.role };
     user.password && delete user.password;
@@ -323,7 +301,7 @@ export class AuthService {
   }
 
   async adminSignin(user: User) {
-    const data = await this.postAdminSignin(user);
+    const data = await this.postSignin(user);
     return new SuccessResponse(data, 'Signin successful');
   }
 
@@ -376,11 +354,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid token');
     }
 
-    const user = await this.userRepository.findOneBy({ id: userId });
-
-    if (!user) {
-      throw new UnauthorizedException('Invalid token');
-    }
+    const user = await this.usersService.findOneProfile(userId);
 
     const res = await this.postSignin(user);
 

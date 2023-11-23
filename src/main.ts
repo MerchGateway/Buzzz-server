@@ -25,6 +25,7 @@ async function bootstrap() {
     origin: [
       config.get<string>('clientUrl'),
       config.get<string>('designClientUrl'),
+      config.get<string>('adminClientUrl'),
       config.get<string>('debugClientUrl'),
       config.get<string>('debugDesignClientUrl'),
     ],
