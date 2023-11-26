@@ -19,6 +19,8 @@ import { PolymailerContent } from '../order/entities/polymailer-content.entity';
 import { BullModule } from '@nestjs/bull';
 import { getRedisConfiguration } from 'src/config/redis-configuration';
 import { FeeModule } from '../fee/fee.module';
+import { GiftModule } from '../gifting/gift.module';
+
 @Module({
   imports: [
     BullModule.forRoot({
@@ -33,6 +35,7 @@ import { FeeModule } from '../fee/fee.module';
       secret: configuration().jwt.secret,
       signOptions: { expiresIn: configuration().jwt.expiresIn },
     }),
+    GiftModule,
     PaystackBrokerModule,
     ProductModule,
     CartModule,
