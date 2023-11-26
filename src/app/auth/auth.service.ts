@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   HttpStatus,
   Inject,
   Injectable,
@@ -33,6 +34,7 @@ import { TwoFactorAuthService } from '../2fa/twoFactorAuth.service';
 import { UsersService } from '../users/users.service';
 import { MailService } from '../../mail/mail.service';
 import { ConfigService } from '@nestjs/config';
+import { Role } from 'src/types/general';
 
 @Injectable()
 export class AuthService {
@@ -156,6 +158,9 @@ export class AuthService {
   }
 
   async signin(user: User, designId?: string) {
+    if (user.role !== Role.USER) {
+      throw new ForbiddenException('Unauthorized');
+    }
     const data = await this.postSignin(user, designId);
 
     if (user.allow2fa == true) {

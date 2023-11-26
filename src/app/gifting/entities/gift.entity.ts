@@ -7,7 +7,7 @@ import {
   BeforeInsert,
   OneToOne,
 } from 'typeorm';
-import { User } from 'src/app/users/entities/user.entity';
+
 import { uniqueUsernameGenerator } from 'unique-username-generator';
 import { Timestamp } from '../../../database/timestamp.entity';
 import { Product } from 'src/app/product/entities/product.entity';

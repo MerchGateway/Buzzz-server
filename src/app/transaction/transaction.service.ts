@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsUtils, Not, Repository } from 'typeorm';
+import { FindOptionsUtils, Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { OrderType, Status as orderStatus } from '../../types/order';
 import { User } from '../users/entities/user.entity';
@@ -76,6 +76,7 @@ export class TransactionService {
       method: TransactionMethod.CREDIT,
       isHidden: true,
     });
+    await this.transactionRepository.save(transaction);
   }
   public async createTransaction(
     reference: string,
@@ -346,9 +347,12 @@ export class TransactionService {
         if (!gift) {
           return;
         }
+        const giftPreviewLink = `${this.configService.get(
+          'clientUrl',
+        )}/preview/${gift.product.id}`;
         await this.mailService.sendGiftNotificationMessageToBeneficiaries(
           transactions[0].orders[0].user.email,
-          gift,
+          { gift, giftPreviewLink },
         );
       }
     } else {

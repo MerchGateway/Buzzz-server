@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { Waitlist } from './entities/waitlist.entity';
 import { CreateWaitlistDto } from './dto/create-waitlist.dto';
 import { MailService } from '../../mail/mail.service';
+import { SuccessResponse } from 'src/utils/response';
 // import { SuccessResponse } from 'src/utils/response';
 
 @Injectable()
@@ -17,11 +18,24 @@ export class WaitlistService {
   async fetchwaitlist(): Promise<Waitlist[]> {
     return await this.waitlistRepository.find();
   }
-  async createwaitlist(waitlist: CreateWaitlistDto): Promise<Waitlist> {
-    let newWaitlist = this.waitlistRepository.create(waitlist);
-    newWaitlist = await this.waitlistRepository.save(newWaitlist);
+  async createwaitlist(waitlist: CreateWaitlistDto): Promise<SuccessResponse> {
+    console.log(waitlist);
+    const isAlreadyAdded = await this.waitlistRepository.findOneBy({
+      client: waitlist.client,
+    });
+    if (isAlreadyAdded) {
+      return new SuccessResponse(
+        isAlreadyAdded,
+        'You have been successfully added to our waitlist',
+      );
+    }
+    const newWaitlist = this.waitlistRepository.create(waitlist);
+    await this.waitlistRepository.save(newWaitlist);
     await this.mailService.sendWaitlistConfirmationMessage(waitlist.client);
-    return newWaitlist;
+    return new SuccessResponse(
+      isAlreadyAdded,
+      'You have been successfully added to our waitlist',
+    );
   }
   // async sendNewProductUpdatesToWaitlist(): Promise<SuccessResponse> {
   //   const newWaitlist = await this.waitlistRepository.find({
