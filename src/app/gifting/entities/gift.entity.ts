@@ -27,7 +27,7 @@ export class Gift extends Timestamp {
   product: Product;
 
   @OneToOne(() => Order, {
-    cascade: true
+    cascade: true,
   })
   @JoinColumn({ name: 'order_id' })
   order: Order;
@@ -35,16 +35,20 @@ export class Gift extends Timestamp {
   @Column({ type: 'simple-array' })
   recievers: string[];
 
+  @Column({ nullable: true })
+  note: string;
+
   @BeforeInsert()
   private generateGiftCode() {
     if (!this.giftCode) {
-      const giftCode = uniqueUsernameGenerator({
-        dictionaries: [['buzzz'], ['gifting']],
-        length: 6,
-        style: 'upperCase',
-        randomDigits: 2,
-      });
-      this.giftCode = giftCode;
+      //Generate giftncode here
+      // const giftCode = uniqueUsernameGenerator({
+      //   dictionaries: [['buzzz'], ['gifting']],
+      //   length: 6,
+      //   style: 'upperCase',
+      //   randomDigits: 2,
+      // });
+      // this.giftCode = giftCode;
     }
   }
 }

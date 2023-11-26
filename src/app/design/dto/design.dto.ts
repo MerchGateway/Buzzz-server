@@ -4,7 +4,10 @@ import {
   IsOptional,
   IsString,
   IsNotEmpty,
+  IsUUID,
+  IsArray,
   IsBoolean,
+  IsNotEmptyObject,
 } from 'class-validator';
 import { Color } from 'src/types/color';
 import { Size } from 'src/types/size';
@@ -58,4 +61,12 @@ export class PublishDesignAndCheckoutDto {
   @IsString()
   @IsNotEmpty()
   public thumbnail: string;
+}
+export class PublishAndGiftDto extends PublishDesignDto {
+  @IsUUID()
+  product: string;
+
+  @IsArray()
+  @IsNotEmptyObject()
+  recievers: string[];
 }

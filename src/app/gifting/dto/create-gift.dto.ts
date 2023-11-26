@@ -1,8 +1,19 @@
-import { IsArray, IsEmail, IsUUID, isNotEmpty } from 'class-validator';
+import {
+  IsArray,
+  IsEmail,
+  IsNotEmptyObject,
+  IsOptional,
+  IsString,
+  IsUUID
+} from 'class-validator';
 
 export class CreateGiftDto {
   @IsUUID()
   product: string;
   @IsArray()
+  @IsNotEmptyObject()
   recievers: string[];
+  @IsString()
+  @IsOptional()
+  note?: string;
 }

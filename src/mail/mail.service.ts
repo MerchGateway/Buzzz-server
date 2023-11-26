@@ -67,6 +67,7 @@ export class MailService {
         email: user,
         gifter: `${gift.order.user.firstName} ${gift.order.user.lastName}`,
         giftCode: gift.giftCode,
+        note: gift.note?gift.note:'',
       },
     });
   }

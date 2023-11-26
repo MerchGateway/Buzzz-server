@@ -339,7 +339,7 @@ export class TransactionService {
         quantity: totalOrderQuantity,
       } as Order);
       if (transactions[0].orders[0].type === OrderType.PAYFORWARD) {
-        // send gift claim confirmation message
+        // send gift creation message to all beneficiaries
         const gift = await this.giftService.fetchSingleGift({
           order: { id: transactions[0].orders[0].id },
         });

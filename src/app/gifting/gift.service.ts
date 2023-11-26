@@ -122,9 +122,7 @@ export class GiftService {
     await this.mailService.sendGiftClaimConfirmationMessage(
       user,
       orders[0].id,
-      `${gift.order.user.firstName} ${
-        (orders[0].id, gift.order.user.lastName)
-      }`,
+      `${gift.order.user.firstName} ${gift.order.user.lastName}`,
     );
     return new SuccessResponse(gift, 'Gift claimed successfully.');
   }
@@ -140,6 +138,7 @@ export class GiftService {
     const gift = this.giftRepository.create({
       product,
       recievers: data.recievers,
+      note: data.note ? data.note : null,
     });
     await this.giftRepository.save(gift);
 

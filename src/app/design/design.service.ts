@@ -12,6 +12,7 @@ import { Design } from './entities/design.entity';
 import {
   PublishDesignDto,
   PublishDesignAndCheckoutDto,
+  PublishAndGiftDto,
 } from './dto/design.dto';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
@@ -29,6 +30,7 @@ import { WsException } from '@nestjs/websockets/errors';
 import { Role } from 'src/types/general';
 import { FeeService } from '../fee/fee.service';
 import { Product } from '../product/entities/product.entity';
+import { GiftService } from '../gifting/gift.service';
 @Injectable()
 export class DesignService {
   constructor(
@@ -38,6 +40,7 @@ export class DesignService {
     private readonly designRepository: Repository<Design>,
     private readonly cartService: CartService,
     private readonly productService: ProductService,
+    private readonly giftService: GiftService,
     private readonly paystackBrokerService: PaystackBrokerService,
     @Inject(CLOUDINARY)
     private readonly imageStorage: CloudinaryProvider,
@@ -273,6 +276,25 @@ export class DesignService {
 
     await this.designRepository.save(design);
     return product;
+  }
+
+  async publishAndGift(
+    user: User,
+    payload: PublishAndGiftDto,
+    id: string,
+    category_id: string,
+  ): Promise<{
+    authorization_url: string;
+    access_code: string;
+    reference: string;
+  }> {
+    const data = { ...payload, isPublic: false };
+    const product = await this.publishDesign(user, data, id, category_id);
+    const createGiftPayload = {
+      product: product.id,
+      recievers: payload.recievers,
+    };
+    return await this.giftService.createGift(createGiftPayload, user);
   }
 
   async publishDesignAndCheckout(
