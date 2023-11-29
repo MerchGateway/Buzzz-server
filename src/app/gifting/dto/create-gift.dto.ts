@@ -1,10 +1,9 @@
 import {
   IsArray,
-  IsEmail,
   IsNotEmptyObject,
   IsOptional,
   IsString,
-  IsUUID
+  IsUUID,
 } from 'class-validator';
 
 export class CreateGiftDto {

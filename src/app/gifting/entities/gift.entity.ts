@@ -7,8 +7,7 @@ import {
   BeforeInsert,
   OneToOne,
 } from 'typeorm';
-
-import { uniqueUsernameGenerator } from 'unique-username-generator';
+import * as voucherCode from 'voucher-code-generator';
 import { Timestamp } from '../../../database/timestamp.entity';
 import { Product } from 'src/app/product/entities/product.entity';
 import { Order } from 'src/app/order/entities/order.entity';
@@ -42,13 +41,11 @@ export class Gift extends Timestamp {
   private generateGiftCode() {
     if (!this.giftCode) {
       //Generate giftncode here
-      // const giftCode = uniqueUsernameGenerator({
-      //   dictionaries: [['buzzz'], ['gifting']],
-      //   length: 6,
-      //   style: 'upperCase',
-      //   randomDigits: 2,
-      // });
-      // this.giftCode = giftCode;
+      const giftCode = voucherCode.generate({
+        prefix: 'buzzz-',
+      });
+
+      this.giftCode = giftCode;
     }
   }
 }
