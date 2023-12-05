@@ -129,7 +129,7 @@ export class DesignController {
     @Param('id', ParseUUIDPipe) id: string,
     @Query('category-id', ParseUUIDPipe) category_id: string,
   ) {
-    return this.designService.publishDesign(user, payload, id, category_id);
+    return this.designService.publishAndGift(user, payload, id, category_id);
   }
 
   @Get('fetch-my-design/:id')
