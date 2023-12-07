@@ -36,8 +36,8 @@ export class Gift extends Timestamp {
 
   @Column()
   note: string;
-   
-  @Column({type:'integer'})
+
+  @Column({ type: 'integer' })
   quantity: number;
 
   @BeforeInsert()
@@ -51,5 +51,4 @@ export class Gift extends Timestamp {
       this.giftCode = giftCode;
     }
   }
-  
 }

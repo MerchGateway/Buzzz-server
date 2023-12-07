@@ -136,20 +136,22 @@ export class GiftService {
     reference: string;
   }> {
     if (data.quantity && data.recievers.length > 1) {
-      throw BadRequestException('You can not pass a quantity field and a recievers field containing more than one reciever concurrently')
+      throw new BadRequestException(
+        'You can not pass a quantity field and a recievers field containing more than one reciever concurrently',
+      );
     }
     const product = await this.productService.handleGetAProduct(data.product);
     const gift = this.giftRepository.create({
       product,
       recievers: data.recievers,
-      quantity:parseInt(data.quantity)|data.recievers.length,
+      quantity: parseInt(data.quantity) | data.recievers.length,
       note: data.note ? data.note : 'Suprise!!!',
     });
     await this.giftRepository.save(gift);
 
     const paymentLink = await this.paystackService.createPayRefForGift(
       user,
-      gift
+      gift,
     );
     return paymentLink;
   }

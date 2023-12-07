@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class AddQantityToGiftDB1701974187908 implements MigrationInterface {
-    name = 'AddQantityToGiftDB1701974187908'
+export class AddQuantityToGiftDB1701974394688 implements MigrationInterface {
+    name = 'AddQuantityToGiftDB1701974394688'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`ALTER TABLE \`gift\` ADD \`note\` varchar(255) NOT NULL`);
