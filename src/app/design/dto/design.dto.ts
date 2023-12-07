@@ -29,7 +29,7 @@ export class PublishDesignDto {
 
   @IsString()
   @IsNotEmpty()
-  public thumbnail: string;y
+  public thumbnail: string;
 }
 export class PublishDesignAndCheckoutDto {
   @IsString()
