@@ -28,17 +28,17 @@ export class Gift extends Timestamp {
   @OneToOne(() => Order, {
     cascade: true,
   })
-  @JoinColumn({ name: 'order_id' })
-  order: Order;
-
-  @Column({ type: 'simple-array' })
-  recievers: string[];
-
   @Column()
   note: string;
 
   @Column({ type: 'integer' })
   quantity: number;
+
+  @JoinColumn({ name: 'order_id' })
+  order: Order;
+
+  @Column({ type: 'simple-array' })
+  recievers: string[];
 
   @BeforeInsert()
   private generateGiftCode() {

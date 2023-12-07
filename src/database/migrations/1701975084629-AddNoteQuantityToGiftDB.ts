@@ -1,9 +1,12 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class AddQuantityToGiftDB1701974394688 implements MigrationInterface {
-    name = 'AddQuantityToGiftDB1701974394688'
+export class AddNoteQuantityToGiftDB1701975084629 implements MigrationInterface {
+    name = 'AddNoteQuantityToGiftDB1701975084629'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE \`gift\` DROP FOREIGN KEY \`FK_9b531b99ffe61e202a283a4bd9d\``);
+        await queryRunner.query(`DROP INDEX \`REL_9b531b99ffe61e202a283a4bd9\` ON \`gift\``);
+        await queryRunner.query(`ALTER TABLE \`gift\` DROP COLUMN \`order_id\``);
         await queryRunner.query(`ALTER TABLE \`gift\` ADD \`note\` varchar(255) NOT NULL`);
         await queryRunner.query(`ALTER TABLE \`gift\` ADD \`quantity\` int NOT NULL`);
         await queryRunner.query(`ALTER TABLE \`category\` CHANGE \`deleted_at\` \`deleted_at\` datetime(6) NULL`);
@@ -93,10 +96,8 @@ export class AddQuantityToGiftDB1701974394688 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE \`customer\` CHANGE \`seller_id\` \`seller_id\` varchar(36) NULL`);
         await queryRunner.query(`ALTER TABLE \`customer\` CHANGE \`buyer_id\` \`buyer_id\` varchar(36) NULL`);
         await queryRunner.query(`ALTER TABLE \`gift\` DROP FOREIGN KEY \`FK_9390b06adb20c221b02f86da553\``);
-        await queryRunner.query(`ALTER TABLE \`gift\` DROP FOREIGN KEY \`FK_9b531b99ffe61e202a283a4bd9d\``);
         await queryRunner.query(`ALTER TABLE \`gift\` CHANGE \`deleted_at\` \`deleted_at\` datetime(6) NULL`);
         await queryRunner.query(`ALTER TABLE \`gift\` CHANGE \`product_id\` \`product_id\` varchar(36) NULL`);
-        await queryRunner.query(`ALTER TABLE \`gift\` CHANGE \`order_id\` \`order_id\` varchar(36) NULL`);
         await queryRunner.query(`ALTER TABLE \`notification\` DROP FOREIGN KEY \`FK_928b7aa1754e08e1ed7052cb9d8\``);
         await queryRunner.query(`ALTER TABLE \`notification\` CHANGE \`deleted_at\` \`deleted_at\` datetime(6) NULL`);
         await queryRunner.query(`ALTER TABLE \`notification\` CHANGE \`user_id\` \`user_id\` varchar(36) NULL`);
@@ -127,7 +128,6 @@ export class AddQuantityToGiftDB1701974394688 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE \`customer\` ADD CONSTRAINT \`FK_74e87d23a0f8db6a9ce4be59118\` FOREIGN KEY (\`seller_id\`) REFERENCES \`user\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE \`customer\` ADD CONSTRAINT \`FK_409eea92163eb5952c9090bd950\` FOREIGN KEY (\`buyer_id\`) REFERENCES \`user\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE \`gift\` ADD CONSTRAINT \`FK_9390b06adb20c221b02f86da553\` FOREIGN KEY (\`product_id\`) REFERENCES \`product\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE \`gift\` ADD CONSTRAINT \`FK_9b531b99ffe61e202a283a4bd9d\` FOREIGN KEY (\`order_id\`) REFERENCES \`order\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE \`notification\` ADD CONSTRAINT \`FK_928b7aa1754e08e1ed7052cb9d8\` FOREIGN KEY (\`user_id\`) REFERENCES \`user\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE \`otp\` ADD CONSTRAINT \`FK_258d028d322ea3b856bf9f12f25\` FOREIGN KEY (\`user_id\`) REFERENCES \`user\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
     }
@@ -135,7 +135,6 @@ export class AddQuantityToGiftDB1701974394688 implements MigrationInterface {
     public async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`ALTER TABLE \`otp\` DROP FOREIGN KEY \`FK_258d028d322ea3b856bf9f12f25\``);
         await queryRunner.query(`ALTER TABLE \`notification\` DROP FOREIGN KEY \`FK_928b7aa1754e08e1ed7052cb9d8\``);
-        await queryRunner.query(`ALTER TABLE \`gift\` DROP FOREIGN KEY \`FK_9b531b99ffe61e202a283a4bd9d\``);
         await queryRunner.query(`ALTER TABLE \`gift\` DROP FOREIGN KEY \`FK_9390b06adb20c221b02f86da553\``);
         await queryRunner.query(`ALTER TABLE \`customer\` DROP FOREIGN KEY \`FK_409eea92163eb5952c9090bd950\``);
         await queryRunner.query(`ALTER TABLE \`customer\` DROP FOREIGN KEY \`FK_74e87d23a0f8db6a9ce4be59118\``);
@@ -166,10 +165,8 @@ export class AddQuantityToGiftDB1701974394688 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE \`notification\` CHANGE \`user_id\` \`user_id\` varchar(36) NULL DEFAULT 'NULL'`);
         await queryRunner.query(`ALTER TABLE \`notification\` CHANGE \`deleted_at\` \`deleted_at\` datetime(6) NULL DEFAULT 'NULL'`);
         await queryRunner.query(`ALTER TABLE \`notification\` ADD CONSTRAINT \`FK_928b7aa1754e08e1ed7052cb9d8\` FOREIGN KEY (\`user_id\`) REFERENCES \`user\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE \`gift\` CHANGE \`order_id\` \`order_id\` varchar(36) NULL DEFAULT 'NULL'`);
         await queryRunner.query(`ALTER TABLE \`gift\` CHANGE \`product_id\` \`product_id\` varchar(36) NULL DEFAULT 'NULL'`);
         await queryRunner.query(`ALTER TABLE \`gift\` CHANGE \`deleted_at\` \`deleted_at\` datetime(6) NULL DEFAULT 'NULL'`);
-        await queryRunner.query(`ALTER TABLE \`gift\` ADD CONSTRAINT \`FK_9b531b99ffe61e202a283a4bd9d\` FOREIGN KEY (\`order_id\`) REFERENCES \`order\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE \`gift\` ADD CONSTRAINT \`FK_9390b06adb20c221b02f86da553\` FOREIGN KEY (\`product_id\`) REFERENCES \`product\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE \`customer\` CHANGE \`buyer_id\` \`buyer_id\` varchar(36) NULL DEFAULT 'NULL'`);
         await queryRunner.query(`ALTER TABLE \`customer\` CHANGE \`seller_id\` \`seller_id\` varchar(36) NULL DEFAULT 'NULL'`);
@@ -259,6 +256,9 @@ export class AddQuantityToGiftDB1701974394688 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE \`category\` CHANGE \`deleted_at\` \`deleted_at\` datetime(6) NULL DEFAULT 'NULL'`);
         await queryRunner.query(`ALTER TABLE \`gift\` DROP COLUMN \`quantity\``);
         await queryRunner.query(`ALTER TABLE \`gift\` DROP COLUMN \`note\``);
+        await queryRunner.query(`ALTER TABLE \`gift\` ADD \`order_id\` varchar(36) NULL DEFAULT 'NULL'`);
+        await queryRunner.query(`CREATE UNIQUE INDEX \`REL_9b531b99ffe61e202a283a4bd9\` ON \`gift\` (\`order_id\`)`);
+        await queryRunner.query(`ALTER TABLE \`gift\` ADD CONSTRAINT \`FK_9b531b99ffe61e202a283a4bd9d\` FOREIGN KEY (\`order_id\`) REFERENCES \`order\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
     }
 
 }
