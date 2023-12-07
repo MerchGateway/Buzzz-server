@@ -34,8 +34,11 @@ export class Gift extends Timestamp {
   @Column({ type: 'simple-array' })
   recievers: string[];
 
-  @Column({ nullable: true })
+  @Column()
   note: string;
+   
+  @Column({type:'integer'})
+  quantity: number;
 
   @BeforeInsert()
   private generateGiftCode() {
@@ -48,4 +51,5 @@ export class Gift extends Timestamp {
       this.giftCode = giftCode;
     }
   }
+  
 }

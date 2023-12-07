@@ -82,7 +82,7 @@ export class TransactionService {
     reference: string,
     buyer: User,
     message: string,
-    gift?: Gift,
+    gift?:Gift,
   ) {
     //create order
     let orders: Order[];
@@ -112,6 +112,7 @@ export class TransactionService {
 
     const transactions: Transaction[] = [];
 
+      const orderType=gift ? OrderType.PAYFORWARD : OrderType.PERSONAL
     // buying your own product
     if (ownerOrders.length > 0) {
       // create a hidden credit with the same amount for the buyer to enable debiting without encountering negative values
@@ -120,7 +121,7 @@ export class TransactionService {
         wallet: buyer.wallet,
         message,
         orders,
-        type: gift ? OrderType.PAYFORWARD : OrderType.PERSONAL,
+        type:orderType,
         amount: totalOwnerCost,
         fee,
         feeAmount: totalOwnerCost,
@@ -133,6 +134,7 @@ export class TransactionService {
         wallet: buyer.wallet,
         message,
         orders,
+        type:orderType,
         amount: totalOwnerCost,
         fee,
         feeAmount: totalOwnerCost,
@@ -148,6 +150,7 @@ export class TransactionService {
         wallet: resellerOrders[0].product.seller.wallet,
         message,
         orders,
+        type:orderType,
         amount: totalResellerCost,
         fee,
         feeAmount: totalFeeAmount,
@@ -159,6 +162,7 @@ export class TransactionService {
         wallet: buyer.wallet,
         message,
         orders,
+        type:orderType,
         amount: totalResellerCost,
         fee,
         method: TransactionMethod.CREDIT,

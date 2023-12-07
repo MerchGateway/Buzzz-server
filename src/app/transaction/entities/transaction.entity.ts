@@ -58,7 +58,7 @@ export class Transaction extends Timestamp {
   orders: Order[];
 
   @Column({ type: 'enum', enum: OrderType, default: OrderType.PERSONAL })
-  type: string;
+  type: OrderType;
 
   @Column({
     type: 'enum',

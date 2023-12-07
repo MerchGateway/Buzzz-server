@@ -29,7 +29,7 @@ export class PublishDesignDto {
 
   @IsString()
   @IsNotEmpty()
-  public thumbnail: string;
+  public thumbnail: string;y
 }
 export class PublishDesignAndCheckoutDto {
   @IsString()
@@ -65,7 +65,6 @@ export class PublishDesignAndCheckoutDto {
 export class PublishAndGiftDto extends PublishDesignDto {
   @IsUUID()
   product: string;
-
   @IsArray()
   @IsNotEmptyObject()
   recievers: string[];

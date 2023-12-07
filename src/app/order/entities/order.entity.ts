@@ -118,12 +118,7 @@ export class Order extends Timestamp {
   @JoinColumn({ name: 'logistics_partner_id' })
   logisticsPartner: LogisticsPartner;
 
-  @BeforeInsert()
-  @BeforeUpdate()
-  private async setDeliveryFee() {
-    // todo shipping fee logic
-  }
-
+ 
   @BeforeInsert()
   @BeforeUpdate()
   private async updateProductDetails() {
@@ -134,11 +129,7 @@ export class Order extends Timestamp {
     }
   }
 
-  @BeforeInsert()
-  @BeforeUpdate()
-  private async shippingFee() {
-    //todo shipping fee logic
-  }
+ 
   public async addCoupon(value: string) {
     this.coupon = value;
   }

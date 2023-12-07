@@ -38,19 +38,30 @@ export class PaystackBrokerService {
   private async initializeTransaction(
     user: User,
     payload: CreatePayRefDto,
-    gift?: Gift,
+    gift?:Gift
+    
   ) {
     // initialize transaction
     return await this.axiosConnection
       .post('/transaction/initialize', payload)
       .then(async (res) => {
         // create transaction on payment initalize
-        await this.transactionService.createTransaction(
+        if (gift) {
+            await this.transactionService.createTransaction(
           res.data.data.reference,
           user,
           res.data.message,
-          gift,
+          gift
         );
+        }
+        else {
+            await this.transactionService.createTransaction(
+          res.data.data.reference,
+          user,
+          res.data.message
+        );
+        }
+      
         return res.data.data;
       })
       .catch((err) => {
@@ -69,7 +80,7 @@ export class PaystackBrokerService {
       email: user.email,
       amount: 0,
     };
-    payload.amount = gift.recievers.length * gift.product.price * 100;
+      payload.amount = gift.quantity * gift.product.price * 100;
     return await this.initializeTransaction(user, payload, gift);
   }
 
