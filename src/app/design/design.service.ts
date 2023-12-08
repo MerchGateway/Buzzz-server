@@ -288,11 +288,15 @@ export class DesignService {
     access_code: string;
     reference: string;
   }> {
-    const data = { ...payload, isPublic: false };
+    const { recievers, thumbnail, quantity, note, title, price, description } =
+      payload;
+    const data = { title, price, description, thumbnail, isPublic: false };
     const product = await this.publishDesign(user, data, id, category_id);
     const createGiftPayload = {
       product: product.id,
-      recievers: payload.recievers,
+      recievers,
+      quantity,
+      note,
     };
     return await this.giftService.createGift(createGiftPayload, user);
   }

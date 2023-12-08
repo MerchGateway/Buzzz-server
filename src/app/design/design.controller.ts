@@ -122,11 +122,11 @@ export class DesignController {
   ) {
     return this.designService.publishDesign(user, payload, id, category_id);
   }
-  @Post('publish-design-and-gift/:id')
+  @Post('publish-design-and-gift/:designId')
   publishDesignAndGift(
     @Body() payload: PublishAndGiftDto,
     @CurrentUser() user: User,
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('designId', ParseUUIDPipe) id: string,
     @Query('category-id', ParseUUIDPipe) category_id: string,
   ) {
     return this.designService.publishAndGift(user, payload, id, category_id);
