@@ -100,7 +100,7 @@ export class GiftService {
       where: {
         giftCode,
         order: { status: Status.PAID },
-        recievers: ArrayContains([user.email]),
+        recievers: Like(`%${user.email}%`),
       },
     });
 
