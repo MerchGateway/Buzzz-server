@@ -46,9 +46,10 @@ export class Gift extends Timestamp {
       //Generate giftncode here
       const giftCode = voucherCode.generate({
         prefix: 'buzzz-',
+        length: 6,
       });
 
-      this.giftCode = giftCode;
+      this.giftCode = giftCode[0].toUpperCase();
     }
   }
 }

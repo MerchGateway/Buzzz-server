@@ -146,8 +146,9 @@ export class GiftService {
       product: productId,
       note = 'Suprise!!!',
     } = data;
-    console.log(data);
+
     const product = await this.productService.handleGetAProduct(productId);
+
     const gift = this.giftRepository.create({
       product,
       recievers: recievers,
@@ -155,6 +156,7 @@ export class GiftService {
       note: note,
     });
     await this.giftRepository.save(gift);
+    console.log(product, gift);
     const paymentLink = await this.paystackService.createPayRefForGift(
       user,
       gift,
