@@ -1,5 +1,7 @@
 import {
+  ArrayNotEmpty,
   IsArray,
+  IsNotEmpty,
   IsNotEmptyObject,
   IsOptional,
   IsString,
@@ -10,7 +12,7 @@ export class CreateGiftDto {
   @IsUUID()
   product: string;
   @IsArray()
-  @IsNotEmptyObject()
+  @ArrayNotEmpty()
   recievers: string[];
   @IsString()
   @IsOptional()
