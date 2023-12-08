@@ -28,7 +28,7 @@ export class GiftController {
     return this.giftService.fetchSingleGift({ giftCode });
   }
 
-  @Post('/:giftCode')
+  @Post('claim/:giftCode')
   claimGift(
     @Param('giftCode') giftCode: string,
     @CurrentUser() user: User,
