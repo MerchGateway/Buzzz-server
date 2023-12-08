@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Param } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body } from '@nestjs/common';
 import { CreateGiftDto } from './dto/create-gift.dto';
 import { GiftService } from './gift.service';
 import { CurrentUser } from 'src/decorators/user.decorator';
@@ -10,7 +10,7 @@ export class GiftController {
   constructor(private readonly giftService: GiftService) {}
 
   @Post('')
-  createGift(data: CreateGiftDto, @CurrentUser() user: User) {
+  createGift(@Body() data: CreateGiftDto, @CurrentUser() user: User) {
     return this.giftService.createGift(data, user);
   }
 
