@@ -239,6 +239,7 @@ export class TransactionService {
   private async verifyPaymentTransaction(
     paystackEventData: PaystackChargeEventData,
   ) {
+    console.log('this was hit');
     const { reference, status, currency, channel, amount, message } =
       paystackEventData;
 

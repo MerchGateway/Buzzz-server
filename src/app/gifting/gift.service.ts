@@ -45,24 +45,26 @@ export class GiftService {
         },
       },
       relations: ['order'],
-      select: ['product', 'id', 'createdAt'],
+      select: ['product', 'id', 'createdAt', 'giftCode'],
     });
   }
   async fetchGiftsForCurrentUser(user: User): Promise<Gift[]> {
-    return await this.giftRepository.find({
+    const gift = await this.giftRepository.find({
       where: {
         recievers: ArrayContains([user.email]),
       },
       relations: ['order'],
-      select: ['product', 'id', 'createdAt'],
+      select: ['product', 'id', 'createdAt', 'giftCode'],
     });
+    if (!gift) throw new NotFoundException('gift does  not exist');
+    return gift;
   }
   async fetchSingleGift(filter: FindOptionsWhere<Gift>): Promise<Gift> {
     return await this.giftRepository.findOne({
       where: {
         ...filter,
       },
-      select: ['product', 'id', 'createdAt'],
+      select: ['product', 'id', 'createdAt', 'giftCode'],
     });
   }
   async fetchGiftBenefactors(giftCode: string, user: User): Promise<Gift[]> {
@@ -83,7 +85,7 @@ export class GiftService {
           },
         },
         relations: ['order'],
-        select: ['recievers', 'id', 'createdAt'],
+        select: ['recievers', 'id', 'createdAt', 'giftCode'],
       });
     }
   }
