@@ -17,7 +17,7 @@ import { User } from '../../users/entities/user.entity';
 import { PrintingPartner } from 'src/app/admin/printing-partners/entities/printing-partner.entity';
 import { LogisticsPartner } from 'src/app/admin/logistics-partners/entities/logistics-partner.entity';
 import { Timestamp } from '../../../database/timestamp.entity';
-
+import { OrderType } from '../../../types/order';
 @Entity()
 export class Order extends Timestamp {
   @PrimaryGeneratedColumn('uuid')
@@ -55,6 +55,9 @@ export class Order extends Timestamp {
 
   @Column({ type: 'numeric' })
   quantity: number;
+
+  @Column({ type: 'enum', enum: OrderType, default: OrderType.PERSONAL })
+  type: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   total: number;
@@ -117,12 +120,6 @@ export class Order extends Timestamp {
 
   @BeforeInsert()
   @BeforeUpdate()
-  private async setDeliveryFee() {
-    // todo shipping fee logic
-  }
-
-  @BeforeInsert()
-  @BeforeUpdate()
   private async updateProductDetails() {
     if (this.cart) {
       this.product = this.cart.product;
@@ -131,11 +128,6 @@ export class Order extends Timestamp {
     }
   }
 
-  @BeforeInsert()
-  @BeforeUpdate()
-  private async shippingFee() {
-    //todo shipping fee logic
-  }
   public async addCoupon(value: string) {
     this.coupon = value;
   }

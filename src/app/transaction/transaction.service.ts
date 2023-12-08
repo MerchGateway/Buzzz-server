@@ -8,9 +8,9 @@ import {
 } from '@nestjs/common';
 import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsUtils, Not, Repository } from 'typeorm';
+import { FindOptionsUtils, Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
-import { Status as orderStatus } from '../../types/order';
+import { OrderType, Status as orderStatus } from '../../types/order';
 import { User } from '../users/entities/user.entity';
 import { OrderService } from '../order/order.service';
 import moment from 'moment';
@@ -41,6 +41,8 @@ import {
 } from '../../types/paystack';
 import { MailService } from '../../mail/mail.service';
 import { PaystackBrokerService } from '../payment/paystack/paystack.service';
+import { Gift } from '../gifting/entities/gift.entity';
+import { GiftService } from '../gifting/gift.service';
 
 @Injectable()
 export class TransactionService {
@@ -53,6 +55,8 @@ export class TransactionService {
     private readonly orderService: OrderService,
     private readonly customerService: CustomersService,
     private readonly productService: ProductService,
+    @Inject(forwardRef(() => GiftService))
+    private readonly giftService: GiftService,
     private readonly feeService: FeeService,
     private readonly configService: ConfigService,
     private readonly mailService: MailService,
@@ -60,16 +64,36 @@ export class TransactionService {
     private readonly paystackBrokerService: PaystackBrokerService,
   ) {}
 
+  public async createGiftTransaction(user: User, orders: Order[]) {
+    const fee = await this.feeService.getLatest();
+    const transaction = this.transactionRepository.create({
+      status: TransactionStatus.SUCCESS,
+      type: OrderType.GIFT,
+      amount: 0,
+      wallet: user.wallet,
+      fee,
+      orders,
+      method: TransactionMethod.CREDIT,
+      isHidden: true,
+    });
+    await this.transactionRepository.save(transaction);
+  }
   public async createTransaction(
     reference: string,
     buyer: User,
     message: string,
+    gift?: Gift,
   ) {
     //create order
-    const orders: Order[] = await this.orderService.createOrder(
-      { shippingAddress: buyer.shippingAddress },
-      buyer,
-    );
+    let orders: Order[];
+    if (gift) {
+      orders = await this.orderService.createOrder(buyer, null, gift);
+      console.log(orders);
+    } else {
+      orders = await this.orderService.createOrder(buyer, {
+        shippingAddress: buyer.shippingAddress,
+      });
+    }
 
     const ownerOrders = orders.filter((order) => order.sellerId === buyer.id);
     const resellerOrders = orders.filter(
@@ -89,6 +113,7 @@ export class TransactionService {
 
     const transactions: Transaction[] = [];
 
+    const orderType = gift ? OrderType.PAYFORWARD : OrderType.PERSONAL;
     // buying your own product
     if (ownerOrders.length > 0) {
       // create a hidden credit with the same amount for the buyer to enable debiting without encountering negative values
@@ -97,6 +122,7 @@ export class TransactionService {
         wallet: buyer.wallet,
         message,
         orders,
+        type: orderType,
         amount: totalOwnerCost,
         fee,
         feeAmount: totalOwnerCost,
@@ -109,6 +135,7 @@ export class TransactionService {
         wallet: buyer.wallet,
         message,
         orders,
+        type: orderType,
         amount: totalOwnerCost,
         fee,
         feeAmount: totalOwnerCost,
@@ -124,6 +151,7 @@ export class TransactionService {
         wallet: resellerOrders[0].product.seller.wallet,
         message,
         orders,
+        type: orderType,
         amount: totalResellerCost,
         fee,
         feeAmount: totalFeeAmount,
@@ -135,6 +163,7 @@ export class TransactionService {
         wallet: buyer.wallet,
         message,
         orders,
+        type: orderType,
         amount: totalResellerCost,
         fee,
         method: TransactionMethod.CREDIT,
@@ -210,6 +239,7 @@ export class TransactionService {
   private async verifyPaymentTransaction(
     paystackEventData: PaystackChargeEventData,
   ) {
+    console.log('this was hit');
     const { reference, status, currency, channel, amount, message } =
       paystackEventData;
 
@@ -315,6 +345,22 @@ export class TransactionService {
         ...transactions[0].orders[0],
         quantity: totalOrderQuantity,
       } as Order);
+      if (transactions[0].orders[0].type === OrderType.PAYFORWARD) {
+        // send gift creation message to all beneficiaries
+        const gift = await this.giftService.fetchSingleGift({
+          order: { id: transactions[0].orders[0].id },
+        });
+        if (!gift) {
+          return;
+        }
+        const giftPreviewLink = `${this.configService.get(
+          'clientUrl',
+        )}/preview/${gift.product.id}`;
+        await this.mailService.sendGiftNotificationMessageToBeneficiaries(
+          transactions[0].orders[0].user.email,
+          { gift, giftPreviewLink },
+        );
+      }
     } else {
       transactionsToVerify.forEach((transaction) => {
         transaction.currency = currency;

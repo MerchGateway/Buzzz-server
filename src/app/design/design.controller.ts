@@ -12,6 +12,7 @@ import {
 import {
   PublishDesignDto,
   PublishDesignAndCheckoutDto,
+  PublishAndGiftDto,
 } from './dto/design.dto';
 import { PolymailerContent } from '../order/entities/polymailer-content.entity';
 import { Design } from './entities/design.entity';
@@ -63,8 +64,6 @@ export class DesignController {
     return this.designService.viewAllDesigns(user);
   }
 
-  @Roles(Role.USER)
-  @UseGuards(RolesGuard)
   @Get('')
   fetchLatestDesignForUser(@CurrentUser() user: User) {
     return this.designService.fetchLatestDesignForCurrentUser(user);
@@ -122,6 +121,20 @@ export class DesignController {
     @Query('category-id', ParseUUIDPipe) category_id: string,
   ) {
     return this.designService.publishDesign(user, payload, id, category_id);
+  }
+  @Post('publish-design-and-gift/:id')
+  publishDesignAndGift(
+    @Body() payload: PublishAndGiftDto,
+    @CurrentUser() user: User,
+    @Param('id', ParseUUIDPipe) designId: string,
+    @Query('category-id', ParseUUIDPipe) category_id: string,
+  ) {
+    return this.designService.publishAndGift(
+      user,
+      payload,
+      designId,
+      category_id,
+    );
   }
 
   @Get('fetch-my-design/:id')

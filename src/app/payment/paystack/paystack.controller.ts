@@ -25,7 +25,7 @@ export class PaystackBrokerController {
 
   @Get('create-payment-ref')
   public createPayRef(@CurrentUser() user: User) {
-    return this.paystackService.createPayRef(user);
+    return this.paystackService.createPayRefForCart(user);
   }
 
   @Post('create-refund')

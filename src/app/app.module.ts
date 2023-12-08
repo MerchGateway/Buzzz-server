@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from '../database/database.module';
 import { AuthModule } from './auth/auth.module';
+import { WaitlistModule } from './waitlist/waitlist.module';
 import { UsersModule } from './users/users.module';
 import configuration from '../config/configuration';
 import { WinstonLoggerService } from '../logger/winston-logger/winston-logger.service';
@@ -28,6 +29,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { FeeModule } from './fee/fee.module';
+import { GiftModule } from './gifting/gift.module';
 import { OtpModule } from './otp/otp.module';
 @Module({
   imports: [
@@ -48,6 +50,7 @@ import { OtpModule } from './otp/otp.module';
     UsersModule,
     CategoryModule,
     CartModule,
+
     ProductModule,
     OrderModule,
     TransactionModule,
@@ -60,6 +63,8 @@ import { OtpModule } from './otp/otp.module';
     DesignModule,
     FeeModule,
     OtpModule,
+    WaitlistModule,
+    GiftModule,
   ],
   controllers: [AppController, DesignController],
   providers: [

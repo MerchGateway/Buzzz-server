@@ -6,6 +6,7 @@ import { ContactUsDto } from '../app/contact/dto/contact.dto';
 import { OTP } from '../app/otp/entities/otp.entity';
 import { OTPReasonText } from '../types/otp';
 import { Order } from '../app/order/entities/order.entity';
+import { Gift } from 'src/app/gifting/entities/gift.entity';
 
 @Injectable()
 export class MailService {
@@ -30,7 +31,58 @@ export class MailService {
       },
     });
   }
+  async sendWaitlistConfirmationMessage(user: string) {
+    await this.mailerService.sendMail({
+      to: user,
+      subject: 'Waitlist Confirmation',
+      template: './waitlistConfirmation',
+      context: {
+        email: user,
+      },
+    });
+  }
+  async sendGiftClaimConfirmationMessage(
+    user: User,
+    orderId: string,
+    gifter: string,
+  ) {
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Gift Claim Confirmation',
+      template: './giftClaimConfirmation',
+      context: {
+        email: user.email,
+        name: user.firstName,
+        gifter,
+        orderId,
+      },
+    });
+  }
+  async sendGiftNotificationMessageToBeneficiaries(
+    user: string,
+    payload: { gift: Gift; giftPreviewLink: string },
+  ) {
+    await this.mailerService.sendMail({
+      to: payload.gift.recievers,
+      subject: 'New Gift Alert 🎁!',
+      template: './newGiftNotification',
+      context: {
+        email: user,
+        gifter: `${payload.gift.order.user.firstName} ${payload.gift.order.user.lastName}`,
+        giftCode: payload.gift.giftCode,
+        giftPreviewLink: payload.giftPreviewLink,
+        note: payload.gift.note ? payload.gift.note : null,
+      },
+    });
+  }
 
+  async sendNewProductUpdate(waitlist: string[]) {
+    await this.mailerService.sendMail({
+      to: waitlist,
+      subject: 'New Products Update',
+      template: './newProductUpdate',
+    });
+  }
   async sendContactUs(contactUsDto: ContactUsDto) {
     await this.mailerService.sendMail({
       to: this.configService.get<string>('fromEmail'),

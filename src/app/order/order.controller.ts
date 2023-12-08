@@ -38,7 +38,7 @@ export class OrderController {
     @Body() payload: CreateOrderDto,
     @CurrentUser() user: User,
   ): Promise<Order[] | undefined> {
-    return this.orderService.createOrder(payload, user);
+    return this.orderService.createOrder(user, payload);
   }
 
   @Roles(Role.SUPER_ADMIN)

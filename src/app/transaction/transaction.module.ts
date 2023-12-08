@@ -11,16 +11,18 @@ import { PolymailerContent } from '../order/entities/polymailer-content.entity';
 import { FeeModule } from '../fee/fee.module';
 import { MailModule } from '../../mail/mail.module';
 import { PaystackBrokerModule } from '../payment/paystack/paystack.module';
+import { GiftModule } from '../gifting/gift.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Transaction, PolymailerContent]),
-    OrderModule,
+    forwardRef(() => OrderModule),
     CartModule,
     ProductModule,
     CustomersModule,
     FeeModule,
     MailModule,
+    GiftModule,
     forwardRef(() => PaystackBrokerModule),
   ],
   controllers: [TransactionController],

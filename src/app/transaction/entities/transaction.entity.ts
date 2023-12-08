@@ -14,7 +14,7 @@ import {
 } from 'src/types/transaction';
 import { Order } from 'src/app/order/entities/order.entity';
 import { Wallet } from '../../wallet/entities/wallet.entity';
-
+import { OrderType } from '../../../types/order';
 import { Timestamp } from '../../../database/timestamp.entity';
 import { Fee } from '../../fee/entities/fee.entity';
 import { DecimalTransformer } from '../../../utils/transformers/decimal';
@@ -56,6 +56,9 @@ export class Transaction extends Timestamp {
 
   @ManyToMany(() => Order, (order) => order.transactions)
   orders: Order[];
+
+  @Column({ type: 'enum', enum: OrderType, default: OrderType.PERSONAL })
+  type: OrderType;
 
   @Column({
     type: 'enum',

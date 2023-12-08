@@ -15,7 +15,8 @@ import { NotFoundException } from '@nestjs/common';
 import { Order } from './entities/order.entity';
 import { User } from '../users/entities/user.entity';
 import { CartService } from '../cart/cart.service';
-import { Status } from 'src/types/order';
+import { OrderType, Status } from 'src/types/order';
+import { Gift } from '../gifting/entities/gift.entity';
 
 interface OrderAnalyticsT {
   thisMonthOrder: number;
@@ -27,47 +28,79 @@ export class OrderService {
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
+    @InjectRepository(Gift)
+    private readonly giftRepository: Repository<Gift>,
+
     @Inject(forwardRef(() => CartService))
     private readonly cartService: CartService,
   ) {}
 
-  public async createOrder(payload: CreateOrderDto, user: User) {
-    const userCartItems = await this.cartService.getCartItems(user);
+  public async createGiftOrder(
+    user: User,
+    gift: Gift,
+    payload: CreateOrderDto,
+  ) {
+    // save cart items
+    const order = new Order();
+    order.user = user;
+    order.sellerId = gift.product.seller.id;
+    order.product = gift.product;
+    order.quantity = 1;
+    order.total = 0;
+    order.shippingDetails = {
+      shippingFee: 0,
+      shippingAddress: payload.shippingAddress,
+    };
+    order.type = OrderType.GIFT;
+    return await this.orderRepository.save(order);
+  }
+  public async createOrder(user: User, payload?: CreateOrderDto, gift?: Gift) {
+    let result: Order[];
+    if (gift) {
+      // save cart items
+      let order = new Order();
+      order.user = user;
+      order.sellerId = gift.product.seller.id;
+      order.product = gift.product;
+      order.type = OrderType.PAYFORWARD;
+      order.quantity = gift.quantity;
+      order.total = gift.quantity * gift.product.price * 100;
+      order = await this.orderRepository.save(order);
+      gift.order = order;
+      await this.giftRepository.save(gift);
+      result = [order];
+      console.log(order);
+    } else {
+      const userCartItems = await this.cartService.getCartItems(user);
 
-    // throw exception if there isn't any item in cart
-    if (!userCartItems[0]) {
-      throw new BadRequestException(
-        'Item{s} to create order for does not exist ',
+      // throw exception if there isn't any item in cart
+      if (!userCartItems[0]) {
+        throw new BadRequestException(
+          'Item{s} to create order for does not exist ',
+        );
+      }
+      result = await Promise.all(
+        userCartItems.map(async (cart) => {
+          const order = new Order();
+          order.user = user;
+          order.cart = cart;
+          order.sellerId = cart.product.seller.id;
+          order.product = cart.product;
+
+          if (payload.shippingAddress !== null) {
+            order.shippingDetails = {
+              shippingFee: 0,
+              shippingAddress: payload.shippingAddress,
+            };
+          }
+
+          // save cart items
+          return await this.orderRepository.save(order);
+        }),
       );
     }
 
-    let result: Order[] = await Promise.all(
-      userCartItems.map(async (cart) => {
-        const order = new Order();
-        order.user = user;
-        order.cart = cart;
-        order.sellerId = cart.product.seller.id;
-        order.product = cart.product;
-
-        if (payload.shippingAddress !== null) {
-          order.shippingDetails = {
-            shippingFee: 0,
-            shippingAddress: payload.shippingAddress,
-          };
-        }
-
-        // save cart items
-        return await this.orderRepository.save(order);
-      }),
-    );
-
     const orderIds = result.map((order) => order.id);
-
-    // order.total
-    // order.sellerId
-    // order.product
-    // order.product.seller
-    // order.product.seller.wallet
     result = await this.orderRepository
       .createQueryBuilder('order')
       .leftJoinAndSelect('order.product', 'product')

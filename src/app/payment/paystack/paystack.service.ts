@@ -7,9 +7,7 @@ import {
 import { AxiosInstance } from 'axios';
 
 import { User } from 'src/app/users/entities/user.entity';
-// import configuration  from 'src/config/configuration';
 import { config as envConfig } from 'dotenv';
-// import { CreatePayRefDto, PaymentReceiptDto } from '../dto/create-pay-ref-dto';
 import { PaymentReceipt } from '../entities/payment.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -18,6 +16,8 @@ import { CartService } from 'src/app/cart/cart.service';
 import { TransactionService } from 'src/app/transaction/transaction.service';
 import { Cart } from 'src/app/cart/entities/cart.entity';
 import { TransactionCurrency } from '../../../types/transaction';
+import { CreatePayRefDto } from '../dto/create-pay-ref-dto';
+import { Gift } from 'src/app/gifting/entities/gift.entity';
 
 envConfig();
 
@@ -34,7 +34,55 @@ export class PaystackBrokerService {
     this.axiosConnection = connection();
   }
   // Create payment Ref (initialize transaction)
-  public async createPayRef(user: User): Promise<{
+  // Create payment Ref (initialize transaction)
+  private async initializeTransaction(
+    user: User,
+    payload: CreatePayRefDto,
+    gift?: Gift,
+  ) {
+    // initialize transaction
+    return await this.axiosConnection
+      .post('/transaction/initialize', payload)
+      .then(async (res) => {
+        // create transaction on payment initalize
+        if (gift) {
+          await this.transactionService.createTransaction(
+            res.data.data.reference,
+            user,
+            res.data.message,
+            gift,
+          );
+        } else {
+          await this.transactionService.createTransaction(
+            res.data.data.reference,
+            user,
+            res.data.message,
+          );
+        }
+
+        return res.data.data;
+      })
+      .catch((err) => {
+        throw new HttpException(err.message, err.statusCode || 500);
+      });
+  }
+  public async createPayRefForGift(
+    user: User,
+    gift: Gift,
+  ): Promise<{
+    authorization_url: string;
+    access_code: string;
+    reference: string;
+  }> {
+    const payload = {
+      email: user.email,
+      amount: 0,
+    };
+    payload.amount = gift.quantity * gift.product.price * 100;
+    return await this.initializeTransaction(user, payload, gift);
+  }
+
+  public async createPayRefForCart(user: User): Promise<{
     authorization_url: string;
     access_code: string;
     reference: string;
@@ -64,20 +112,7 @@ export class PaystackBrokerService {
     // set payload amount to the smallest decimal
     payload.amount = payload.amount * 100;
     // initialize transaction
-    return await this.axiosConnection
-      .post('/transaction/initialize', payload)
-      .then(async (res) => {
-        // create transaction on payment initalize
-        await this.transactionService.createTransaction(
-          res.data.data.reference,
-          user,
-          res.data.message,
-        );
-        return res.data.data;
-      })
-      .catch((err) => {
-        throw new HttpException(err.message, err.statusCode || 500);
-      });
+    return await this.initializeTransaction(user, payload);
   }
 
   public async createRefund(transaction: string) {
