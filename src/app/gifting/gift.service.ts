@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ArrayContains, FindOptionsWhere } from 'typeorm';
+import { Repository, ArrayContains, FindOptionsWhere, Like } from 'typeorm';
 import {
   Injectable,
   NotFoundException,
@@ -51,7 +51,7 @@ export class GiftService {
   async fetchGiftsForCurrentUser(user: User): Promise<Gift[]> {
     return await this.giftRepository.find({
       where: {
-        recievers: ArrayContains([user.email]),
+        recievers: Like(`%${user.email}%`),
       },
       relations: ['order'],
       select: ['product', 'id', 'createdAt', 'giftCode'],
