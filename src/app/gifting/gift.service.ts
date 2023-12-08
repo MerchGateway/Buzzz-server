@@ -49,23 +49,25 @@ export class GiftService {
     });
   }
   async fetchGiftsForCurrentUser(user: User): Promise<Gift[]> {
-    const gift = await this.giftRepository.find({
+    return await this.giftRepository.find({
       where: {
         recievers: ArrayContains([user.email]),
       },
       relations: ['order'],
       select: ['product', 'id', 'createdAt', 'giftCode'],
     });
-    if (!gift) throw new NotFoundException('gift does  not exist');
-    return gift;
   }
   async fetchSingleGift(filter: FindOptionsWhere<Gift>): Promise<Gift> {
-    return await this.giftRepository.findOne({
+    const gift = await this.giftRepository.findOne({
       where: {
         ...filter,
       },
       select: ['product', 'id', 'createdAt', 'giftCode'],
     });
+    if (!gift) {
+      throw new NotFoundException(`Invalid gift code`);
+    }
+    return gift;
   }
   async fetchGiftBenefactors(giftCode: string, user: User): Promise<Gift[]> {
     const adminRoles = [Role.ADMIN, Role.SUPER_ADMIN];
