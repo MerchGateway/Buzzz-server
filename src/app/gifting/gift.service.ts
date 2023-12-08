@@ -140,12 +140,19 @@ export class GiftService {
         'You can not pass a quantity field and a recievers field containing more than one reciever concurrently',
       );
     }
-    const product = await this.productService.handleGetAProduct(data.product);
+    const {
+      quantity = null,
+      recievers,
+      product: productId,
+      note = 'Suprise!!!',
+    } = data;
+
+    const product = await this.productService.handleGetAProduct(productId);
     const gift = this.giftRepository.create({
       product,
-      recievers: data.recievers,
-      quantity: parseInt(data.quantity) | data.recievers.length,
-      note: data.note ? data.note : 'Suprise!!!',
+      recievers: recievers,
+      quantity: quantity ? parseInt(data.quantity) : data.recievers.length,
+      note: note,
     });
     await this.giftRepository.save(gift);
 
