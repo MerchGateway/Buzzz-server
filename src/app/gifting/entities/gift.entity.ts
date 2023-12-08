@@ -25,15 +25,15 @@ export class Gift extends Timestamp {
   @JoinColumn({ name: 'product_id' })
   product: Product;
 
-  @OneToOne(() => Order, {
-    cascade: true,
-  })
   @Column()
   note: string;
 
   @Column({ type: 'integer' })
   quantity: number;
 
+  @OneToOne(() => Order, {
+    cascade: true,
+  })
   @JoinColumn({ name: 'order_id' })
   order: Order;
 

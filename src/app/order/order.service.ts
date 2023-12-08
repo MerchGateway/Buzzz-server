@@ -63,12 +63,13 @@ export class OrderService {
       order.sellerId = gift.product.seller.id;
       order.product = gift.product;
       order.type = OrderType.PAYFORWARD;
-      order.quantity = gift.quantity
+      order.quantity = gift.quantity;
       order.total = gift.quantity * gift.product.price * 100;
       order = await this.orderRepository.save(order);
       gift.order = order;
       await this.giftRepository.save(gift);
       result = [order];
+      console.log(order);
     } else {
       const userCartItems = await this.cartService.getCartItems(user);
 

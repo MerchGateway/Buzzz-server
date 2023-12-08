@@ -156,12 +156,10 @@ export class GiftService {
       note: note,
     });
     await this.giftRepository.save(gift);
-    console.log(product, gift);
     const paymentLink = await this.paystackService.createPayRefForGift(
       user,
       gift,
     );
-    console.log(gift, paymentLink);
     return paymentLink;
   }
 

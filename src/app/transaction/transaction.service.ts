@@ -82,12 +82,13 @@ export class TransactionService {
     reference: string,
     buyer: User,
     message: string,
-    gift?:Gift,
+    gift?: Gift,
   ) {
     //create order
     let orders: Order[];
     if (gift) {
       orders = await this.orderService.createOrder(buyer, null, gift);
+      console.log(orders);
     } else {
       orders = await this.orderService.createOrder(buyer, {
         shippingAddress: buyer.shippingAddress,
@@ -112,7 +113,7 @@ export class TransactionService {
 
     const transactions: Transaction[] = [];
 
-      const orderType=gift ? OrderType.PAYFORWARD : OrderType.PERSONAL
+    const orderType = gift ? OrderType.PAYFORWARD : OrderType.PERSONAL;
     // buying your own product
     if (ownerOrders.length > 0) {
       // create a hidden credit with the same amount for the buyer to enable debiting without encountering negative values
@@ -121,7 +122,7 @@ export class TransactionService {
         wallet: buyer.wallet,
         message,
         orders,
-        type:orderType,
+        type: orderType,
         amount: totalOwnerCost,
         fee,
         feeAmount: totalOwnerCost,
@@ -134,7 +135,7 @@ export class TransactionService {
         wallet: buyer.wallet,
         message,
         orders,
-        type:orderType,
+        type: orderType,
         amount: totalOwnerCost,
         fee,
         feeAmount: totalOwnerCost,
@@ -150,7 +151,7 @@ export class TransactionService {
         wallet: resellerOrders[0].product.seller.wallet,
         message,
         orders,
-        type:orderType,
+        type: orderType,
         amount: totalResellerCost,
         fee,
         feeAmount: totalFeeAmount,
@@ -162,7 +163,7 @@ export class TransactionService {
         wallet: buyer.wallet,
         message,
         orders,
-        type:orderType,
+        type: orderType,
         amount: totalResellerCost,
         fee,
         method: TransactionMethod.CREDIT,
