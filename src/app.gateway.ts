@@ -57,7 +57,6 @@ export class AppGateway
         const jwtRes = await this.jwtService.verifyToken(tke);
 
         user = await this.userService.findOneProfile(jwtRes.sub);
-        console.log(user, jwtRes);
         response = await this.designService.design(
           payload,
           user,
@@ -73,7 +72,6 @@ export class AppGateway
         this.server.to(client.id).emit(DESIGN_MERCH, await response.finished());
       }
     } catch (error) {
-      console.log('error from socket', error);
       this.server
         .to(client.id)
         .emit(

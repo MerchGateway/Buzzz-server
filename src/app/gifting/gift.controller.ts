@@ -10,7 +10,6 @@ import { CreateOrderDto } from '../order/dto/order.dto';
 export class GiftController {
   constructor(private readonly giftService: GiftService) {}
 
-  @Public()
   @Post('')
   createGift(data: CreateGiftDto, @CurrentUser() user: User) {
     return this.giftService.createGift(data, user);

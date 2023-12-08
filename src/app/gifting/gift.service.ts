@@ -153,6 +153,7 @@ export class GiftService {
       user,
       gift,
     );
+    console.log(gift, paymentLink);
     return paymentLink;
   }
 

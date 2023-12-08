@@ -15,8 +15,7 @@ export class CreateGiftDto {
   @IsString()
   @IsOptional()
   note?: string;
-   @IsString()
+  @IsString()
   @IsOptional()
   quantity?: string;
-  
 }

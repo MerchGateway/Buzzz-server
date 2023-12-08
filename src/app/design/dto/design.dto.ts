@@ -27,7 +27,7 @@ export class PublishDesignDto {
   @IsOptional()
   description: string;
 
-  @IsString()
+@IsString()
   @IsNotEmpty()
   public thumbnail: string;
 }
