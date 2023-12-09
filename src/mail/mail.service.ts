@@ -62,6 +62,7 @@ export class MailService {
     user: string,
     payload: { gift: Gift; giftPreviewLink: string },
   ) {
+    console.log(payload.gift);
     await this.mailerService.sendMail({
       to: payload.gift.recievers,
       subject: 'New Gift Alert 🎁!',
