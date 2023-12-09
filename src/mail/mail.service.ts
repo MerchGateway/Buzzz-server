@@ -58,7 +58,7 @@ export class MailService {
       },
     });
   }
-  async sendGiftNotificationMessageToBeneficiaries(
+  async sendGiftNotificationToBeneficiaries(
     user: string,
     payload: { gift: Gift; giftPreviewLink: string },
   ) {
