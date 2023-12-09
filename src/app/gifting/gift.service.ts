@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ArrayContains, FindOptionsWhere, Like } from 'typeorm';
+import { Repository, FindOptionsWhere, Like } from 'typeorm';
 import {
   Injectable,
   NotFoundException,
@@ -44,7 +44,7 @@ export class GiftService {
           user: { id: user.id },
         },
       },
-      relations: ['order'],
+      relations: ['order', 'products'],
       select: ['product', 'id', 'createdAt', 'giftCode'],
     });
   }
@@ -53,7 +53,7 @@ export class GiftService {
       where: {
         recievers: Like(`%${user.email}%`),
       },
-      relations: ['order'],
+      relations: ['product'],
       select: ['product', 'id', 'createdAt', 'giftCode'],
     });
   }
@@ -62,7 +62,8 @@ export class GiftService {
       where: {
         ...filter,
       },
-      select: ['product', 'id', 'createdAt', 'giftCode'],
+      relations: ['product', 'order'],
+      select: ['order', 'product', 'id', 'createdAt', 'giftCode'],
     });
     if (!gift) {
       throw new NotFoundException(`Invalid gift code`);
