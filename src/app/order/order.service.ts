@@ -45,7 +45,7 @@ export class OrderService {
     order.user = user;
     order.sellerId = gift.product.seller.id;
     order.product = gift.product;
-    order.quantity = 1;
+    order.quantity = gift.recievers.length > 1 ? 1 : gift.quantity;
     order.total = 0;
     order.shippingDetails = {
       shippingFee: 0,
