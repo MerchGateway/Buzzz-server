@@ -165,11 +165,6 @@ export class GiftService {
     access_code: string;
     reference: string;
   }> {
-    if (data.quantity && data.recievers.length > 1) {
-      throw new BadRequestException(
-        'You can not pass a quantity field and a recievers field containing more than one reciever concurrently',
-      );
-    }
     const {
       quantity = null,
       recievers,
