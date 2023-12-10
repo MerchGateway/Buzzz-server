@@ -32,7 +32,6 @@ export class NotificationController {
     return this.notificationService.fetchNotification(user);
   }
 
-  
   @Patch('turn-on')
   @HttpCode(HttpStatus.ACCEPTED)
   turnOnNotification(
@@ -52,21 +51,20 @@ export class NotificationController {
   }
 
   @Post('create-notification')
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.PUBLISHER,Role.USER)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.PUBLISHER, Role.USER)
   @HttpCode(HttpStatus.CREATED)
   createNotification(@Body() payload: CreateNotificationDto) {
     return this.notificationService.createNotification(payload);
   }
 
-
   @Post('create-multiple-notifications')
   @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.PUBLISHER)
   @HttpCode(HttpStatus.CREATED)
   createMultipleNotification(
-    @Query() query:any,
+    @Query() query: any,
     @Body() payload: CreateMultipleNotificationDto,
   ) {
-    return this.notificationService.createMultipleNotifications(payload,query);
+    return this.notificationService.createMultipleNotifications(payload, query);
   }
 
   @Patch('read')

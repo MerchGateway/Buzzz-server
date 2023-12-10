@@ -113,10 +113,8 @@ export class TransactionService {
 
     let totalFeeAmount = 0;
     resellerOrders.map((order: Order) => {
-      console.log(order);
       totalFeeAmount += order.quantity * fee.reseller;
     });
-    console.log('ytt', totalFeeAmount);
 
     const transactions: Transaction[] = [];
 
