@@ -71,7 +71,7 @@ export class MailService {
         gifter: `${payload.gift.order.user.firstName} ${payload.gift.order.user.lastName}`,
         giftCode: payload.gift.giftCode,
         giftPreviewLink: payload.giftPreviewLink,
-        note: payload.gift.note ? payload.gift.note : null,
+        note: payload.gift.note,
       },
     });
   }

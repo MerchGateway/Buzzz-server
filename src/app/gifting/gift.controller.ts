@@ -32,7 +32,7 @@ export class GiftController {
   claimGift(
     @Param('giftCode') giftCode: string,
     @CurrentUser() user: User,
-    payload: CreateOrderDto,
+    @Body() payload: CreateOrderDto,
   ) {
     return this.giftService.claimGift(giftCode, user, payload);
   }

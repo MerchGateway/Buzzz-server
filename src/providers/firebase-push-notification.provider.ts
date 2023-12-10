@@ -27,7 +27,6 @@ export class PushNotification implements FireBaseProvider {
 
   public async sendPushNotification(token: string, message: Payload) {
     // console.log(resolve(__dirname, '../assets/images/logo.svg'));
-    
 
     const pushMessage: Message = {
       notification: {
@@ -41,9 +40,9 @@ export class PushNotification implements FireBaseProvider {
 
     try {
       const sent = await this.admin.messaging().send(pushMessage);
-      console.log(token,sent);
+      console.log(token, sent);
     } catch (err) {
-      console.log(err)
+      console.log(err);
       return new HttpException(err.message, err.status);
     }
   }
@@ -58,10 +57,9 @@ export class PushNotification implements FireBaseProvider {
       tokens,
       android: { priority: 'high' },
     };
-    
+
     try {
-      return this.admin.messaging()
-        .sendMulticast(pushMessage);
+      return this.admin.messaging().sendMulticast(pushMessage);
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
