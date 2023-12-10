@@ -141,6 +141,13 @@ export class GiftService {
       orders[0].id,
       `${gift.order.user.firstName} ${gift.order.user.lastName}`,
     );
+    // send gift claim notification to gifter
+    await this.mailService.sendGiftClaimNotificationToGifter({
+      user: gift.order.user.email,
+      name: gift.order.user.firstName,
+      productName: gift.product.name,
+      reciever: `${user.firstName} ${user.lastName}`,
+    });
     return new SuccessResponse(gift, 'Gift claimed successfully.');
   }
   async createGift(

@@ -357,10 +357,11 @@ export class TransactionService {
         const giftPreviewLink = `${this.configService.get(
           'clientUrl',
         )}/preview/${gift.product.id}`;
-        await this.mailService.sendGiftNotificationToBeneficiaries(
-          transactions[0].orders[0].user.email,
-          { gift, giftPreviewLink },
-        );
+        await this.mailService.sendGiftNotificationToBeneficiaries({
+          user: transactions[0].orders[0].user.email,
+          gift,
+          giftPreviewLink,
+        });
       }
     } else {
       transactionsToVerify.forEach((transaction) => {
