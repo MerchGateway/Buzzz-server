@@ -112,7 +112,14 @@ export class GiftService {
         recievers: Like(`%${user.email}%`),
       },
       relations: ['product', 'order', 'order.transactions'],
-      select: ['product', 'recievers', 'giftCode', 'id', 'createdAt'],
+      select: [
+        'product',
+        'quantity',
+        'recievers',
+        'giftCode',
+        'id',
+        'createdAt',
+      ],
     });
 
     if (!gift) {

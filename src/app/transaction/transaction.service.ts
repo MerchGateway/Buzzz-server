@@ -74,6 +74,7 @@ export class TransactionService {
       reference: gift.order.transactions[0].reference,
       fee,
       orders,
+      feeAmount: 0,
       method: TransactionMethod.CREDIT,
       isHidden: true,
     });
@@ -110,7 +111,12 @@ export class TransactionService {
 
     const fee = await this.feeService.getLatest();
 
-    const totalFeeAmount = resellerOrders.length * fee.reseller;
+    let totalFeeAmount = 0;
+    resellerOrders.map((order: Order) => {
+      console.log(order);
+      totalFeeAmount += order.quantity * fee.reseller;
+    });
+    console.log('ytt', totalFeeAmount);
 
     const transactions: Transaction[] = [];
 
@@ -240,7 +246,6 @@ export class TransactionService {
   private async verifyPaymentTransaction(
     paystackEventData: PaystackChargeEventData,
   ) {
-    console.log('this was hit');
     const { reference, status, currency, channel, amount, message } =
       paystackEventData;
 
