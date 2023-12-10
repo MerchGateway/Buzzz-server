@@ -23,10 +23,9 @@ async function bootstrap() {
   );
   app.enableCors({
     origin: [
-      'https://b9vn1qt4-3000.uks1.devtunnels.ms/',
       config.get<string>('clientUrl'),
-      config.get<string>('designClientUrl'),
       config.get<string>('debugClientUrl'),
+      config.get<string>('designClientUrl'),
       config.get<string>('debugDesignClientUrl'),
     ],
     credentials: true,
