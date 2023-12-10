@@ -43,6 +43,7 @@ export class OrderService {
     // save cart items
     const order = new Order();
     order.user = user;
+    order.status = Status.PAID;
     order.sellerId = gift.product.seller.id;
     order.product = gift.product;
     order.quantity = gift.recievers.length > 1 ? 1 : gift.quantity;

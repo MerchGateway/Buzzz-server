@@ -105,6 +105,7 @@ export class GiftService {
     user: User,
     payload: CreateOrderDto,
   ): Promise<SuccessResponse> {
+    console.log('gigigigigigig', user.email);
     const gift = await this.giftRepository.findOne({
       where: {
         giftCode,
@@ -112,7 +113,14 @@ export class GiftService {
         recievers: Like(`%${user.email}%`),
       },
       relations: ['product', 'order', 'order.transactions'],
-      select: ['product', 'recievers', 'giftCode', 'id', 'createdAt'],
+      select: [
+        'product',
+        'quantity',
+        'recievers',
+        'giftCode',
+        'id',
+        'createdAt',
+      ],
     });
 
     if (!gift) {
