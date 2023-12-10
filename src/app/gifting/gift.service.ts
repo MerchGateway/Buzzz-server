@@ -63,7 +63,15 @@ export class GiftService {
         ...filter,
       },
       relations: ['product', 'order'],
-      select: ['recievers', 'order', 'product', 'id', 'createdAt', 'giftCode'],
+      select: [
+        'recievers',
+        'note',
+        'order',
+        'product',
+        'id',
+        'createdAt',
+        'giftCode',
+      ],
     });
     if (!gift) {
       throw new NotFoundException(`Invalid gift code`);
@@ -103,6 +111,8 @@ export class GiftService {
         order: { status: Status.PAID },
         recievers: Like(`%${user.email}%`),
       },
+      relations: ['product', 'order', 'order.transactions'],
+      select: ['product', 'recievers', 'giftCode', 'id', 'createdAt'],
     });
 
     if (!gift) {
@@ -111,7 +121,8 @@ export class GiftService {
     const orders: Order[] = [
       await this.orderService.createGiftOrder(user, gift, payload),
     ];
-    await this.transactionService.createGiftTransaction(user, orders);
+    console.log('passed here');
+    await this.transactionService.createGiftTransaction(user, orders, gift);
     // make the provided gift code not apply to the user again after claiming the gift
     let giftBenefactors = [...gift.recievers];
     giftBenefactors = giftBenefactors.filter((benefactor) => {
@@ -130,6 +141,13 @@ export class GiftService {
       orders[0].id,
       `${gift.order.user.firstName} ${gift.order.user.lastName}`,
     );
+    // send gift claim notification to gifter
+    await this.mailService.sendGiftClaimNotificationToGifter({
+      user: gift.order.user.email,
+      name: gift.order.user.firstName,
+      productName: gift.product.name,
+      reciever: `${user.firstName} ${user.lastName}`,
+    });
     return new SuccessResponse(gift, 'Gift claimed successfully.');
   }
   async createGift(

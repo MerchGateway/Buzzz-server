@@ -64,13 +64,14 @@ export class TransactionService {
     private readonly paystackBrokerService: PaystackBrokerService,
   ) {}
 
-  public async createGiftTransaction(user: User, orders: Order[]) {
+  public async createGiftTransaction(user: User, orders: Order[], gift: Gift) {
     const fee = await this.feeService.getLatest();
     const transaction = this.transactionRepository.create({
       status: TransactionStatus.SUCCESS,
       type: OrderType.GIFT,
       amount: 0,
       wallet: user.wallet,
+      reference: gift.order.transactions[0].reference,
       fee,
       orders,
       method: TransactionMethod.CREDIT,
@@ -356,10 +357,11 @@ export class TransactionService {
         const giftPreviewLink = `${this.configService.get(
           'clientUrl',
         )}/preview/${gift.product.id}`;
-        await this.mailService.sendGiftNotificationToBeneficiaries(
-          transactions[0].orders[0].user.email,
-          { gift, giftPreviewLink },
-        );
+        await this.mailService.sendGiftNotificationToBeneficiaries({
+          user: transactions[0].orders[0].user.email,
+          gift,
+          giftPreviewLink,
+        });
       }
     } else {
       transactionsToVerify.forEach((transaction) => {

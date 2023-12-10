@@ -58,20 +58,39 @@ export class MailService {
       },
     });
   }
-  async sendGiftNotificationToBeneficiaries(
-    user: string,
-    payload: { gift: Gift; giftPreviewLink: string },
-  ) {
+  async sendGiftNotificationToBeneficiaries(payload: {
+    user: string;
+    gift: Gift;
+    giftPreviewLink: string;
+  }) {
     await this.mailerService.sendMail({
       to: payload.gift.recievers,
       subject: 'New Gift Alert 🎁!',
       template: './newGiftNotification',
       context: {
-        email: user,
+        email: payload.user,
         gifter: `${payload.gift.order.user.firstName} ${payload.gift.order.user.lastName}`,
         giftCode: payload.gift.giftCode,
         giftPreviewLink: payload.giftPreviewLink,
-        note: payload.gift.note ? payload.gift.note : null,
+        note: payload.gift.note,
+      },
+    });
+  }
+  async sendGiftClaimNotificationToGifter(payload: {
+    user: string;
+    name: string;
+    productName: string;
+    reciever: string;
+  }) {
+    await this.mailerService.sendMail({
+      to: payload.user,
+      subject: 'Gift Claim Notification 🎁!',
+      template: './giftClaimNotificationGifter',
+      context: {
+        email: payload.user,
+        reciever: payload.reciever,
+        productName: payload.productName,
+        name: payload.name,
       },
     });
   }

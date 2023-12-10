@@ -6,7 +6,7 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
-
+import configuration from './config/configuration';
 import { Inject } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { DesignService } from './app/design/design.service';
@@ -20,10 +20,11 @@ import { Design } from './app/design/entities/design.entity';
 class ExtendedSocket extends Socket {
   user: User;
 }
+const config = configuration();
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: [config.designClientUrl, config.debugDesignClientUrl],
   },
 })
 export class AppGateway
