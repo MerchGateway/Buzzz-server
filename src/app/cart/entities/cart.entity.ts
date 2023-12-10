@@ -5,7 +5,6 @@ import {
   JoinColumn,
   Column,
   OneToMany,
-  OneToOne,
   BeforeInsert,
   BeforeUpdate,
 } from 'typeorm';

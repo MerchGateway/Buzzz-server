@@ -105,7 +105,6 @@ export class GiftService {
     user: User,
     payload: CreateOrderDto,
   ): Promise<SuccessResponse> {
-    console.log('gigigigigigig', user.email);
     const gift = await this.giftRepository.findOne({
       where: {
         giftCode,

@@ -115,6 +115,7 @@ export class OrderService {
         'product.id',
         'seller.id',
         'wallet.id',
+        'order.quantity',
       ])
       .getMany();
 
