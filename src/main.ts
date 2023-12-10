@@ -24,9 +24,9 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       config.get<string>('clientUrl'),
+      config.get<string>('designClientUrl'),
       config.get<string>('adminClientUrl'),
       config.get<string>('debugClientUrl'),
-      config.get<string>('designClientUrl'),
       config.get<string>('debugDesignClientUrl'),
     ],
     credentials: true,
