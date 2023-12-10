@@ -84,7 +84,7 @@ export class MailService {
   }) {
     await this.mailerService.sendMail({
       to: payload.user,
-      subject: 'Gift Claim Alert 🎁!',
+      subject: 'Gift Claim Notification 🎁!',
       template: './giftClaimNotificationGifter',
       context: {
         email: payload.user,
