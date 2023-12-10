@@ -63,7 +63,7 @@ export class GiftService {
         ...filter,
       },
       relations: ['product', 'order'],
-      select: ['order', 'product', 'id', 'createdAt', 'giftCode'],
+      select: ['recievers', 'order', 'product', 'id', 'createdAt', 'giftCode'],
     });
     if (!gift) {
       throw new NotFoundException(`Invalid gift code`);
