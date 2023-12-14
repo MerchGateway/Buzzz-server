@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { LogisticsPartner } from '../logistics-partners/entities/logistics-partner.entity';
 import { User } from 'src/app/users/entities/user.entity';
-import { HttpException } from '@nestjs/common';
 import { Order } from 'src/app/order/entities/order.entity';
 import { OrderService } from 'src/app/order/order.service';
 import { UnauthorizedException } from '@nestjs/common';
@@ -109,6 +108,6 @@ export class LogisticsPartnerService {
         `order with id ${id} does  not  exist or is not assigned to you`,
       );
     }
-    return order
+    return order;
   }
 }
