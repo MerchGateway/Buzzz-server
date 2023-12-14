@@ -27,7 +27,7 @@ COPY tsconfig.build.json .
 
 COPY tsconfig.json .
 
-RUN yarn  --omit=dev
+RUN yarn --set-timeout=100000  --omit=dev
 
  COPY --from=build ./app/dist ./dist
 
