@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { User } from '../../../app/users/entities/user.entity';
 import { SUPER_ADMIN, TEMPORARY_CATEGORIES } from './data';
 import { Category } from '../../../app/category/entities/category.entity';
-import { WalletService } from '../../../app/wallet/wallet.service';
 import { Wallet } from '../../../app/wallet/entities/wallet.entity';
 import { Role } from 'src/types/general';
 
