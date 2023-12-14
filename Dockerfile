@@ -1,5 +1,6 @@
 
 
+
 # BUILD FOR PRODUCTION
 FROM node:16-alpine AS build
 
@@ -27,9 +28,10 @@ COPY tsconfig.build.json .
 
 COPY tsconfig.json .
 
-RUN yarn --set-timeout=100000  --omit=dev
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
 
- COPY --from=build ./app/dist ./dist
+
 
 
 CMD [ "node", "dist/main.js" ]
