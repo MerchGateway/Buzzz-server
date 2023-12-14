@@ -1,46 +1,62 @@
-services:
-  redis:
-    image: redis:7.0-alpine
-    ports:
-      - '6379:6379'
-    restart: always
-    volumes:
-      - redis_data:/var/lib/redis
-    networks:
-      - buzzz_network
-  db:
-    image: mysql:8.0
-    cap_add:
-      - SYS_NICE
-    ports:
-      - '3306:3306'
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: ''
-      MYSQL_USER: ''
-      MYSQL_PASSWORD: ''
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - buzzz_network
-  buzzz:
-    restart: always
-    build: ./
-    container_name: buzzz
-    hostname: buzzz
-    volumes:
-      - /usr/src/buzzz-server/node_modules
-      - .:/usr/src/buzzz-server/
-    ports:
-      - '6000:5000'
-    networks:
-      - buzzz_network
-    depends_on:
-      - redis
-      - db
+version: '3'
 
-volumes:
-  mysql_data:
-  redis_data:
-networks:
-  buzzz_network:
+services:
+  buzzzy:
+    build:
+      context: .
+    environment:
+      PAYSTACK_SECRET_KEY: ${PAYSTACK_SECRET_KEY}
+      TYPEORM_CONNECTION: ${TYPEORM_CONNECTION}
+      TYPEORM_URL: ${TYPEORM_URL}
+      NODE_ENV: ${NODE_ENV}
+      APP_URL: ${APP_URL}
+      CLIENT_URL: ${CLIENT_URL}
+      DESIGN_CLIENT_URL: ${DESIGN_CLIENT_URL}
+      DEBUG_CLIENT_URL: ${DEBUG_CLIENT_URL}
+      DEBUG_DESIGN_CLIENT_URL: ${DEBUG_DESIGN_CLIENT_URL}
+      TYPEORM_HOST: ${TYPEORM_HOST}
+      TYPEORM_DATABASE: ${TYPEORM_DATABASE}
+      TYPEORM_USERNAME: ${TYPEORM_USERNAME}
+      TYPEORM_PASSWORD: ${TYPEORM_PASSWORD}
+      TYPEORM_PORT: ${TYPEORM_PORT}
+      TYPEORM_SYNCHRONIZE: ${TYPEORM_SYNCHRONIZE}
+      TYPEORM_ENTITIES: ${TYPEORM_ENTITIES}
+      TYPEORM_MIGRATIONS: ${TYPEORM_MIGRATIONS}
+      TYPEORM_MIGRATIONS_DIR: ${TYPEORM_MIGRATIONS_DIR}
+      UNIX_SOCKET_PATH: ${UNIX_SOCKET_PATH}
+      CLOUD_SQL_CONNECTION_NAME: ${CLOUD_SQL_CONNECTION_NAME}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRE: ${JWT_EXPIRE}
+      REFRESH_JWT_SECRET: ${REFRESH_JWT_SECRET}
+      REFRESH_JWT_EXPIRE: ${REFRESH_JWT_EXPIRE}
+      JWT_COOKIE_EXPIRE: ${JWT_COOKIE_EXPIRE}
+      OAUTH_GOOGLE_ID: ${OAUTH_GOOGLE_ID}
+      OAUTH_GOOGLE_SECRET: ${OAUTH_GOOGLE_SECRET}
+      OAUTH_TWITTER_CONSUMER_KEY: ${OAUTH_TWITTER_CONSUMER_KEY}
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_EMAIL: ${SMTP_EMAIL}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      FROM_EMAIL: ${FROM_EMAIL}
+      FROM_NAME: ${FROM_NAME}
+      PORT: ${PORT}
+      FIREBASE_DATABASE_URL: ${FIREBASE_DATABASE_URL}
+      FIREBASE_IMAGE_URL: ${FIREBASE_IMAGE_URL}
+      TYPE: ${TYPE}
+      PROJECT_ID: ${PROJECT_ID}
+      PRIVATE_KEY_ID: ${PRIVATE_KEY_ID}
+      PRIVATE_KEY: ${PRIVATE_KEY}
+      CLIENT_EMAIL: ${CLIENT_EMAIL}
+      CLIENT_ID: ${CLIENT_ID}
+      AUTH_URI: ${AUTH_URI}
+      TOKEN_URI: ${TOKEN_URI}
+      AUTH_PROVIDER_X509_CERT_URL: ${AUTH_PROVIDER_X509_CERT_URL}
+      CLIENT_X509_CERT_URL: ${CLIENT_X509_CERT_URL}
+      CLOUD_NAME: ${CLOUD_NAME}
+      CLOUD_API_KEY: ${CLOUD_API_KEY}
+      CLOUD_API_SECRET: ${CLOUD_API_SECRET}
+      CLOUDINARY_URL: ${CLOUDINARY_URL}
+      PASSPORT_SESSION_SECRET: ${PASSPORT_SESSION_SECRET}
+      SUPER_EMAIL: ${SUPER_EMAIL}
+      SUPER_PASSWORD: ${SUPER_PASSWORD}
