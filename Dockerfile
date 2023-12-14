@@ -12,8 +12,6 @@ COPY --chown=node:node . .
 
 USER node
 
-# Debug: Print the contents of the directory
-RUN ls -al
 
 # BUILD FOR PRODUCTION
 FROM node:16-alpine AS build
@@ -32,8 +30,6 @@ ENV NODE_ENV production
 
 USER node
 
-# Debug: Print the contents of the directory
-RUN ls -al
 
 # PRODUCTION
 FROM node:16-alpine AS production
