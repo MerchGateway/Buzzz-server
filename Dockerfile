@@ -14,6 +14,8 @@ COPY tsconfig.json .
 
 RUN yarn 
 
+RUN yarn build
+
  COPY . .
 
 
@@ -21,12 +23,6 @@ RUN yarn
 FROM node:16-alpine AS production
 
 WORKDIR /app
-
-COPY package*.json .
-
-COPY tsconfig.build.json .
-
-COPY tsconfig.json .
 
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
