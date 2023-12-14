@@ -11,7 +11,7 @@ COPY tsconfig.build.json .
 
 COPY tsconfig.json .
 
-RUN npm install 
+RUN yarn 
 
  COPY . .
 
@@ -27,7 +27,7 @@ COPY tsconfig.build.json .
 
 COPY tsconfig.json .
 
-RUN npm install  --only=production
+RUN yarn  --omit=dev
 
  COPY --from=build ./app/dist ./dist
 
