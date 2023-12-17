@@ -22,6 +22,7 @@ FROM node:16-alpine3.14 AS production
 
 WORKDIR /app
 
+
 COPY --from=build /app/node_modules ./node_modules
 
 COPY --from=build /app/ ./
