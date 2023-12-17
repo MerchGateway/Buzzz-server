@@ -3,7 +3,6 @@ import { Repository, FindOptionsWhere, Like } from 'typeorm';
 import {
   Injectable,
   NotFoundException,
-  BadRequestException,
   forwardRef,
   Inject,
 } from '@nestjs/common';
