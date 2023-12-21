@@ -24,7 +24,6 @@ export class GeocoderProvider implements GoogleGeocoderProvider {
       if (result.length === 0) {
         throw new Error('No results found for the given address');
       }
-      console.log(result);
       const { lat, lon } = result[0]; // Assuming you want the first result
       return [lat, lon];
     } catch (error) {

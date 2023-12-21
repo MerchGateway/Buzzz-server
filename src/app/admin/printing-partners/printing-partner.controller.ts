@@ -49,11 +49,7 @@ export class PrintingPartnerController {
   ) {
     return this.printingService.updateStatus(user, body, id);
   }
-  @Roles(Role.PRINTING_ADMIN)
-  @Get('/download-design/:id')
-  downloadDesign(@CurrentUser() user: User, @Param('id') id: string) {
-    return this.printingService.downloadDesign(user, id);
-  }
+
   @Roles(Role.PRINTING_ADMIN)
   @Get('/view-order/:id')
   viewOrder(@CurrentUser() user: User, @Param('id') id: string) {
