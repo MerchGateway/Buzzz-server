@@ -95,7 +95,14 @@ export class AdminService {
       where: {
         id,
       },
-      select: ['address', 'status', 'createdAt', 'id', 'name'],
+      select: [
+        'address',
+        'status',
+        'createdAt',
+        'id',
+        'name',
+        'administrators',
+      ],
     });
     if (!printingPartner) {
       throw new NotFoundException(
@@ -110,7 +117,14 @@ export class AdminService {
       where: {
         id,
       },
-      select: ['address', 'status', 'createdAt', 'id', 'name'],
+      select: [
+        'address',
+        'status',
+        'createdAt',
+        'id',
+        'name',
+        'administrators',
+      ],
     });
     if (!logisticsPartner) {
       throw new NotFoundException(
