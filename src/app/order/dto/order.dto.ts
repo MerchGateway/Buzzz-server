@@ -6,6 +6,8 @@ export class CreateOrderDto {
     state: string;
     LGA: string;
     address: string;
+    latitude: number;
+    longitude: number;
   };
 }
 export class UpdateOrderDto {

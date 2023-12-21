@@ -2,10 +2,10 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  PreconditionFailedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Repository } from 'typeorm';
-import { HttpException } from '@nestjs/common';
+import { Repository } from 'typeorm';
 import { LogisticsPartner } from './logistics-partners/entities/logistics-partner.entity';
 import { PrintingPartner } from './printing-partners/entities/printing-partner.entity';
 import { Status as OrderStatus } from 'src/types/order';
@@ -257,6 +257,51 @@ export class AdminService {
         'printingPartner',
       ],
     });
+  }
+  private async getNearestPartnerToOrder(
+    order: Order,
+    partnerType: 'Printing' | 'Logistics',
+  ) {
+    const partner =
+      partnerType === 'Logistics'
+        ? this.logisticsPartnerRepository
+        : this.printingPartnerRepository;
+    const closestPartner = await partner
+      .createQueryBuilder(partnerType)
+      .orderBy(
+        `ST_DISTANCE(
+           POINT(${order.shippingDetails.shippingAddress.latitude},
+             ${order.shippingDetails.shippingAddress.latitude}),
+           POINT(partner.address.latitude, partner.address.longitude)
+        )`,
+      )
+      .getOne();
+    return closestPartner || null;
+  }
+  async assignOrdersAutoToClosestPartner(
+    partnerType: 'Printing' | 'Logistics',
+    order: Order,
+  ) {
+    if (order.shippingDetails) {
+      throw new PreconditionFailedException(
+        'Cannot assign order without an address field',
+      );
+    }
+
+    const nearestPartner = await this.getNearestPartnerToOrder(
+      order,
+      partnerType,
+    );
+    partnerType === 'Logistics'
+      ? await this.AssignOrdersToLogisticsPartner({
+          orders: [order.id],
+          logisticsPartner: nearestPartner.id,
+        })
+      : await this.AssignOrdersToPrintingPartner({
+          orders: [order.id],
+          printingPartner: nearestPartner.id,
+        });
+    return order;
   }
 
   async viewAllLogisticsAdmins() {

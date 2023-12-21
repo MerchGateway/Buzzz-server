@@ -4,10 +4,8 @@ import {
   IsObject,
   IsOptional,
   IsString,
-  IsUUID,
 } from 'class-validator';
 import { Status } from 'src/types/status';
-import { IdentityProvider } from 'src/types/user';
 
 export class CreatePrintingPartnerDto {
   @IsString()
@@ -19,6 +17,8 @@ export class CreatePrintingPartnerDto {
     state: string;
     LGA: string;
     city: string;
+    latitude: number;
+    longitude: number;
   };
 }
 
@@ -38,6 +38,8 @@ export class UpdatePrintingPartnerDto {
     state: string;
     LGA: string;
     city: string;
+    latitude: number;
+    longitude: number;
   };
 }
 

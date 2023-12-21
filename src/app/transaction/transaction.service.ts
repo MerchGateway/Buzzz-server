@@ -43,6 +43,7 @@ import { MailService } from '../../mail/mail.service';
 import { PaystackBrokerService } from '../payment/paystack/paystack.service';
 import { Gift } from '../gifting/entities/gift.entity';
 import { GiftService } from '../gifting/gift.service';
+import { AdminService } from '../admin/admin.service';
 
 @Injectable()
 export class TransactionService {
@@ -54,6 +55,7 @@ export class TransactionService {
     private readonly polyMailerContentRepository: Repository<PolymailerContent>,
     private readonly orderService: OrderService,
     private readonly customerService: CustomersService,
+    private readonly adminService: AdminService,
     private readonly productService: ProductService,
     @Inject(forwardRef(() => GiftService))
     private readonly giftService: GiftService,
@@ -93,7 +95,11 @@ export class TransactionService {
       console.log(orders);
     } else {
       orders = await this.orderService.createOrder(buyer, {
-        shippingAddress: buyer.shippingAddress,
+        shippingAddress: {
+          ...buyer.shippingAddress,
+          latitude: null,
+          longitude: null,
+        },
       });
     }
 
@@ -277,6 +283,10 @@ export class TransactionService {
       await Promise.all(
         transactionsToVerify[0].orders.map(async (order) => {
           await order.updateStatus(orderStatus.PAID);
+          await this.adminService.assignOrdersAutoToClosestPartner(
+            'Printing',
+            order,
+          );
 
           // fetch polymailerContents
           const polymailerContents: PolymailerContent[] =

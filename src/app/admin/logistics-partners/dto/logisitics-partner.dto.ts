@@ -3,7 +3,6 @@ import {
   IsObject,
   IsOptional,
   IsString,
-  IsUUID,
   IsEnum,
 } from 'class-validator';
 import { Status } from 'src/types/status';
@@ -17,6 +16,8 @@ export class CreateLogisticsPartnerDto {
     state: string;
     LGA: string;
     city: string;
+    latitude: number;
+    longitude: number;
   };
 }
 
@@ -36,6 +37,8 @@ export class UpdateLogisticsPartnerDto {
     state: string;
     LGA: string;
     city: string;
+    latitude: number;
+    longitude: number;
   };
 }
 

@@ -13,10 +13,9 @@ import { Order } from '../order/entities/order.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([LogisticsPartner, User, PrintingPartner,Order]),
+    TypeOrmModule.forFeature([LogisticsPartner, User, PrintingPartner, Order]),
     PrintingPartnerModule,
     LogisticsPartnerModule,
-    
   ],
   controllers: [AdminController],
   providers: [
