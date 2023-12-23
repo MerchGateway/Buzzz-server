@@ -34,10 +34,20 @@ export class MessageConsumer {
         if (
           jobData.user &&
           isDesignExist.design &&
+          isDesignExist.design.contributors[0] &&
           !isDesignExist.design.contributors.includes(jobData.user.email)
         ) {
           console.log('unauthorized to design');
           throw new WsException('You are not an authorized contributor');
+        } else if (
+          jobData.user &&
+          isDesignExist.design &&
+          !isDesignExist.design.contributors[0]
+        ) {
+          await this.designService.attachDesignToUser(
+            jobData.user,
+            isDesignExist.design.id,
+          );
         } else if (
           !jobData.user &&
           isDesignExist.design &&
