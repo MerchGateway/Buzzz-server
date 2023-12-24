@@ -94,7 +94,6 @@ export class AppGateway
 
   async handleConnection(client: ExtendedSocket, ...args: any[]) {
     try {
-      console.log('Client connected', client.handshake.headers);
       const headers =
         typeof client.handshake.auth.headers !== 'undefined'
           ? client.handshake.auth.headers

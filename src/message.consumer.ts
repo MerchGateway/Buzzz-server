@@ -22,7 +22,6 @@ export class MessageConsumer {
   @Process(DESIGN_MERCH)
   async readOperationJob(job: Job<unknown>) {
     const jobData: any = job.data;
-    console.log('entered queue', jobData.user);
     let isDesignExist: { design: Design };
 
     try {
@@ -31,6 +30,7 @@ export class MessageConsumer {
           design: await this.designService.fetchSingleDesign(jobData.id),
         };
 
+        console.log(isDesignExist.design);
         if (
           jobData.user &&
           isDesignExist.design &&
@@ -44,10 +44,11 @@ export class MessageConsumer {
           isDesignExist.design &&
           !isDesignExist.design.contributors[0]
         ) {
-          await this.designService.attachDesignToUser(
+          const design = await this.designService.attachDesignToUser(
             jobData.user,
             isDesignExist.design.id,
           );
+          isDesignExist.design = design;
         } else if (
           !jobData.user &&
           isDesignExist.design &&

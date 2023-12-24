@@ -343,13 +343,13 @@ export class DesignService {
   }
 
   async attachDesignToUser(user: User, designId: string) {
+    console.log('this entered');
     const design = await this.fetchSingleDesign(designId);
-    design.user = user;
-    await design.save();
+    if (!design.user) {
+      design.user = user;
+      return await design.save();
+    }
 
-    return new SuccessResponse(
-      design,
-      `Design with id ${designId} attached to user ${user.id}`,
-    );
+    return design;
   }
 }
