@@ -111,7 +111,7 @@ export class AppGateway
       }
     } catch (error) {
       console.log(error);
-
+      this.server.to(client.id).emit(DESIGN_MERCH, error);
       client.disconnect(true);
     }
   }
