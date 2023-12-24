@@ -9,7 +9,7 @@ envConfig();
 const config = configuration();
 
 export const AppDataSource = new DataSource({
-  type: config.database.connection as MysqlConnectionOptions['type'],
+  type: config.database.connection as MysqlConnectionOptions['type'] | 'mysql',
   host: config.database.host,
   port: config.database.port,
   username: config.database.username,
