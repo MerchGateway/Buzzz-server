@@ -101,7 +101,7 @@ export class AppGateway
       const tke = headers.authorization
         ? headers.authorization.split(' ')[1]
         : null;
-      if (tke) {
+      if (tke && tke !== '') {
         const payload = await this.jwtService.verifyToken(tke);
         // join private room
         client.join(payload?.sub);
