@@ -22,7 +22,6 @@ export class MessageConsumer {
   @Process(DESIGN_MERCH)
   async readOperationJob(job: Job<unknown>) {
     const jobData: any = job.data;
-    console.log('entered queue', jobData.user);
     let isDesignExist: { design: Design };
 
     try {
@@ -31,13 +30,25 @@ export class MessageConsumer {
           design: await this.designService.fetchSingleDesign(jobData.id),
         };
 
+        console.log(isDesignExist.design);
         if (
           jobData.user &&
           isDesignExist.design &&
+          isDesignExist.design.contributors[0] &&
           !isDesignExist.design.contributors.includes(jobData.user.email)
         ) {
           console.log('unauthorized to design');
           throw new WsException('You are not an authorized contributor');
+        } else if (
+          jobData.user &&
+          isDesignExist.design &&
+          !isDesignExist.design.contributors[0]
+        ) {
+          const design = await this.designService.attachDesignToUser(
+            jobData.user,
+            isDesignExist.design.id,
+          );
+          isDesignExist.design = design;
         } else if (
           !jobData.user &&
           isDesignExist.design &&

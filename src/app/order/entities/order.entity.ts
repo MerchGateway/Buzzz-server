@@ -74,6 +74,8 @@ export class Order extends Timestamp {
       state: string;
       LGA: string;
       address: string;
+      latitude: number;
+      longitude: number;
     };
   } | null;
 
@@ -140,5 +142,9 @@ export class Order extends Timestamp {
         Cart.remove(this.cart);
       }
     }
+  }
+  public async updateCordinates(cordinates: [any, any]) {
+    this.shippingDetails.shippingAddress.latitude = cordinates[0];
+    this.shippingDetails.shippingAddress.longitude = cordinates[1];
   }
 }

@@ -6,11 +6,10 @@ import {
   Param,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { RolesGuard } from '../../auth/guards/roles.guard';
+
 import { Role } from 'src/types/general';
 import { Roles } from 'src/decorators/roles.decorator';
 import { PrintingPartnerService } from './printing-partner.service';
-import { AdminService } from '../admin.service';
 import { CurrentUser } from '../../../decorators/user.decorator';
 import { User } from 'src/app/users/entities/user.entity';
 import { Status } from 'src/types/order';
@@ -29,7 +28,7 @@ export class PrintingPartnerController {
     @CurrentUser() user: User,
     @Param('id', ParseUUIDPipe) id: string,
   ) {
-    return this.printingService.viewPackagingContent(user,id);
+    return this.printingService.viewPackagingContent(user, id);
   }
 
   @Roles(Role.PRINTING_ADMIN)
@@ -50,11 +49,7 @@ export class PrintingPartnerController {
   ) {
     return this.printingService.updateStatus(user, body, id);
   }
-  @Roles(Role.PRINTING_ADMIN)
-  @Get('/download-design/:id')
-  downloadDesign(@CurrentUser() user: User, @Param('id') id: string) {
-    return this.printingService.downloadDesign(user, id);
-  }
+
   @Roles(Role.PRINTING_ADMIN)
   @Get('/view-order/:id')
   viewOrder(@CurrentUser() user: User, @Param('id') id: string) {

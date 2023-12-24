@@ -11,13 +11,13 @@ import {
 } from '@nestjs/common';
 import { CreateOrderDto } from './dto/order.dto';
 import { NotFoundException } from '@nestjs/common';
-
+import { GeocoderProvider } from 'src/providers/googleGeocoder.provider';
 import { Order } from './entities/order.entity';
 import { User } from '../users/entities/user.entity';
 import { CartService } from '../cart/cart.service';
 import { OrderType, Status } from 'src/types/order';
 import { Gift } from '../gifting/entities/gift.entity';
-
+import { GOOGLE_GEOCODER } from 'src/constant';
 interface OrderAnalyticsT {
   thisMonthOrder: number;
   lastTwoMonthsOrder: number;
@@ -30,7 +30,8 @@ export class OrderService {
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(Gift)
     private readonly giftRepository: Repository<Gift>,
-
+    @Inject(GOOGLE_GEOCODER)
+    private readonly googleGeocoder: GeocoderProvider,
     @Inject(forwardRef(() => CartService))
     private readonly cartService: CartService,
   ) {}
@@ -40,6 +41,9 @@ export class OrderService {
     gift: Gift,
     payload: CreateOrderDto,
   ) {
+    const address = `${payload.shippingAddress.address},
+           ${payload.shippingAddress.state}, 
+           ${payload.shippingAddress.LGA}`;
     // save cart items
     const order = new Order();
     order.user = user;
@@ -48,9 +52,18 @@ export class OrderService {
     order.product = gift.product;
     order.quantity = gift.recievers.length > 1 ? 1 : gift.quantity;
     order.total = 0;
+
+    const cordinates = await this.googleGeocoder.getLongitudeAndLatitude(
+      address,
+    );
+
     order.shippingDetails = {
       shippingFee: 0,
-      shippingAddress: payload.shippingAddress,
+      shippingAddress: {
+        ...payload.shippingAddress,
+        latitude: cordinates[0],
+        longitude: cordinates[1],
+      },
     };
     order.type = OrderType.GIFT;
     return await this.orderRepository.save(order);
@@ -80,6 +93,7 @@ export class OrderService {
           'Item{s} to create order for does not exist ',
         );
       }
+
       result = await Promise.all(
         userCartItems.map(async (cart) => {
           const order = new Order();
@@ -89,9 +103,19 @@ export class OrderService {
           order.product = cart.product;
 
           if (payload.shippingAddress !== null) {
+            const address = `${payload.shippingAddress.address},
+           ${payload.shippingAddress.state}, 
+           ${payload.shippingAddress.LGA}`;
+
+            const cordinates =
+              await this.googleGeocoder.getLongitudeAndLatitude(address);
             order.shippingDetails = {
               shippingFee: 0,
-              shippingAddress: payload.shippingAddress,
+              shippingAddress: {
+                ...payload.shippingAddress,
+                latitude: cordinates[0],
+                longitude: cordinates[1],
+              },
             };
           }
 

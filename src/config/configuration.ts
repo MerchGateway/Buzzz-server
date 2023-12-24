@@ -91,6 +91,9 @@ export default () => ({
     host: process.env.REDIS_HOST,
     redis_url: process.env.REDIS_URL,
   },
+  google: {
+    mapApiKey: process.env.GOOGLE_MAP_API_KEY,
+  },
 
   firebaseDatabaseUrl: process.env.FIREBASE_DATABASE_URL,
   smtpHost: process.env.SMTP_HOST,

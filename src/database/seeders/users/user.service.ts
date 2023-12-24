@@ -6,6 +6,7 @@ import { SUPER_ADMIN, TEMPORARY_CATEGORIES } from './data';
 import { Category } from '../../../app/category/entities/category.entity';
 import { Wallet } from '../../../app/wallet/entities/wallet.entity';
 import { Role } from 'src/types/general';
+import configuration from 'src/config/configuration';
 
 @Injectable()
 export class UserSeederService {
@@ -26,7 +27,7 @@ export class UserSeederService {
   private async createSuperAdmin() {
     const existingSuperAdmin = await this.userRepository.findOne({
       where: {
-        email: SUPER_ADMIN.email,
+        email: configuration().auth.superEmail,
         role: Role.SUPER_ADMIN,
       },
     });
@@ -35,11 +36,15 @@ export class UserSeederService {
       return existingSuperAdmin;
     }
 
-    console.log(SUPER_ADMIN);
     let wallet = this.walletRepository.create();
     wallet = await this.walletRepository.save(wallet);
 
-    const superAdmin = this.userRepository.create({ ...SUPER_ADMIN, wallet });
+    const superAdmin = this.userRepository.create({
+      ...SUPER_ADMIN,
+      email: configuration().auth.superEmail,
+      password: configuration().auth.superPassword,
+      wallet,
+    });
 
     return await this.userRepository.save(superAdmin);
   }

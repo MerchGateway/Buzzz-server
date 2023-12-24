@@ -50,7 +50,6 @@ import { OtpModule } from './otp/otp.module';
     UsersModule,
     CategoryModule,
     CartModule,
-
     ProductModule,
     OrderModule,
     TransactionModule,

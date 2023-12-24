@@ -8,7 +8,6 @@ import {
 } from 'firebase-admin/lib/messaging/messaging-api';
 import * as firebaseCredentials from '../assets/data/firebase_adminsdk.json';
 import { ServiceAccount } from 'firebase-admin';
-import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
 @Injectable()
