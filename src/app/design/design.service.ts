@@ -61,7 +61,7 @@ export class DesignService {
   ): Promise<{ design: Design }> {
     const latestDesign = await this.designRepository.findOne({
       where: { user: { id: user.id } },
-      order: { createdAt: 'DESC' },
+      order: { updatedAt: 'DESC' },
       relations: ['product'],
     });
     return { design: latestDesign };
