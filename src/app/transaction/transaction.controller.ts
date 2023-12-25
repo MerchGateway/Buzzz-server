@@ -72,6 +72,11 @@ export class TransactionController {
     return this.transactionService.revalidateTransaction(id);
   }
 
+  @Get('/:id/verify')
+  private ver(@Param('id') id: string) {
+    return this.transactionService.verifyPaymentTransaction;
+  }
+
   @Roles(Role.SUPER_ADMIN)
   @UseGuards(RolesGuard)
   @Delete(':reference')
