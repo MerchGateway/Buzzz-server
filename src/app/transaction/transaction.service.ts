@@ -283,10 +283,10 @@ export class TransactionService {
       await Promise.all(
         transactionsToVerify[0].orders.map(async (order) => {
           await order.updateStatus(orderStatus.PAID);
-          await this.adminService.assignOrdersAutoToClosestPartner(
-            'Printing',
-            order,
-          );
+          // await this.adminService.assignOrdersAutoToClosestPartner(
+          //   'Printing',
+          //   order,
+          // );
 
           // fetch polymailerContents
           const polymailerContents: PolymailerContent[] =
@@ -612,8 +612,11 @@ export class TransactionService {
 
         await Promise.all(
           transaction.orders.map(async (order) => {
-            // await order.updateStatus(orderStatus.PAID);
-
+            await order.updateStatus(orderStatus.PAID);
+            // await this.adminService.assignOrdersAutoToClosestPartner(
+            //   'Printing',
+            //   order,
+            // );
             // fetch polymailerContents
             const polymailerContents: PolymailerContent[] =
               await this.polyMailerContentRepository.find();
@@ -635,6 +638,77 @@ export class TransactionService {
             await order.save();
           }),
         );
+
+        const transactions = await this.transactionRepository.find({
+          where: { reference: transaction.reference },
+          relations: [
+            'orders',
+            'orders.product',
+            'orders.product.seller',
+            'wallet',
+            'wallet.user',
+          ],
+        });
+
+        const product = transactions[0].orders[0].product;
+
+        const totalOrderQuantity = transactions[0].orders.reduce(
+          (acc, order) => {
+            return acc + parseInt(order.quantity.toString());
+          },
+          0,
+        );
+
+        // find a transaction where the buyer is not also the seller:
+        // (in the case where a user buys their own merch)
+        const nonSellerBuyerTransaction = transactions.find(
+          (transaction) => transaction.wallet.user.id !== product.seller.id,
+        );
+
+        let buyer: User;
+
+        if (!nonSellerBuyerTransaction) {
+          // if the buyer is also the seller, then the buyer is the product seller
+          buyer = product.seller;
+        } else {
+          // if the buyer is not also the seller, then the buyer is the user in the nonSellerBuyerTransaction
+          buyer = nonSellerBuyerTransaction.wallet.user;
+        }
+
+        const notBuyingFromOneself = product.seller.id !== buyer.id;
+
+        if (notBuyingFromOneself) {
+          // add user to customer list only if the buyer is not also the seller
+          await this.customerService.create(product.seller.id, buyer);
+
+          // send a confirmation mail to the seller only if the buyer is not also the seller
+          this.mailService.sendSellerOrderConfirmation(product.seller, {
+            ...transactions[0].orders[0],
+            quantity: totalOrderQuantity,
+          } as Order);
+        }
+
+        this.mailService.sendBuyerOrderConfirmation(buyer, {
+          ...transactions[0].orders[0],
+          quantity: totalOrderQuantity,
+        } as Order);
+        if (transactions[0].orders[0].type === OrderType.PAYFORWARD) {
+          // send gift creation message to all beneficiaries
+          const gift = await this.giftService.fetchSingleGift({
+            order: { id: transactions[0].orders[0].id },
+          });
+          if (!gift) {
+            return;
+          }
+          const giftPreviewLink = `${this.configService.get(
+            'clientUrl',
+          )}/preview/${gift.product.id}`;
+          await this.mailService.sendGiftNotificationToBeneficiaries({
+            user: transactions[0].orders[0].user.email,
+            gift,
+            giftPreviewLink,
+          });
+        }
       } else {
         transaction.status = TransactionStatus.FAILED;
         transaction.message = data.message || 'Transaction verification failed';
