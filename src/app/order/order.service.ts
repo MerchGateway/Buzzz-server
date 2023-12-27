@@ -41,9 +41,9 @@ export class OrderService {
     gift: Gift,
     payload: CreateOrderDto,
   ) {
-    const address = `${payload.shippingAddress.address},
-           ${payload.shippingAddress.state}, 
-           ${payload.shippingAddress.LGA}`;
+    //const address = `${payload.shippingAddress.address},
+           //${payload.shippingAddress.state}, 
+          // ${payload.shippingAddress.LGA}`;
     // save cart items
     const order = new Order();
     order.user = user;
@@ -53,16 +53,22 @@ export class OrderService {
     order.quantity = gift.recievers.length > 1 ? 1 : gift.quantity;
     order.total = 0;
 
-    const cordinates = await this.googleGeocoder.getLongitudeAndLatitude(
-      address,
-    );
+    //const cordinates = await this.googleGeocoder.getLongitudeAndLatitude(
+     // address,
+    //);
 
+   // order.shippingDetails = {
+      //shippingFee: 0,
+     // shippingAddress: {
+        //...payload.shippingAddress,
+        //latitude: cordinates[0],
+       // longitude: cordinates[1],
+      //},
+    //};
     order.shippingDetails = {
       shippingFee: 0,
       shippingAddress: {
-        ...payload.shippingAddress,
-        latitude: cordinates[0],
-        longitude: cordinates[1],
+        ...payload.shippingAddress
       },
     };
     order.type = OrderType.GIFT;
