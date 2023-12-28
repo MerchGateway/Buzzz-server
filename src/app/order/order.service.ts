@@ -41,7 +41,6 @@ export class OrderService {
     gift: Gift,
     payload: CreateOrderDto,
   ) {
-
     // const address = `${payload.shippingAddress.address},
     //        ${payload.shippingAddress.state},
     //        ${payload.shippingAddress.LGA}`
@@ -66,12 +65,11 @@ export class OrderService {
     //     longitude: cordinates[1],
     //   },
     // };
-   
+
     order.shippingDetails = {
       shippingFee: 0,
       shippingAddress: {
-        ...payload.shippingAddress
-
+        ...payload.shippingAddress,
       },
     };
     order.type = OrderType.GIFT;
@@ -203,13 +201,13 @@ export class OrderService {
         .select('quantity')
         .select('type')
         .select('total')
-        .select('shippingDetails')
+        .select('shipping_details')
         .select('status')
         .select('id')
-        .select('createdAt')
+        .select('created_at')
         .leftJoin('order.user', 'user')
-        .select('user.firstName')
-        .addSelect('user.lastName')
+        .select('user.first_name')
+        .addSelect('user.last_name')
         .orderBy('order.created_at', 'DESC');
       if (status !== 'all') {
         qb.where('order.status=:status', { status });
