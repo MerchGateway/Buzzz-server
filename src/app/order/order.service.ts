@@ -209,9 +209,9 @@ export class OrderService {
         .select('user.first_name')
         .addSelect('user.last_name')
         .orderBy('order.created_at', 'DESC');
-      // if (status !== 'all') {
-      //   qb.where('order.status=:status', { status });
-      // }
+      if (status !== 'all') {
+        qb.where('order.status=:status', { status });
+      }
       return paginate<Order>(qb, { limit, page, route });
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
