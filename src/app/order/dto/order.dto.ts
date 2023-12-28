@@ -11,17 +11,8 @@ export class CreateOrderDto {
   };
 }
 export class UpdateOrderDto {
-  // @IsString()
-  // @IsOptional()
-  // owner?:string;
-  // @IsArray()
-  // @IsOptional()
   @IsArray()
   cart?: any[];
-  // @IsNumber()
-  // @IsOptional()
-  // shipping_fee:number;
-  // @IsString()
   @IsOptional()
   status?: Status;
 }
