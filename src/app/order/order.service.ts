@@ -41,9 +41,10 @@ export class OrderService {
     gift: Gift,
     payload: CreateOrderDto,
   ) {
+
     // const address = `${payload.shippingAddress.address},
     //        ${payload.shippingAddress.state},
-    //        ${payload.shippingAddress.LGA}`;
+    //        ${payload.shippingAddress.LGA}`
     // save cart items
     const order = new Order();
     order.user = user;
@@ -65,10 +66,12 @@ export class OrderService {
     //     longitude: cordinates[1],
     //   },
     // };
+   
     order.shippingDetails = {
       shippingFee: 0,
       shippingAddress: {
-        ...payload.shippingAddress,
+        ...payload.shippingAddress
+
       },
     };
     order.type = OrderType.GIFT;
