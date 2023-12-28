@@ -198,16 +198,16 @@ export class OrderService {
     try {
       const qb = this.orderRepository
         .createQueryBuilder('order')
-        .select('quantity')
-        .select('type')
-        .select('total')
-        .select('shipping_details')
-        .select('status')
-        .select('id')
-        .select('created_at')
         .leftJoin('order.user', 'user')
         .select('user.first_name')
-        .addSelect('user.last_name')
+        .select('user.last_name')
+        .addSelect('quantity')
+        .addSelect('type')
+        .addSelect('total')
+        .addSelect('shipping_details')
+        .addSelect('status')
+        .addSelect('id')
+        .addSelect('created_at')
         .orderBy('order.created_at', 'DESC');
       if (status !== 'all') {
         qb.where('order.status=:status', { status });
