@@ -199,8 +199,7 @@ export class OrderService {
       const qb = this.orderRepository
         .createQueryBuilder('order')
         .leftJoin('order.user', 'user')
-        .select('user.firstName')
-        .select('user.lastName')
+        .select('user.username')
         .addSelect('order.quantity')
         .addSelect('order.type')
         .addSelect('order.total')
