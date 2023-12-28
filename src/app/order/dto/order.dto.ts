@@ -14,7 +14,8 @@ export class UpdateOrderDto {
   @IsOptional()
   @IsArray()
   cart?: any[];
-  @IsEnum(Status)
+
   @IsOptional()
+  @IsEnum(Status)
   status?: Status;
 }

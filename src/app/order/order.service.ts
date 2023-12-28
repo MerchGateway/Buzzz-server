@@ -271,8 +271,9 @@ export class OrderService {
     body: UpdateOrderDto,
   ): Promise<Order | undefined> {
     try {
-      await (await this.getOrder(orderId)).updateStatus(body.status);
-      return;
+      const order = await this.getOrder(orderId);
+      order.status = body.status;
+      return await this.orderRepository.save(order);
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }
