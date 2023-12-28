@@ -206,7 +206,6 @@ export class OrderService {
         .addSelect('total')
         .addSelect('shipping_details')
         .addSelect('status')
-        .addSelect('id')
         .addSelect('created_at')
         .orderBy('order.created_at', 'DESC');
       if (status !== 'all') {
