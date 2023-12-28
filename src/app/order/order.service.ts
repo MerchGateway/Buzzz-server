@@ -201,12 +201,13 @@ export class OrderService {
         .leftJoin('order.user', 'user')
         .select('user.first_name')
         .select('user.last_name')
-        .addSelect('quantity')
-        .addSelect('type')
-        .addSelect('total')
-        .addSelect('shipping_details')
-        .addSelect('status')
-        .addSelect('created_at')
+        .addSelect('order.quantity')
+        .addSelect('order.type')
+        .addSelect('order.total')
+        .addSelect('order.shipping_details')
+        .addSelect('order.status')
+        .addSelect('order.id')
+        .addSelect('order.created_at')
         .orderBy('order.created_at', 'DESC');
       if (status !== 'all') {
         qb.where('order.status=:status', { status });
