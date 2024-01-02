@@ -20,5 +20,6 @@ export const getRedisConfiguration = (config: ConfigObject) => {
   return {
     host: config.redis.host,
     port: config.redis.port,
+    password:config.redis.password
   };
 };
