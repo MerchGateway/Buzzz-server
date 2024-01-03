@@ -223,9 +223,15 @@ export class OrderService {
   ): Promise<Pagination<Order> | Order[]> {
     if (!pagination) {
       const Orders = await this.orderRepository.find({
-        where: {
-          user: { id: user.id },
-        },
+        where: [{ user: { id: user.id } }, { sellerId: user.id }],
+        select: [
+          'quantity',
+          'createdAt',
+          'status',
+          'user.id',
+          'user.firstName',
+          'user.lastName',
+        ],
       });
       return Orders;
     }
@@ -236,8 +242,15 @@ export class OrderService {
       qb.alias,
       this.orderRepository.metadata,
     );
-    qb.where('order.seller_id = :sellerId', { sellerId: user.id });
-    qb.leftJoinAndSelect('order.user', 'user');
+
+    qb.leftJoin('order.user', 'user')
+      .select('user.id')
+      .select('user.firstName')
+      .select('user.lastName');
+    qb.where('order.seller_id = :sellerId OR user.id =:userId', {
+      sellerId: user.id,
+      userId: user.id,
+    });
     qb.orderBy('order.created_at', 'DESC');
 
     return paginate<Order>(qb, { limit, page, route });
