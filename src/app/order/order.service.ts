@@ -246,7 +246,10 @@ export class OrderService {
     qb.leftJoin('order.user', 'user')
       .select('user.id')
       .select('user.firstName')
-      .select('user.lastName');
+      .select('user.lastName')
+      .addSelect('quantity')
+      .addSelect('createdAt')
+      .addSelect('status');
     qb.where('order.seller_id = :sellerId OR user.id =:userId', {
       sellerId: user.id,
       userId: user.id,
