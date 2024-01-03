@@ -229,6 +229,7 @@ export class OrderService {
           'quantity',
           'createdAt',
           'status',
+          'total',
           'user.id',
           'product.name',
         ] as Array<keyof Order>,
@@ -242,6 +243,7 @@ export class OrderService {
       .select('user.id')
       .addSelect('order.quantity')
       .addSelect('order.createdAt')
+      .addSelect('order.total')
       .addSelect('order.status');
     qb.where('order.seller_id = :sellerId OR order.user.id =:userId', {
       sellerId: user.id,
