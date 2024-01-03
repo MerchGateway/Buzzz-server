@@ -260,12 +260,15 @@ export class OrderService {
   ): Promise<Pagination<Order>> {
     try {
       const qb = this.orderRepository.createQueryBuilder('order');
-      FindOptionsUtils.joinEagerRelations(
-        qb,
-        qb.alias,
-        this.orderRepository.metadata,
-      );
-      qb.leftJoinAndSelect('order.user', 'user')
+      qb.leftJoin('order.user', 'user')
+        .select('user.username')
+        .addSelect('order.quantity')
+        .addSelect('order.type')
+        .addSelect('order.total')
+        .addSelect('order.shippingDetails')
+        .addSelect('order.status')
+        .addSelect('order.id')
+        .addSelect('order.createdAt')
         .where('user.id=:user', { user: id })
         .andWhere('order.status=:status', {
           status: Status.PAID,
