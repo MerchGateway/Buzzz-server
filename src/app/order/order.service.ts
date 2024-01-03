@@ -231,7 +231,7 @@ export class OrderService {
           'user.id',
           'user.firstName',
           'user.lastName',
-        ],
+        ] as Array<keyof Order>,
       });
       return Orders;
     }

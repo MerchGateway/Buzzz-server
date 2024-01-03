@@ -1,10 +1,9 @@
 import {
   HttpException,
   Inject,
-  Injectable,
-  BadRequestException,
   NotFoundException,
   HttpStatus,
+  Injectable,
 } from '@nestjs/common';
 import { User } from '../users/entities/user.entity';
 import { Notification } from './entities/notification.entity';
