@@ -111,7 +111,7 @@ export class OrderService {
 
           // if (payload.shippingAddress !== null) {
           //   const address = `${payload.shippingAddress.address},
-          //  ${payload.shippingAddress.state}, 
+          //  ${payload.shippingAddress.state},
           //  ${payload.shippingAddress.LGA}`;
 
           //   const cordinates =
