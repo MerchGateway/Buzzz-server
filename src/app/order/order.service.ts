@@ -247,9 +247,9 @@ export class OrderService {
       .select('user.id')
       .select('user.firstName')
       .select('user.lastName')
-      .addSelect('quantity')
-      .addSelect('createdAt')
-      .addSelect('status');
+      .addSelect('order.quantity')
+      .addSelect('order.createdAt')
+      .addSelect('order.status');
     qb.where('order.seller_id = :sellerId OR order.user.id =:userId', {
       sellerId: user.id,
       userId: user.id,
