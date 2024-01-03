@@ -237,11 +237,6 @@ export class OrderService {
     }
     const { limit, page, route } = pagination;
     const qb = this.orderRepository.createQueryBuilder('order');
-    FindOptionsUtils.joinEagerRelations(
-      qb,
-      qb.alias,
-      this.orderRepository.metadata,
-    );
 
     qb.leftJoin('order.user', 'user')
       .select('user.id')
