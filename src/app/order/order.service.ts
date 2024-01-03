@@ -231,6 +231,7 @@ export class OrderService {
           'user.id',
           'user.firstName',
           'user.lastName',
+          'user.username',
         ] as Array<keyof Order>,
       });
       return Orders;
@@ -242,6 +243,7 @@ export class OrderService {
       .select('user.id')
       .select('user.firstName')
       .select('user.lastName')
+      .select('user.username')
       .addSelect('order.quantity')
       .addSelect('order.createdAt')
       .addSelect('order.status');
