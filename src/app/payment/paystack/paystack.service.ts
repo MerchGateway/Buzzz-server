@@ -38,7 +38,7 @@ export class PaystackBrokerService {
   private async initializeTransaction(
     user: User,
     payload: CreatePayRefDto,
-    gift?: Gift,
+    gift: Gift = null,
   ) {
     // initialize transaction
     return await this.axiosConnection

@@ -14,7 +14,7 @@ export const AppDataSource = new DataSource({
   port: config.database.port,
   username: config.database.username,
   password: config.database.password,
-  extra: { charset: 'utf8mb4'},
+  extra: { charset: 'utf8mb4' },
   synchronize: config.database.synchronize,
   database: config.database.name,
   charset: 'utf8mb4_unicode_ci',

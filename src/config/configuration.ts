@@ -38,7 +38,7 @@ export default () => ({
     migrations: process.env.TYPEORM_MIGRATIONS,
     migrationsDir: process.env.TYPEORM_MIGRATIONS_DIR,
     charset: 'utf8mb4',
-    collation: 'utf8mb4_unicode_ci'
+    collation: 'utf8mb4_unicode_ci',
   },
   jwt: {
     secret: process.env.JWT_SECRET,
