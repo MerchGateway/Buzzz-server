@@ -109,22 +109,22 @@ export class OrderService {
           order.sellerId = cart.product.seller.id;
           order.product = cart.product;
 
-          if (payload.shippingAddress !== null) {
-            const address = `${payload.shippingAddress.address},
-           ${payload.shippingAddress.state}, 
-           ${payload.shippingAddress.LGA}`;
+          // if (payload.shippingAddress !== null) {
+          //   const address = `${payload.shippingAddress.address},
+          //  ${payload.shippingAddress.state}, 
+          //  ${payload.shippingAddress.LGA}`;
 
-            const cordinates =
-              await this.googleGeocoder.getLongitudeAndLatitude(address);
-            order.shippingDetails = {
-              shippingFee: 0,
-              shippingAddress: {
-                ...payload.shippingAddress,
-                latitude: cordinates[0],
-                longitude: cordinates[1],
-              },
-            };
-          }
+          //   const cordinates =
+          //     await this.googleGeocoder.getLongitudeAndLatitude(address);
+          //   order.shippingDetails = {
+          //     shippingFee: 0,
+          //     shippingAddress: {
+          //       ...payload.shippingAddress,
+          //       latitude: cordinates[0],
+          //       longitude: cordinates[1],
+          //     },
+          //   };
+          // }
 
           // save cart items
           return await this.orderRepository.save(order);
