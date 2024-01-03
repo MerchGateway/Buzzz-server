@@ -238,12 +238,9 @@ export class OrderService {
     }
     const { limit, page, route } = pagination;
     const qb = this.orderRepository.createQueryBuilder('order');
-
+    qb.leftJoin('order.product', 'product').select('name');
     qb.leftJoin('order.user', 'user')
       .select('user.id')
-      .select('user.firstName')
-      .select('user.lastName')
-      .select('user.username')
       .addSelect('order.quantity')
       .addSelect('order.createdAt')
       .addSelect('order.status');
