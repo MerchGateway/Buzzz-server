@@ -224,7 +224,6 @@ export class OrderService {
     if (!pagination) {
       const Orders = await this.orderRepository.find({
         where: [{ user: { id: user.id } }, { sellerId: user.id }],
-        relations:['product'],
         select: [
           'quantity',
           'createdAt',
@@ -238,8 +237,8 @@ export class OrderService {
     }
     const { limit, page, route } = pagination;
     const qb = this.orderRepository.createQueryBuilder('order');
-    qb.leftJoin('order.product', 'product').select('product.name');
-    qb.leftJoin('order.user', 'user')
+    qb.leftJoin('order.product', 'product').select('product.name')
+    .leftJoin('order.user', 'user')
       .select('user.id')
       .addSelect('order.quantity')
       .addSelect('order.createdAt')
