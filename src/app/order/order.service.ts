@@ -238,11 +238,13 @@ export class OrderService {
     }
     const { limit, page, route } = pagination;
     const qb = this.orderRepository.createQueryBuilder('order');
-    qb.leftJoin('order.product', 'product').select('name');
-    qb.leftJoin('order.user', 'user').select('user.id');
-    qb.select('order.quantity')
-      .select('order.createdAt')
-      .select('order.status');
+    qb.leftJoin('order.product', 'product')
+      .select('name')
+      .leftJoin('order.user', 'user')
+      .select('user.id')
+      .addSelect('order.quantity')
+      .('order.createdAt')
+      .('order.status');
     qb.where('order.seller_id = :sellerId OR order.user.id =:userId', {
       sellerId: user.id,
       userId: user.id,
