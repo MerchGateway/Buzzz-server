@@ -228,28 +228,33 @@ export class OrderService {
           'quantity',
           'createdAt',
           'status',
+          'total',
           'user.id',
-          'user.firstName',
-          'user.lastName',
-          'user.username',
+          'product.name',
         ] as Array<keyof Order>,
       });
       return Orders;
     }
     const { limit, page, route } = pagination;
     const qb = this.orderRepository.createQueryBuilder('order');
-    qb.leftJoin('order.product', 'product')
-      .select('name')
-      .leftJoin('order.user', 'user')
-      .select('user.id')
-      .addSelect('order.quantity')
-      .('order.createdAt')
-      .('order.status');
-    qb.where('order.seller_id = :sellerId OR order.user.id =:userId', {
-      sellerId: user.id,
-      userId: user.id,
-    });
-    qb.orderBy('order.created_at', 'DESC');
+qb
+  .leftJoinAndSelect('order.product', 'product')
+  .leftJoinAndSelect('order.user', 'user')
+  .select([
+    'product.name',
+    'user.id',
+    'order.quantity',
+    'order.createdAt',
+    'order.total',
+    'order.status',
+  ])
+  .where('order.seller_id = :sellerId OR order.user.id = :userId', {
+    sellerId: user.id,
+    userId: user.id,
+  })
+  .orderBy('order.created_at', 'DESC');
+
+const result = await qb.getMany();
 
     return paginate<Order>(qb, { limit, page, route });
   }
