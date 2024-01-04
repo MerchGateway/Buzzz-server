@@ -237,24 +237,21 @@ export class OrderService {
     }
     const { limit, page, route } = pagination;
     const qb = this.orderRepository.createQueryBuilder('order');
-qb
-  .leftJoinAndSelect('order.product', 'product')
-  .leftJoinAndSelect('order.user', 'user')
-  .select([
-    'product.name',
-    'user.id',
-    'order.quantity',
-    'order.createdAt',
-    'order.total',
-    'order.status',
-  ])
-  .where('order.seller_id = :sellerId OR order.user.id = :userId', {
-    sellerId: user.id,
-    userId: user.id,
-  })
-  .orderBy('order.created_at', 'DESC');
-
-const result = await qb.getMany();
+    qb.leftJoinAndSelect('order.product', 'product')
+      .leftJoinAndSelect('order.user', 'user')
+      .select([
+        'product.name',
+        'user.id',
+        'order.quantity',
+        'order.createdAt',
+        'order.total',
+        'order.status',
+      ])
+      .where('order.seller_id = :sellerId OR order.user.id = :userId', {
+        sellerId: user.id,
+        userId: user.id,
+      })
+      .orderBy('order.created_at', 'DESC');
 
     return paginate<Order>(qb, { limit, page, route });
   }
