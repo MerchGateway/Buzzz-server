@@ -64,7 +64,7 @@ export class OrderController {
   @Get('/all')
   private getAllOrders(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
-    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 20,
   ): Promise<Pagination<Order>> {
     limit = limit > 100 ? 100 : limit < 10 ? 10 : limit;
     return this.orderService.getAllOrders({
