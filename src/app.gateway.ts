@@ -94,7 +94,6 @@ export class AppGateway
 
   async handleConnection(client: ExtendedSocket, ...args: any[]) {
     try {
-      console.log('Client connected', client.handshake.headers);
       const headers =
         typeof client.handshake.auth.headers !== 'undefined'
           ? client.handshake.auth.headers
@@ -102,7 +101,7 @@ export class AppGateway
       const tke = headers.authorization
         ? headers.authorization.split(' ')[1]
         : null;
-      if (tke) {
+      if (tke && tke !== '') {
         const payload = await this.jwtService.verifyToken(tke);
         // join private room
         client.join(payload?.sub);
@@ -112,7 +111,7 @@ export class AppGateway
       }
     } catch (error) {
       console.log(error);
-
+      this.server.to(client.id).emit(SOCKET_CONNECT, error);
       client.disconnect(true);
     }
   }

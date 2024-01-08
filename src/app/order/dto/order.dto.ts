@@ -1,4 +1,4 @@
-import { IsOptional, IsArray, IsObject } from 'class-validator';
+import { IsOptional, IsArray, IsObject, IsEnum } from 'class-validator';
 import { Status } from '../../../types/order';
 export class CreateOrderDto {
   @IsObject()
@@ -6,20 +6,16 @@ export class CreateOrderDto {
     state: string;
     LGA: string;
     address: string;
+    latitude: number;
+    longitude: number;
   };
 }
 export class UpdateOrderDto {
-  // @IsString()
-  // @IsOptional()
-  // owner?:string;
-  // @IsArray()
-  // @IsOptional()
+  @IsOptional()
   @IsArray()
   cart?: any[];
-  // @IsNumber()
-  // @IsOptional()
-  // shipping_fee:number;
-  // @IsString()
+
   @IsOptional()
+  @IsEnum(Status)
   status?: Status;
 }

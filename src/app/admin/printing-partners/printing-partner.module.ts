@@ -6,9 +6,13 @@ import { PrintingPartnerService } from './printing-partner.service';
 import { User } from 'src/app/users/entities/user.entity';
 import { Order } from 'src/app/order/entities/order.entity';
 import { OrderModule } from 'src/app/order/order.module';
+import { forwardRef } from '@nestjs/common';
+import { AdminModule } from '../admin.module';
 @Module({
   imports: [
-    OrderModule,TypeOrmModule.forFeature([PrintingPartner, User, Order]),
+    OrderModule,
+    forwardRef(() => AdminModule),
+    TypeOrmModule.forFeature([PrintingPartner, User, Order]),
   ],
   controllers: [PrintingPartnerController],
   providers: [PrintingPartnerService],

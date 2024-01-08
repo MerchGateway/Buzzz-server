@@ -7,6 +7,7 @@ export const CLOUDINARY = 'CLOUDINARY';
 export const AUTH_APP_NAME = 'BUZZZ';
 export const PUSH_NOTIFICATION = 'PUSH_NOTIFICATION';
 export const USERNAME_GENERATOR = 'USERNAME_GENERATOR';
+export const GOOGLE_GEOCODER = 'GOOGLE_GEOCODER';
 export const PAYSTACK_SUCCESS_MESSAGE = 'Verification successful';
 export const PAYSTACK_SUCCESS_STATUS = 'success';
 export const IMAGE_TYPE = 'image';

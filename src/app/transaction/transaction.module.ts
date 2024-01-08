@@ -12,7 +12,7 @@ import { FeeModule } from '../fee/fee.module';
 import { MailModule } from '../../mail/mail.module';
 import { PaystackBrokerModule } from '../payment/paystack/paystack.module';
 import { GiftModule } from '../gifting/gift.module';
-
+import { AdminModule } from '../admin/admin.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Transaction, PolymailerContent]),
@@ -23,6 +23,7 @@ import { GiftModule } from '../gifting/gift.module';
     FeeModule,
     MailModule,
     GiftModule,
+    AdminModule,
     forwardRef(() => PaystackBrokerModule),
   ],
   controllers: [TransactionController],

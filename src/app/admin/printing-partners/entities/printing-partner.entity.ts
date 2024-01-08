@@ -30,6 +30,8 @@ export class PrintingPartner extends Timestamp {
     state: string;
     LGA: string;
     city: string;
+    latitude: number;
+    longitude: number;
   };
 
   @Column({ type: 'enum', enum: Status, default: Status.ENABLED })

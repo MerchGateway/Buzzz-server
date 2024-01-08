@@ -1,10 +1,9 @@
 import {
   HttpException,
   Inject,
-  Injectable,
-  BadRequestException,
   NotFoundException,
   HttpStatus,
+  Injectable,
 } from '@nestjs/common';
 import { User } from '../users/entities/user.entity';
 import { Notification } from './entities/notification.entity';
@@ -18,7 +17,7 @@ import {
 import { TurnOnPushNotificationDto } from './entities/dto/turn-on-push-notification.dto';
 import { SuccessResponse } from 'src/utils/response';
 import { PUSH_NOTIFICATION } from 'src/constant';
-import { PushNotification } from 'src/providers/firebase-push-notification.provider';
+import { PushNotification } from 'src/providers/firebasePushNotificationProvider';
 
 @Injectable()
 export class NotificationService {

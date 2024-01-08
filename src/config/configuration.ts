@@ -39,7 +39,6 @@ export default () => ({
     migrationsDir: process.env.TYPEORM_MIGRATIONS_DIR,
     charset: 'utf8mb4',
     collation: 'utf8mb4_unicode_ci',
-    unixSocketPath: process.env.UNIX_SOCKET_PATH,
   },
   jwt: {
     secret: process.env.JWT_SECRET,
@@ -90,6 +89,9 @@ export default () => ({
     port: parseInt(process.env.REDIS_PORT, 10) || 6379,
     host: process.env.REDIS_HOST,
     redis_url: process.env.REDIS_URL,
+  },
+  google: {
+    mapApiKey: process.env.GOOGLE_MAP_API_KEY,
   },
 
   firebaseDatabaseUrl: process.env.FIREBASE_DATABASE_URL,

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { PrintingPartnerModule } from './printing-partners/printing-partner.module';
@@ -13,10 +13,10 @@ import { Order } from '../order/entities/order.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([LogisticsPartner, User, PrintingPartner,Order]),
-    PrintingPartnerModule,
+    TypeOrmModule.forFeature([LogisticsPartner, User, PrintingPartner, Order]),
+
+    forwardRef(() => PrintingPartnerModule),
     LogisticsPartnerModule,
-    
   ],
   controllers: [AdminController],
   providers: [

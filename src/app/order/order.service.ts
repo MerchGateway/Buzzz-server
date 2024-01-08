@@ -9,15 +9,15 @@ import {
   forwardRef,
   BadRequestException,
 } from '@nestjs/common';
-import { CreateOrderDto } from './dto/order.dto';
+import { CreateOrderDto, UpdateOrderDto } from './dto/order.dto';
 import { NotFoundException } from '@nestjs/common';
-
+import { GeocoderProvider } from 'src/providers/googleGeocoder.provider';
 import { Order } from './entities/order.entity';
 import { User } from '../users/entities/user.entity';
 import { CartService } from '../cart/cart.service';
 import { OrderType, Status } from 'src/types/order';
 import { Gift } from '../gifting/entities/gift.entity';
-
+import { GOOGLE_GEOCODER } from 'src/constant';
 interface OrderAnalyticsT {
   thisMonthOrder: number;
   lastTwoMonthsOrder: number;
@@ -30,7 +30,8 @@ export class OrderService {
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(Gift)
     private readonly giftRepository: Repository<Gift>,
-
+    @Inject(GOOGLE_GEOCODER)
+    private readonly googleGeocoder: GeocoderProvider,
     @Inject(forwardRef(() => CartService))
     private readonly cartService: CartService,
   ) {}
@@ -40,6 +41,9 @@ export class OrderService {
     gift: Gift,
     payload: CreateOrderDto,
   ) {
+    // const address = `${payload.shippingAddress.address},
+    //        ${payload.shippingAddress.state},
+    //        ${payload.shippingAddress.LGA}`
     // save cart items
     const order = new Order();
     order.user = user;
@@ -48,9 +52,25 @@ export class OrderService {
     order.product = gift.product;
     order.quantity = gift.recievers.length > 1 ? 1 : gift.quantity;
     order.total = 0;
+
+    // const cordinates = await this.googleGeocoder.getLongitudeAndLatitude(
+    //   address,
+    // );
+
+    // order.shippingDetails = {
+    //   shippingFee: 0,
+    //   shippingAddress: {
+    //     ...payload.shippingAddress,
+    //     latitude: cordinates[0],
+    //     longitude: cordinates[1],
+    //   },
+    // };
+
     order.shippingDetails = {
       shippingFee: 0,
-      shippingAddress: payload.shippingAddress,
+      shippingAddress: {
+        ...payload.shippingAddress,
+      },
     };
     order.type = OrderType.GIFT;
     return await this.orderRepository.save(order);
@@ -80,6 +100,7 @@ export class OrderService {
           'Item{s} to create order for does not exist ',
         );
       }
+
       result = await Promise.all(
         userCartItems.map(async (cart) => {
           const order = new Order();
@@ -88,12 +109,22 @@ export class OrderService {
           order.sellerId = cart.product.seller.id;
           order.product = cart.product;
 
-          if (payload.shippingAddress !== null) {
-            order.shippingDetails = {
-              shippingFee: 0,
-              shippingAddress: payload.shippingAddress,
-            };
-          }
+          // if (payload.shippingAddress !== null) {
+          //   const address = `${payload.shippingAddress.address},
+          //  ${payload.shippingAddress.state},
+          //  ${payload.shippingAddress.LGA}`;
+
+          //   const cordinates =
+          //     await this.googleGeocoder.getLongitudeAndLatitude(address);
+          //   order.shippingDetails = {
+          //     shippingFee: 0,
+          //     shippingAddress: {
+          //       ...payload.shippingAddress,
+          //       latitude: cordinates[0],
+          //       longitude: cordinates[1],
+          //     },
+          //   };
+          // }
 
           // save cart items
           return await this.orderRepository.save(order);
@@ -162,17 +193,24 @@ export class OrderService {
     limit,
     page,
     route,
-  }: IPaginationOptions): Promise<Pagination<Order>> {
+    status = 'all',
+  }): Promise<Pagination<Order>> {
     try {
-      // const Orders = await this.orderRepository.find();
-      // return Orders;
-
-      const qb = this.orderRepository.createQueryBuilder('order');
-      FindOptionsUtils.joinEagerRelations(
-        qb,
-        qb.alias,
-        this.orderRepository.metadata,
-      );
+      const qb = this.orderRepository
+        .createQueryBuilder('order')
+        .leftJoin('order.user', 'user')
+        .select('user.username')
+        .addSelect('order.quantity')
+        .addSelect('order.type')
+        .addSelect('order.total')
+        .addSelect('order.shippingDetails')
+        .addSelect('order.status')
+        .addSelect('order.id')
+        .addSelect('order.createdAt')
+        .orderBy('order.created_at', 'DESC');
+      if (status !== 'all') {
+        qb.where('order.status=:status', { status });
+      }
       return paginate<Order>(qb, { limit, page, route });
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
@@ -185,22 +223,35 @@ export class OrderService {
   ): Promise<Pagination<Order> | Order[]> {
     if (!pagination) {
       const Orders = await this.orderRepository.find({
-        where: {
-          user: { id: user.id },
-        },
+        where: [{ user: { id: user.id } }, { sellerId: user.id }],
+        select: [
+          'quantity',
+          'createdAt',
+          'status',
+          'total',
+          'user.id',
+          'product.name',
+        ] as Array<keyof Order>,
       });
       return Orders;
     }
     const { limit, page, route } = pagination;
     const qb = this.orderRepository.createQueryBuilder('order');
-    FindOptionsUtils.joinEagerRelations(
-      qb,
-      qb.alias,
-      this.orderRepository.metadata,
-    );
-    qb.where('order.seller_id = :sellerId', { sellerId: user.id });
-    qb.leftJoinAndSelect('order.user', 'user');
-    qb.orderBy('order.created_at', 'DESC');
+    qb.leftJoinAndSelect('order.product', 'product')
+      .leftJoinAndSelect('order.user', 'user')
+      .select([
+        'product.name',
+        'user.id',
+        'order.quantity',
+        'order.createdAt',
+        'order.total',
+        'order.status',
+      ])
+      .where('order.seller_id = :sellerId OR order.user.id = :userId', {
+        sellerId: user.id,
+        userId: user.id,
+      })
+      .orderBy('order.created_at', 'DESC');
 
     return paginate<Order>(qb, { limit, page, route });
   }
@@ -211,12 +262,15 @@ export class OrderService {
   ): Promise<Pagination<Order>> {
     try {
       const qb = this.orderRepository.createQueryBuilder('order');
-      FindOptionsUtils.joinEagerRelations(
-        qb,
-        qb.alias,
-        this.orderRepository.metadata,
-      );
-      qb.leftJoinAndSelect('order.user', 'user')
+      qb.leftJoin('order.user', 'user')
+        .select('user.username')
+        .addSelect('order.quantity')
+        .addSelect('order.type')
+        .addSelect('order.total')
+        .addSelect('order.shippingDetails')
+        .addSelect('order.status')
+        .addSelect('order.id')
+        .addSelect('order.createdAt')
         .where('user.id=:user', { user: id })
         .andWhere('order.status=:status', {
           status: Status.PAID,
@@ -228,12 +282,14 @@ export class OrderService {
     }
   }
 
-  public async completeOrder(orderId: string): Promise<Order | undefined> {
+  public async updateOrderStatus(
+    orderId: string,
+    body: UpdateOrderDto,
+  ): Promise<Order | undefined> {
     try {
-      // console.log(orderId);
-      // complete order logic eg when a users order is delievered
-      await (await this.getOrder(orderId)).updateStatus(Status.COMPLETED);
-      return;
+      const order = await this.getOrder(orderId);
+      order.status = body.status;
+      return await this.orderRepository.save(order);
     } catch (err: any) {
       throw new HttpException(err.message, err.status);
     }

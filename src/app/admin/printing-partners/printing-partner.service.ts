@@ -7,12 +7,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PrintingPartner } from './entities/printing-partner.entity';
 import { User } from 'src/app/users/entities/user.entity';
-import { HttpException } from '@nestjs/common';
 import { Status } from 'src/types/order';
 import { OrderService } from 'src/app/order/order.service';
 import { Order } from 'src/app/order/entities/order.entity';
 import { Role } from 'src/types/general';
-
+import { AdminService } from '../admin.service';
+import { SuccessResponse } from 'src/utils/response';
 @Injectable()
 export class PrintingPartnerService {
   constructor(
@@ -23,6 +23,7 @@ export class PrintingPartnerService {
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly adminService: AdminService,
 
     private readonly orderService: OrderService,
   ) {}
@@ -104,7 +105,7 @@ export class PrintingPartnerService {
 
     if (!allowedStatuses.includes(body.status)) {
       throw new UnauthorizedException(
-        'Printing partner  only allowed  to set status  to "In  Progress" or "Printed" ',
+        'Printing partner  only allowed  to set status  to "In-Progress" or "Printed" ',
       );
     }
 
@@ -112,7 +113,6 @@ export class PrintingPartnerService {
       where: { id },
       relations: ['printing_partner'],
     });
-    console.log(order.printingPartner);
 
     if (
       !order.printingPartner ||
@@ -121,10 +121,13 @@ export class PrintingPartnerService {
       throw new UnauthorizedException('This order hasnt been assigned to you');
     }
 
-    return await this.orderRepository.update(id, { status: body.status });
-  }
-
-  async downloadDesign(user: User, id: string) {
-    return 'downloads  a design  ';
+    await this.orderRepository.update(id, { status: body.status });
+    if (body.status === 'Printed') {
+      await this.adminService.assignOrdersAutoToClosestPartner(
+        'Logistics',
+        order,
+      );
+    }
+    return new SuccessResponse(order, `Order status set to ${body.status}`);
   }
 }

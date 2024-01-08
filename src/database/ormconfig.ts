@@ -9,12 +9,12 @@ envConfig();
 const config = configuration();
 
 export const AppDataSource = new DataSource({
-  type: config.database.connection as MysqlConnectionOptions['type'],
+  type: config.database.connection as MysqlConnectionOptions['type'] | 'mysql',
   host: config.database.host,
   port: config.database.port,
   username: config.database.username,
   password: config.database.password,
-  extra: { charset: 'utf8mb4', socketPath: config.database.unixSocketPath },
+  extra: { charset: 'utf8mb4' },
   synchronize: config.database.synchronize,
   database: config.database.name,
   charset: 'utf8mb4_unicode_ci',
