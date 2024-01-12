@@ -121,7 +121,7 @@ export class Order extends Timestamp {
   @JoinColumn({ name: 'logistics_partner_id' })
   logisticsPartner: LogisticsPartner;
 
-  @Column({ type: 'enum', enum: Size, nullable: true, default: Size.M })
+  @Column({ type: 'enum', enum: Size, default: Size.M })
   size: Size;
 
   @Column({
@@ -144,9 +144,9 @@ export class Order extends Timestamp {
       'Purple',
       'Ash',
     ],
-    nullable: true,
+    default: '#ffffff',
   })
-  color: string | null;
+  color: string;
   @BeforeInsert()
   @BeforeUpdate()
   private async updateProductDetails() {
