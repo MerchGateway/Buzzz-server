@@ -26,22 +26,15 @@ export class CartService {
       );
     }
 
-    const isCart = await this.checkIfCartExist(user.id, cartDto.product);
+    const cartItem = this.cartRepository.create({
+      user: user,
+      quantity: cartDto.quantity,
+      product: productItem,
+      size: cartDto?.size,
+      color: cartDto?.color,
+    });
 
-    if (isCart) {
-      isCart.quantity += cartDto.quantity;
-      return await this.cartRepository.save(isCart);
-    } else {
-      const cartItem = this.cartRepository.create({
-        user: user,
-        quantity: cartDto.quantity,
-        product: productItem,
-        size: cartDto?.size,
-        color: cartDto?.color,
-      });
-
-      return await this.cartRepository.save(cartItem);
-    }
+    return await this.cartRepository.save(cartItem);
   }
 
   public async createMultipleCartItem(
@@ -61,22 +54,15 @@ export class CartService {
             );
           }
 
-          const isCart = await this.checkIfCartExist(user.id, cart.product);
+          const cartItem = this.cartRepository.create({
+            user: user,
+            quantity: cart.quantity,
+            product: productItem,
+            size: cart?.size,
+            color: cart?.color,
+          });
 
-          if (isCart) {
-            isCart.quantity += cart.quantity;
-            return await this.cartRepository.save(isCart);
-          } else {
-            const cartItem = this.cartRepository.create({
-              user: user,
-              quantity: cart.quantity,
-              product: productItem,
-              size: cart?.size,
-              color: cart?.color,
-            });
-
-            return await this.cartRepository.save(cartItem);
-          }
+          return await this.cartRepository.save(cartItem);
         }),
       );
       return items;
