@@ -1,5 +1,4 @@
 import { IsEnum, IsNumber, IsOptional, IsUUID } from 'class-validator';
-import { Color } from 'src/types/color';
 import { Size } from 'src/types/size';
 
 export class CreateCartDto {

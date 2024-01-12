@@ -1,4 +1,4 @@
-import { GoogleGeocoderProvider } from 'src/types/googleGeocoderProvider';
+import { GoogleGeocoderProvider } from 'src/types/google-geocoder-provider';
 import { ConfigService } from '@nestjs/config';
 import * as NodeGeocoder from 'node-geocoder';
 

@@ -3,7 +3,7 @@ import { CreateGiftDto } from './dto/create-gift.dto';
 import { GiftService } from './gift.service';
 import { CurrentUser } from 'src/decorators/user.decorator';
 import { User } from '../users/entities/user.entity';
-import { CreateOrderDto } from '../order/dto/order.dto';
+import { CreateGiftOrderDto } from '../order/dto/order.dto';
 
 @Controller('gifts')
 export class GiftController {
@@ -32,7 +32,7 @@ export class GiftController {
   claimGift(
     @Param('giftCode') giftCode: string,
     @CurrentUser() user: User,
-    @Body() payload: CreateOrderDto,
+    @Body() payload: CreateGiftOrderDto,
   ) {
     return this.giftService.claimGift(giftCode, user, payload);
   }

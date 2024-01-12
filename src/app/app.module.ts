@@ -31,6 +31,7 @@ import { join } from 'path';
 import { FeeModule } from './fee/fee.module';
 import { GiftModule } from './gifting/gift.module';
 import { OtpModule } from './otp/otp.module';
+import { ColorAndSizesModule } from './colors-and-sizes/colors-and-sizes.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -64,6 +65,7 @@ import { OtpModule } from './otp/otp.module';
     OtpModule,
     WaitlistModule,
     GiftModule,
+    ColorAndSizesModule,
   ],
   controllers: [AppController, DesignController],
   providers: [

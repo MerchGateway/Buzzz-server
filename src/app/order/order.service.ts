@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsUtils, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Pagination, IPaginationOptions } from 'nestjs-typeorm-paginate';
 import { paginate } from 'nestjs-typeorm-paginate';
 import {
@@ -9,15 +9,17 @@ import {
   forwardRef,
   BadRequestException,
 } from '@nestjs/common';
-import { CreateOrderDto, UpdateOrderDto } from './dto/order.dto';
+import {
+  CreateGiftOrderDto,
+  CreateOrderDto,
+  UpdateOrderDto,
+} from './dto/order.dto';
 import { NotFoundException } from '@nestjs/common';
-import { GeocoderProvider } from 'src/providers/googleGeocoder.provider';
 import { Order } from './entities/order.entity';
 import { User } from '../users/entities/user.entity';
 import { CartService } from '../cart/cart.service';
 import { OrderType, Status } from 'src/types/order';
 import { Gift } from '../gifting/entities/gift.entity';
-import { GOOGLE_GEOCODER } from 'src/constant';
 interface OrderAnalyticsT {
   thisMonthOrder: number;
   lastTwoMonthsOrder: number;
@@ -30,8 +32,6 @@ export class OrderService {
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(Gift)
     private readonly giftRepository: Repository<Gift>,
-    @Inject(GOOGLE_GEOCODER)
-    private readonly googleGeocoder: GeocoderProvider,
     @Inject(forwardRef(() => CartService))
     private readonly cartService: CartService,
   ) {}
@@ -39,32 +39,17 @@ export class OrderService {
   public async createGiftOrder(
     user: User,
     gift: Gift,
-    payload: CreateOrderDto,
+    payload: CreateGiftOrderDto,
   ) {
-    // const address = `${payload.shippingAddress.address},
-    //        ${payload.shippingAddress.state},
-    //        ${payload.shippingAddress.LGA}`
-    // save cart items
     const order = new Order();
     order.user = user;
     order.status = Status.PAID;
+    order.color = payload.color;
+    order.size = payload.size;
     order.sellerId = gift.product.seller.id;
     order.product = gift.product;
     order.quantity = gift.recievers.length > 1 ? 1 : gift.quantity;
     order.total = 0;
-
-    // const cordinates = await this.googleGeocoder.getLongitudeAndLatitude(
-    //   address,
-    // );
-
-    // order.shippingDetails = {
-    //   shippingFee: 0,
-    //   shippingAddress: {
-    //     ...payload.shippingAddress,
-    //     latitude: cordinates[0],
-    //     longitude: cordinates[1],
-    //   },
-    // };
 
     order.shippingDetails = {
       shippingFee: 0,
@@ -108,25 +93,6 @@ export class OrderService {
           order.cart = cart;
           order.sellerId = cart.product.seller.id;
           order.product = cart.product;
-
-          // if (payload.shippingAddress !== null) {
-          //   const address = `${payload.shippingAddress.address},
-          //  ${payload.shippingAddress.state},
-          //  ${payload.shippingAddress.LGA}`;
-
-          //   const cordinates =
-          //     await this.googleGeocoder.getLongitudeAndLatitude(address);
-          //   order.shippingDetails = {
-          //     shippingFee: 0,
-          //     shippingAddress: {
-          //       ...payload.shippingAddress,
-          //       latitude: cordinates[0],
-          //       longitude: cordinates[1],
-          //     },
-          //   };
-          // }
-
-          // save cart items
           return await this.orderRepository.save(order);
         }),
       );

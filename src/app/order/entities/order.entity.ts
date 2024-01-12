@@ -1,5 +1,6 @@
 import { Product } from 'src/app/product/entities/product.entity';
 import { Transaction } from 'src/app/transaction/entities/transaction.entity';
+import { Size } from 'src/types/size';
 import {
   Entity,
   Column,
@@ -120,10 +121,38 @@ export class Order extends Timestamp {
   @JoinColumn({ name: 'logistics_partner_id' })
   logisticsPartner: LogisticsPartner;
 
+  @Column({ type: 'enum', enum: Size, nullable: true, default: Size.M })
+  size: Size;
+
+  @Column({
+    type: 'enum',
+    enum: [
+      '#ffffff',
+      '#808080',
+      '#333333',
+      '#ff0005',
+      '#ff8c00',
+      'Green',
+      'Red',
+      'White',
+      'Blue',
+      'Orange',
+      'Black',
+      'Grey',
+      'Brown',
+      'Pink',
+      'Purple',
+      'Ash',
+    ],
+    nullable: true,
+  })
+  color: string | null;
   @BeforeInsert()
   @BeforeUpdate()
   private async updateProductDetails() {
     if (this.cart) {
+      this.color = this.cart.color;
+      this.size = this.cart.size;
       this.product = this.cart.product;
       this.quantity = this.cart.quantity;
       this.total = this.cart.total;

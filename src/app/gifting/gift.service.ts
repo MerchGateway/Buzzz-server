@@ -16,7 +16,7 @@ import { ProductService } from '../product/product.service';
 import { Role } from 'src/types/general';
 import { OrderService } from '../order/order.service';
 import { TransactionService } from '../transaction/transaction.service';
-import { CreateOrderDto } from '../order/dto/order.dto';
+import { CreateGiftOrderDto } from '../order/dto/order.dto';
 import { Order } from '../order/entities/order.entity';
 import { ConfigService } from '@nestjs/config';
 import { Status } from 'src/types/order';
@@ -102,7 +102,7 @@ export class GiftService {
   async claimGift(
     giftCode: string,
     user: User,
-    payload: CreateOrderDto,
+    payload: CreateGiftOrderDto,
   ): Promise<SuccessResponse> {
     const gift = await this.giftRepository.findOne({
       where: {
