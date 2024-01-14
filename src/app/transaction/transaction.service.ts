@@ -359,6 +359,7 @@ export class TransactionService {
         ...transactions[0].orders[0],
         quantity: totalOrderQuantity,
       } as Order);
+
       if (transactions[0].orders[0].type === OrderType.PAYFORWARD) {
         // send gift creation message to all beneficiaries
         const gift = await this.giftService.fetchSingleGift({
@@ -375,6 +376,11 @@ export class TransactionService {
           gift,
           giftPreviewLink,
         });
+      } else {
+        this.mailService.sendAdminNewOrderNotice({
+          ...transactions[0].orders[0],
+          quantity: totalOrderQuantity,
+        } as Order);
       }
     } else {
       transactionsToVerify.forEach((transaction) => {
@@ -692,6 +698,10 @@ export class TransactionService {
           ...transactions[0].orders[0],
           quantity: totalOrderQuantity,
         } as Order);
+        this.mailService.sendAdminNewOrderNotice({
+          ...transactions[0].orders[0],
+          quantity: totalOrderQuantity,
+        } as Order);
         if (transactions[0].orders[0].type === OrderType.PAYFORWARD) {
           // send gift creation message to all beneficiaries
           const gift = await this.giftService.fetchSingleGift({
@@ -708,6 +718,11 @@ export class TransactionService {
             gift,
             giftPreviewLink,
           });
+        } else {
+          this.mailService.sendAdminNewOrderNotice({
+            ...transactions[0].orders[0],
+            quantity: totalOrderQuantity,
+          } as Order);
         }
       } else {
         transaction.status = TransactionStatus.FAILED;

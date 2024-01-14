@@ -158,6 +158,18 @@ export class MailService {
       },
     });
   }
+  async sendAdminNewOrderNotice(order: Order) {
+    await this.mailerService.sendMail({
+      from: `"Buzzz" <${this.configService.get<string>('fromEmail')}>`,
+      to: this.configService.get<string>('fromEmail'),
+      subject: 'New order alert',
+      template: './adminNewOrderAlert',
+      context: {
+        orderId: order.id,
+        orderCount: order.quantity,
+      },
+    });
+  }
 
   async sendSellerOrderConfirmation(seller: User, order: Order) {
     await this.mailerService.sendMail({
