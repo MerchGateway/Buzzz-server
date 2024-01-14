@@ -4,10 +4,8 @@ import {
   IsOptional,
   IsString,
   IsNotEmpty,
-  IsUUID,
   IsArray,
   IsBoolean,
-  IsNotEmptyObject,
   ArrayNotEmpty,
 } from 'class-validator';
 import { Color } from 'src/types/color';
@@ -52,7 +50,6 @@ export class PublishDesignAndCheckoutDto {
   public readonly size?: Size;
 
   @IsEnum(Color)
-  @IsOptional()
   public readonly color: Color;
 
   @IsBoolean()

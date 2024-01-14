@@ -31,7 +31,7 @@ export class CartService {
       quantity: cartDto.quantity,
       product: productItem,
       size: cartDto?.size,
-      color: cartDto?.color,
+      color: cartDto.color,
     });
 
     return await this.cartRepository.save(cartItem);
@@ -59,7 +59,7 @@ export class CartService {
             quantity: cart.quantity,
             product: productItem,
             size: cart?.size,
-            color: cart?.color,
+            color: cart.color,
           });
 
           return await this.cartRepository.save(cartItem);

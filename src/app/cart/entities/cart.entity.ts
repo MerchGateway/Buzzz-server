@@ -13,6 +13,7 @@ import { Order } from '../../order/entities/order.entity';
 import { Product } from '../../product/entities/product.entity';
 import { Size } from '../../../types/size';
 import { Timestamp } from '../../../database/timestamp.entity';
+import { Color } from 'src/types/color';
 
 @Entity()
 export class Cart extends Timestamp {
@@ -44,32 +45,14 @@ export class Cart extends Timestamp {
   @Column({ type: 'integer' })
   total: number;
 
-  @Column({ type: 'enum', enum: Size, nullable: true, default: Size.M })
-  size: Size | null;
+  @Column({ type: 'enum', enum: Size, default: Size.M })
+  size: Size;
 
   @Column({
     type: 'enum',
-    enum: [
-      '#ffffff',
-      '#808080',
-      '#333333',
-      '#ff0005',
-      '#ff8c00',
-      'Green',
-      'Red',
-      'White',
-      'Blue',
-      'Orange',
-      'Black',
-      'Grey',
-      'Brown',
-      'Pink',
-      'Purple',
-      'Ash',
-    ],
-    nullable: true,
+    enum: Color,
   })
-  color: string | null;
+  color: Color;
 
   @BeforeInsert()
   @BeforeUpdate()

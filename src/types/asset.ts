@@ -1,3 +1,5 @@
+import { Color } from './color';
+
 export type ImageBody = { url: string; publicId: string };
 
 export type DesignData = {
@@ -40,5 +42,5 @@ export type DesignData = {
     src: string;
     filters: [];
   }[];
-  background: string;
+  background: Color;
 };

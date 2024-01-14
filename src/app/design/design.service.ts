@@ -320,7 +320,7 @@ export class DesignService {
       {
         product: product.id,
         quantity: payload.quantity,
-        color: payload?.color,
+        color: payload.color,
         size: payload?.size,
       },
       user,

@@ -19,6 +19,7 @@ import { PrintingPartner } from 'src/app/admin/printing-partners/entities/printi
 import { LogisticsPartner } from 'src/app/admin/logistics-partners/entities/logistics-partner.entity';
 import { Timestamp } from '../../../database/timestamp.entity';
 import { OrderType } from '../../../types/order';
+import { Color } from 'src/types/color';
 @Entity()
 export class Order extends Timestamp {
   @PrimaryGeneratedColumn('uuid')
@@ -126,27 +127,9 @@ export class Order extends Timestamp {
 
   @Column({
     type: 'enum',
-    enum: [
-      '#ffffff',
-      '#808080',
-      '#333333',
-      '#ff0005',
-      '#ff8c00',
-      'Green',
-      'Red',
-      'White',
-      'Blue',
-      'Orange',
-      'Black',
-      'Grey',
-      'Brown',
-      'Pink',
-      'Purple',
-      'Ash',
-    ],
-    default: '#ffffff',
+    enum: Color,
   })
-  color: string;
+  color: Color;
   @BeforeInsert()
   @BeforeUpdate()
   private async updateProductDetails() {
@@ -171,9 +154,5 @@ export class Order extends Timestamp {
         Cart.remove(this.cart);
       }
     }
-  }
-  public async updateCordinates(cordinates: [any, any]) {
-    this.shippingDetails.shippingAddress.latitude = cordinates[0];
-    this.shippingDetails.shippingAddress.longitude = cordinates[1];
   }
 }
