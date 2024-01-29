@@ -6,6 +6,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
     state: NigerianStates.Abia,
     colorAndSizes: [
       {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
@@ -33,7 +57,32 @@ export const COLOR_AND_SIZE_PER_STATE = [
   },
   {
     state: NigerianStates.Adamawa,
+
     colorAndSizes: [
+      {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
       {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
@@ -64,6 +113,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
     state: NigerianStates.AkwaIbom,
     colorAndSizes: [
       {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
@@ -93,34 +166,29 @@ export const COLOR_AND_SIZE_PER_STATE = [
     state: NigerianStates.Anambra,
     colorAndSizes: [
       {
-        color: Color.Ash,
+        color: Color['#002366'],
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
       {
-        color: Color.Black,
+        color: Color['#333333'],
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
       {
-        color: Color.Blue,
+        color: Color['#808080'],
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
       {
-        color: Color.Red,
+        color: Color['#ff0005'],
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
       {
-        color: Color.White,
+        color: Color['#ff8c00'],
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
       {
-        color: Color.Orange,
+        color: Color['#ffffff'],
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
-    ],
-  },
-  {
-    state: NigerianStates.Bauchi,
-    colorAndSizes: [
       {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
@@ -150,6 +218,83 @@ export const COLOR_AND_SIZE_PER_STATE = [
   {
     state: NigerianStates.Bauchi,
     colorAndSizes: [
+      {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color.Ash,
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color.Black,
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color.Blue,
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color.Red,
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color.White,
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color.Orange,
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+    ],
+  },
+  {
+    state: NigerianStates.Bauchi,
+    colorAndSizes: [
+      {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
       {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
@@ -180,6 +325,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
     state: NigerianStates.Bayelsa,
     colorAndSizes: [
       {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
@@ -208,6 +377,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
   {
     state: NigerianStates.Benue,
     colorAndSizes: [
+      {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
       {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
@@ -238,6 +431,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
     state: NigerianStates.Borno,
     colorAndSizes: [
       {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
@@ -266,6 +483,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
   {
     state: NigerianStates.CrossRiver,
     colorAndSizes: [
+      {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
       {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
@@ -296,6 +537,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
     state: NigerianStates.Delta,
     colorAndSizes: [
       {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
@@ -324,6 +589,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
   {
     state: NigerianStates.Ebonyi,
     colorAndSizes: [
+      {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
       {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
@@ -354,6 +643,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
     state: NigerianStates.Edo,
     colorAndSizes: [
       {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
@@ -382,6 +695,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
   {
     state: NigerianStates.Ekiti,
     colorAndSizes: [
+      {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
       {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
@@ -412,6 +749,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
     state: NigerianStates.Enugu,
     colorAndSizes: [
       {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
@@ -440,6 +801,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
   {
     state: NigerianStates.Gombe,
     colorAndSizes: [
+      {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
       {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
@@ -470,6 +855,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
     state: NigerianStates.Imo,
     colorAndSizes: [
       {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
@@ -498,6 +907,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
   {
     state: NigerianStates.Jigawa,
     colorAndSizes: [
+      {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
       {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
@@ -528,6 +961,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
     state: NigerianStates.Kano,
     colorAndSizes: [
       {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
@@ -556,6 +1013,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
   {
     state: NigerianStates.Kaduna,
     colorAndSizes: [
+      {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
       {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
@@ -586,6 +1067,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
     state: NigerianStates.Katsina,
     colorAndSizes: [
       {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
@@ -614,6 +1119,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
   {
     state: NigerianStates.Kebbi,
     colorAndSizes: [
+      {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
       {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
@@ -644,6 +1173,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
     state: NigerianStates.Kogi,
     colorAndSizes: [
       {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
@@ -672,6 +1225,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
   {
     state: NigerianStates.Kwara,
     colorAndSizes: [
+      {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
       {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
@@ -702,6 +1279,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
     state: NigerianStates.Lagos,
     colorAndSizes: [
       {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
@@ -730,6 +1331,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
   {
     state: NigerianStates.Nasarawa,
     colorAndSizes: [
+      {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
       {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
@@ -760,6 +1385,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
     state: NigerianStates.Niger,
     colorAndSizes: [
       {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
@@ -788,6 +1437,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
   {
     state: NigerianStates.Ogun,
     colorAndSizes: [
+      {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
       {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
@@ -818,6 +1491,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
     state: NigerianStates.Ondo,
     colorAndSizes: [
       {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
@@ -846,6 +1543,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
   {
     state: NigerianStates.Plateau,
     colorAndSizes: [
+      {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
       {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
@@ -876,6 +1597,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
     state: NigerianStates.Rivers,
     colorAndSizes: [
       {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
@@ -904,6 +1649,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
   {
     state: NigerianStates.Sokoto,
     colorAndSizes: [
+      {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
       {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
@@ -934,6 +1703,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
     state: NigerianStates.Taraba,
     colorAndSizes: [
       {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
@@ -963,6 +1756,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
     state: NigerianStates.Yobe,
     colorAndSizes: [
       {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
       },
@@ -991,6 +1808,30 @@ export const COLOR_AND_SIZE_PER_STATE = [
   {
     state: NigerianStates.Zamfara,
     colorAndSizes: [
+      {
+        color: Color['#002366'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#333333'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#808080'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff0005'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ff8c00'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
+      {
+        color: Color['#ffffff'],
+        sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
+      },
       {
         color: Color.Ash,
         sizes: [Size.L, Size.M, Size.S, Size.XL, Size.XXL],
