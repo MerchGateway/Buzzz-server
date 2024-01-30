@@ -128,8 +128,9 @@ export class Order extends Timestamp {
   @Column({
     type: 'enum',
     enum: Color,
+    default: Color['#ffffff'],
   })
-  color: Color;
+  color: string;
   @BeforeInsert()
   @BeforeUpdate()
   private async updateProductDetails() {
