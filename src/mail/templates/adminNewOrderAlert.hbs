@@ -1,0 +1,106 @@
+c<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html charset=UTF-8" />
+  </head>
+  <body>
+    <div class="body">
+      <div class="container">
+        <div class="header">
+          <img
+            src="https://www.yourbuzzz.com/images/logo-with-text.png"
+            alt="Logo"
+            title="Logo"
+            style="display: inline"
+            width="100%"
+            height="60"
+          />
+        </div>
+        <div class="contents">
+          <p>
+           Buzzz just received  a new order 
+          </p>
+          <p class="bold">Quick Look at  Order:</p>
+          <ul>
+            <li>
+              <div class="item">
+                <span class="bold">Item(s)</span>: {{orderCount}}
+              </div>
+            </li>
+            <li>
+              <div class="item">
+                <span class="bold">Order ID</span>: {{orderId}}
+              </div>
+            </li>
+            <li>
+              <div class="item">
+                <span class="bold">Please log in to the  administrator's dashboard to process order.
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="footer">
+          &copy; 2023 Buzzz. All rights reserved.
+        </div>
+      </div>
+    </div>
+  </body>
+  <style>
+    * {
+      font-family: 'Aeonik', sans-serif;
+      line-height: 25px;
+    }
+    .body {
+      background-color: #f1edfd;
+    }
+    .container {
+      height: 100%;
+      max-width: 1024px;
+      margin: 0 auto;
+      padding: 30px 15px;
+    }
+    .header {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .header img {
+      object-fit: contain;
+    }
+    .bold {
+      font-weight: bold;
+    }
+    .contents {
+      background-color: white;
+      padding: 20px 20px;
+      border-top: 3px solid #7047eb;
+      border-bottom: 3px solid #c6b5f7;
+    }
+    li {
+      color: #7047eb;
+      font-size: 2em;
+    }
+    .item {
+      font-size: 16px;
+      color: black;
+    }
+    .link {
+      color: #7047eb;
+    }
+    .footer {
+      width: 100%;
+      margin: 0 auto;
+      margin-top: 30px;
+      text-align: center;
+      color: #6c757d;
+    }
+    @media (min-width: 552px) {
+      .contents {
+        padding: 20px 100px;
+      }
+      .footer {
+        width: 80%;
+      }
+    }
+  </style>
+</html>
