@@ -166,6 +166,7 @@ export class OrderService {
         .createQueryBuilder('order')
         .leftJoin('order.user', 'user')
         .select('user.username')
+        .select('user.phoneNumber')
         .addSelect('order.quantity')
         .addSelect('order.type')
         .addSelect('order.total')
