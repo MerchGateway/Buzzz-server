@@ -24,10 +24,13 @@ import {
 } from './printing-partners/dto/printing-partner.dto';
 import { AdminService } from './admin.service';
 import { ParseUUIDPipe } from '@nestjs/common';
+import { MailService } from 'src/mail/mail.service';
+import { CreateCustomMailDto } from 'src/mail/dto/custom-mail.dto';
 
 @Controller('admin')
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(private readonly adminService: AdminService,
+    private readonly mailService:MailService) {}
 
   @Roles(Role.SUPER_ADMIN)
   @Post('create-printing-partner')
@@ -39,6 +42,12 @@ export class AdminController {
   @Post('create-logistics-partner')
   createLogisticsPartner(@Body() data: CreateLogisticsPartnerDto) {
     return this.adminService.createLogisticPartner(data);
+  }
+  
+  @Roles(Role.SUPER_ADMIN,Role.PUBLISHER)
+  @Post('create-custom-message')
+  createCustomMessage(@Body() data:CreateCustomMailDto) {
+    return this.mailService.sendCustomMessage(data.receivers,data.subject,data.message);
   }
 
   @Roles(Role.SUPER_ADMIN)

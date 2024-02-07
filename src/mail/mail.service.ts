@@ -41,6 +41,17 @@ export class MailService {
       },
     });
   }
+  async sendCustomMessage(receivers: string[],subject:string,message:string) {
+    await this.mailerService.sendMail({
+      to:receivers,
+      subject,
+      template: './customMessage',
+      context: {
+        message,
+        subject
+      },
+    });
+  }
   async sendGiftClaimConfirmationMessage(
     user: User,
     orderId: string,

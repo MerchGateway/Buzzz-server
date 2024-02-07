@@ -57,7 +57,8 @@ export class GiftService {
     });
   }
   async fetchSingleGift(filter: FindOptionsWhere<Gift>): Promise<Gift> {
-   const trimmedCode=filter.giftCode.trim()
+   let trimmedCode=filter.giftCode as string
+   trimmedCode=trimmedCode.trim()
     const gift = await this.giftRepository.findOne({
       where: {
         ...filter,
