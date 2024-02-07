@@ -20,6 +20,8 @@ import { User } from '../users/entities/user.entity';
 import { CartService } from '../cart/cart.service';
 import { OrderType, Status } from 'src/types/order';
 import { Gift } from '../gifting/entities/gift.entity';
+import { MailService } from '../../mail/mail.service';
+import { SuccessResponse } from '../../utils/response';
 interface OrderAnalyticsT {
   thisMonthOrder: number;
   lastTwoMonthsOrder: number;
@@ -34,6 +36,7 @@ export class OrderService {
     private readonly giftRepository: Repository<Gift>,
     @Inject(forwardRef(() => CartService))
     private readonly cartService: CartService,
+    private readonly mailService: MailService,
   ) {}
 
   public async createGiftOrder(
@@ -323,5 +326,37 @@ export class OrderService {
       thisMonthOrder,
       lastTwoMonthsOrder,
     };
+  }
+
+  async sendPhoneNumberUpdateReminders() {
+    const orders = await this.orderRepository
+      .createQueryBuilder('order')
+      .where('order.status = :status', { status: Status.PAID })
+      .leftJoinAndSelect('order.user', 'user')
+      .addSelect('user.phoneNumber')
+      .getMany();
+
+    const uniqueUsers: User[] = [];
+
+    orders
+      .filter((order) => !order.user.phoneNumber)
+      .forEach((order) => {
+        if (!uniqueUsers.some((user) => user.id === order.user.id)) {
+          uniqueUsers.push(order.user);
+        }
+      });
+
+    const emailRequests = uniqueUsers.map((user) => {
+      return this.mailService.sendPhoneNumberUpdateReminder(user);
+    });
+
+    await Promise.all(emailRequests);
+
+    return new SuccessResponse(
+      {
+        recipients: uniqueUsers.map((user) => user.email),
+      },
+      'Sent mails successfully:',
+    );
   }
 }

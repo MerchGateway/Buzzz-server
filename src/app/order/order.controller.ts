@@ -25,6 +25,7 @@ import { Role } from 'src/types/general';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { ConfigService } from '@nestjs/config';
 import { Status } from 'src/types/order';
+import { Public } from '../../decorators/public.decorator';
 
 @Controller('orders')
 export class OrderController {
@@ -112,5 +113,11 @@ export class OrderController {
       limit,
       route: `${this.configService.get<string>('appUrl')}/:userId/active`,
     });
+  }
+
+  @Public()
+  @Post('/phone-number-update-reminder')
+  private SendPhoneNumberUpdateReminders() {
+    return this.orderService.sendPhoneNumberUpdateReminders();
   }
 }
