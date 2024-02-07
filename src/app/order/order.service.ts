@@ -91,6 +91,10 @@ export class OrderService {
           const order = new Order();
           order.user = user;
           order.cart = cart;
+          order.shippingDetails = {
+            shippingFee: 0,
+            shippingAddress: payload.shippingAddress,
+          };
           order.sellerId = cart.product.seller.id;
           order.product = cart.product;
           return await this.orderRepository.save(order);
