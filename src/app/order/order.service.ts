@@ -170,18 +170,20 @@ export class OrderService {
   }): Promise<Pagination<Order>> {
     try {
       const qb = this.orderRepository
-        .createQueryBuilder('order')
-        .leftJoin('order.user', 'user')
-        .select('user.username')
-        .select('user.phoneNumber')
-        .addSelect('order.quantity')
-        .addSelect('order.type')
-        .addSelect('order.total')
-        .addSelect('order.shippingDetails')
-        .addSelect('order.status')
-        .addSelect('order.id')
-        .addSelect('order.createdAt')
-        .orderBy('order.created_at', 'DESC');
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.user', 'user')
+      .select([
+        'user.username',
+        'user.phoneNumber',
+        'order.quantity',
+        'order.type',
+        'order.total',
+        'order.shippingDetails',
+        'order.status',
+        'order.id',
+        'order.createdAt',
+      ])
+      .orderBy('order.created_at', 'DESC')
       if (status !== 'all') {
         qb.where('order.status=:status', { status });
       }
