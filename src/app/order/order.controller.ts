@@ -114,10 +114,4 @@ export class OrderController {
       route: `${this.configService.get<string>('appUrl')}/:userId/active`,
     });
   }
-
-  @Public()
-  @Post('/phone-number-update-reminder')
-  private SendPhoneNumberUpdateReminders() {
-    return this.orderService.sendPhoneNumberUpdateReminders();
-  }
 }
