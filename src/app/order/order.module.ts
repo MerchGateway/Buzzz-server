@@ -8,9 +8,8 @@ import { Gift } from '../gifting/entities/gift.entity';
 import { GOOGLE_GEOCODER } from 'src/constant';
 import { ConfigService } from '@nestjs/config';
 import { GeocoderProvider } from 'src/providers/googleGeocoder.provider';
-import { MailModule } from '../../mail/mail.module';
 @Module({
-  imports: [TypeOrmModule.forFeature([Order, Gift]), CartModule, MailModule],
+  imports: [TypeOrmModule.forFeature([Order, Gift]), CartModule],
   controllers: [OrderController],
   providers: [
     OrderService,

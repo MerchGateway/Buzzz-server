@@ -9,7 +9,6 @@ export class GeocoderProvider implements GoogleGeocoderProvider {
       provider: 'google',
       apiKey: configService.get('google.mapApiKey'),
     });
-    console.log(this.geocoder);
   }
 
   async getLongitudeAndLatitude(
