@@ -1,6 +1,6 @@
 import { GoogleGeocoderProvider } from 'src/types/google-geocoder-provider';
 import { ConfigService } from '@nestjs/config';
-import * as NodeGeocoder from 'node-geocoder';
+import NodeGeocoder from 'node-geocoder';
 
 export class GeocoderProvider implements GoogleGeocoderProvider {
   private geocoder;

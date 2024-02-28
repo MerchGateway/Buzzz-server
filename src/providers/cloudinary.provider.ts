@@ -1,5 +1,5 @@
 import { StorageProvider } from '../types/cloudinary';
-import { v2 } from 'cloudinary';
+import { UploadApiOptions, v2 } from 'cloudinary';
 import { ConfigService } from '@nestjs/config';
 
 export class CloudinaryProvider implements StorageProvider {
@@ -7,23 +7,11 @@ export class CloudinaryProvider implements StorageProvider {
     v2.config(this.configService.get('cloudinary'));
   }
 
-  async uploadPhoto(
-    photo: any,
-    options?: {
-      asset_folder: string;
-      public_id_prefix: string;
-      identifier?: string;
-    },
-  ) {
+  async uploadPhoto(filePath: string, options?: UploadApiOptions) {
     try {
-      console.log('entered  here');
-
-      const image = await v2.uploader.upload(photo, options);
-
+      const image = await v2.uploader.upload(filePath, options);
       return image;
     } catch (err) {
-      console.log('the error fired back here');
-      console.log('err:', err);
       throw err;
     }
   }

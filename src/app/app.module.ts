@@ -32,6 +32,7 @@ import { FeeModule } from './fee/fee.module';
 import { GiftModule } from './gifting/gift.module';
 import { OtpModule } from './otp/otp.module';
 import { ColorAndSizesModule } from './colors-and-sizes/colors-and-sizes.module';
+import { BlogModule } from './blog/blog.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -66,6 +67,7 @@ import { ColorAndSizesModule } from './colors-and-sizes/colors-and-sizes.module'
     WaitlistModule,
     GiftModule,
     ColorAndSizesModule,
+    BlogModule,
   ],
   controllers: [AppController, DesignController],
   providers: [

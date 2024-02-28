@@ -33,7 +33,7 @@ export default () => ({
     name: process.env.TYPEORM_DATABASE,
     username: process.env.TYPEORM_USERNAME,
     password: process.env.TYPEORM_PASSWORD,
-    synchronize: process.env.TYPEORM_SYNCHRONIZE as unknown as boolean,
+    synchronize: JSON.parse(process.env.TYPEORM_SYNCHRONIZE),
     entities: process.env.TYPEORM_ENTITIES,
     migrations: process.env.TYPEORM_MIGRATIONS,
     migrationsDir: process.env.TYPEORM_MIGRATIONS_DIR,
@@ -93,11 +93,11 @@ export default () => ({
   google: {
     mapApiKey: process.env.GOOGLE_MAP_API_KEY,
   },
-
   firebaseDatabaseUrl: process.env.FIREBASE_DATABASE_URL,
   smtpHost: process.env.SMTP_HOST,
   smtpPort: process.env.SMTP_PORT,
   smtpEmail: process.env.SMTP_EMAIL,
   smtpPassword: process.env.SMTP_PASSWORD,
   passportSessionSecret: process.env.PASSPORT_SESSION_SECRET,
+  maxFileUploadSizeInBytes: parseInt(process.env.MAX_FILE_UPLOAD_SIZE_IN_BYTES),
 });
