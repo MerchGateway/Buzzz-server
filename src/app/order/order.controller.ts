@@ -25,6 +25,7 @@ import { Role } from 'src/types/general';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { ConfigService } from '@nestjs/config';
 import { Status } from 'src/types/order';
+import { Public } from '../../decorators/public.decorator';
 
 @Controller('orders')
 export class OrderController {
@@ -66,7 +67,7 @@ export class OrderController {
   @Get('/all')
   private getAllOrders(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
-    @Query('limit', new DefaultValuePipe(25), ParseIntPipe) limit = 25,
+    @Query('limit', new DefaultValuePipe(40), ParseIntPipe) limit = 40,
     @Query('status') status: Status,
   ): Promise<Pagination<Order>> {
     limit = limit > 100 ? 100 : limit < 10 ? 10 : limit;

@@ -20,6 +20,7 @@ import { User } from '../users/entities/user.entity';
 import { CartService } from '../cart/cart.service';
 import { OrderType, Status } from 'src/types/order';
 import { Gift } from '../gifting/entities/gift.entity';
+import { SuccessResponse } from '../../utils/response';
 interface OrderAnalyticsT {
   thisMonthOrder: number;
   lastTwoMonthsOrder: number;
@@ -91,6 +92,10 @@ export class OrderService {
           const order = new Order();
           order.user = user;
           order.cart = cart;
+          order.shippingDetails = {
+            shippingFee: 0,
+            shippingAddress: payload.shippingAddress,
+          };
           order.sellerId = cart.product.seller.id;
           order.product = cart.product;
           return await this.orderRepository.save(order);
@@ -164,15 +169,18 @@ export class OrderService {
     try {
       const qb = this.orderRepository
         .createQueryBuilder('order')
-        .leftJoin('order.user', 'user')
-        .select('user.username')
-        .addSelect('order.quantity')
-        .addSelect('order.type')
-        .addSelect('order.total')
-        .addSelect('order.shippingDetails')
-        .addSelect('order.status')
-        .addSelect('order.id')
-        .addSelect('order.createdAt')
+        .leftJoinAndSelect('order.user', 'user')
+        .select([
+          'user.username',
+          'user.phoneNumber',
+          'order.quantity',
+          'order.type',
+          'order.total',
+          'order.shippingDetails',
+          'order.status',
+          'order.id',
+          'order.createdAt',
+        ])
         .orderBy('order.created_at', 'DESC');
       if (status !== 'all') {
         qb.where('order.status=:status', { status });

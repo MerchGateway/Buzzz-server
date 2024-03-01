@@ -14,7 +14,7 @@ export class AddColorAndSizeToOrder1705071206178 implements MigrationInterface {
       `ALTER TABLE \`category\` CHANGE \`deleted_at\` \`deleted_at\` datetime(6) NULL`,
     );
     await queryRunner.query(
-      `ALTER TABsLE \`payment_receipt\` CHANGE \`deleted_at\` \`deleted_at\` datetime(6) NULL`,
+      `ALTER TABLE \`payment_receipt\` CHANGE \`deleted_at\` \`deleted_at\` datetime(6) NULL`,
     );
     await queryRunner.query(
       `ALTER TABLE \`product\` DROP FOREIGN KEY \`FK_ee28a0714cda2ea2f8cf38338a8\``,

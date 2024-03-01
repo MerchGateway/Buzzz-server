@@ -31,6 +31,7 @@ export class MailService {
       },
     });
   }
+
   async sendWaitlistConfirmationMessage(user: string) {
     await this.mailerService.sendMail({
       to: user,
@@ -41,6 +42,23 @@ export class MailService {
       },
     });
   }
+
+  async sendCustomMessage(
+    receivers: string[],
+    subject: string,
+    message: string,
+  ) {
+    await this.mailerService.sendMail({
+      to: receivers,
+      subject,
+      template: './customMessage',
+      context: {
+        message,
+        subject,
+      },
+    });
+  }
+
   async sendGiftClaimConfirmationMessage(
     user: User,
     orderId: string,
@@ -58,6 +76,7 @@ export class MailService {
       },
     });
   }
+
   async sendGiftNotificationToBeneficiaries(payload: {
     user: string;
     gift: Gift;
@@ -76,6 +95,7 @@ export class MailService {
       },
     });
   }
+
   async sendGiftClaimNotificationToGifter(payload: {
     user: string;
     name: string;
@@ -158,6 +178,7 @@ export class MailService {
       },
     });
   }
+
   async sendAdminNewOrderNotice(order: Order) {
     await this.mailerService.sendMail({
       from: `"Buzzz" <${this.configService.get<string>('fromEmail')}>`,
@@ -197,6 +218,20 @@ export class MailService {
         url,
         name: user.firstName || user.username,
         email: user.email,
+      },
+    });
+  }
+
+  async sendPhoneNumberUpdateReminder(user: User) {
+    await this.mailerService.sendMail({
+      from: `"Tonia from Buzzz💜" <${this.configService.get<string>(
+        'fromEmail',
+      )}>`,
+      to: user.email,
+      subject: 'Urgent: We Need Your Contact Details to Complete Your Delivery',
+      template: './phoneNumberUpdateReminder',
+      context: {
+        name: user.firstName || user.username,
       },
     });
   }

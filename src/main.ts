@@ -4,9 +4,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import * as express from 'express';
-import * as session from 'express-session';
-import * as passport from 'passport';
+import express from 'express';
+import session from 'express-session';
+import passport from 'passport';
 import { validationExceptionFactory } from './utils/validation';
 
 async function bootstrap() {

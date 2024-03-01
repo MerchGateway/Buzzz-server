@@ -14,10 +14,10 @@ export class CreateOrderDto {
 }
 export class CreateGiftOrderDto extends CreateOrderDto {
   @IsEnum(Size)
-  public readonly size: Size;
+  size: Size;
 
   @IsEnum(Color)
-  public readonly color: Color;
+  color: Color;
 }
 export class UpdateOrderDto {
   @IsOptional()

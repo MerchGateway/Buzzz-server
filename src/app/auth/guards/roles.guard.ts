@@ -11,7 +11,6 @@ export class RolesGuard extends JwtAuthGuard {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-  
     const isAuthenticated = await super.canActivate(context);
 
     if (!isAuthenticated) {

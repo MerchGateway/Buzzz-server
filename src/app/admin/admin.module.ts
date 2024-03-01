@@ -10,6 +10,7 @@ import { PrintingPartner } from './printing-partners/entities/printing-partner.e
 import { User } from '../users/entities/user.entity';
 import { APP_GUARD } from '@nestjs/core';
 import { Order } from '../order/entities/order.entity';
+import { MailService } from 'src/mail/mail.service';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { Order } from '../order/entities/order.entity';
   controllers: [AdminController],
   providers: [
     AdminService,
+    MailService,
     {
       provide: APP_GUARD,
       useClass: RolesGuard,

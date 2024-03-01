@@ -57,9 +57,12 @@ export class GiftService {
     });
   }
   async fetchSingleGift(filter: FindOptionsWhere<Gift>): Promise<Gift> {
+    let trimmedCode = filter.giftCode as string;
+    trimmedCode = trimmedCode.trim();
     const gift = await this.giftRepository.findOne({
       where: {
         ...filter,
+        giftCode: trimmedCode,
       },
       relations: ['product', 'order'],
       select: [
@@ -104,9 +107,10 @@ export class GiftService {
     user: User,
     payload: CreateGiftOrderDto,
   ): Promise<SuccessResponse> {
+    const trimmedCode = giftCode.trim();
     const gift = await this.giftRepository.findOne({
       where: {
-        giftCode,
+        giftCode: trimmedCode,
         order: { status: Status.PAID },
         recievers: Like(`%${user.email}%`),
       },
