@@ -1,17 +1,18 @@
-import { Injectable, NotFoundException, Inject } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsUtils, Repository } from 'typeorm';
+import { Injectable, NotFoundException, Inject } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { FindOptionsUtils, Repository } from "typeorm";
 import {
   paginate,
   Pagination,
   IPaginationOptions,
-} from 'nestjs-typeorm-paginate';
-import { CreateProductDto, EditProductDto } from './dto/product.dto';
-import { Product } from './entities/product.entity';
-import { User } from '../users/entities/user.entity';
-import { CloudinaryProvider } from 'src/providers/cloudinary.provider';
-import { CLOUDINARY } from 'src/constant';
-import { UploadApiResponse } from 'cloudinary';
+} from "nestjs-typeorm-paginate";
+import { CreateProductDto, EditProductDto } from "./dto/product.dto";
+import { Product } from "./entities/product.entity";
+import { User } from "../users/entities/user.entity";
+import { CloudinaryProvider } from "src/providers/cloudinary.provider";
+import { CLOUDINARY } from "src/constant";
+import { UploadApiResponse } from "cloudinary";
+import { SuccessResponse } from "src/utils/response";
 
 @Injectable()
 export class ProductService {
@@ -19,16 +20,16 @@ export class ProductService {
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
     @Inject(CLOUDINARY)
-    private readonly imageStorage: CloudinaryProvider,
+    private readonly imageStorage: CloudinaryProvider
   ) {}
 
   public async createProduct(
     body: CreateProductDto,
-    user: User,
+    user: User
   ): Promise<Product> {
     const image = (await this.imageStorage.uploadPhoto(body.thumbnail, {
       asset_folder: user.username,
-      public_id_prefix: 'thumbnail',
+      public_id_prefix: "thumbnail",
     })) as UploadApiResponse;
 
     const product: Product = new Product();
@@ -50,9 +51,9 @@ export class ProductService {
     try {
       const product = await this.handleGetAProduct(id);
       await this.productRepository
-        .createQueryBuilder('updateP')
+        .createQueryBuilder("updateP")
         .update()
-        .where('id= :id', { id: product.id })
+        .where("id= :id", { id: product.id })
         .set({
           name: body.name,
           price: body.price,
@@ -68,9 +69,9 @@ export class ProductService {
 
   async handleUpdatePaymentRecord(receiptId: string, id: string) {
     await this.productRepository
-      .createQueryBuilder('addPayrecord')
+      .createQueryBuilder("addPayrecord")
       .update()
-      .where('id = :id', { id: id })
+      .where("id = :id", { id: id })
       .set({
         receiptId,
         purchased: true,
@@ -92,76 +93,83 @@ export class ProductService {
 
   async handleQueryProducts(
     { limit, page, route }: IPaginationOptions,
-    searchQuery: any,
+    searchQuery: any
   ) {
-    const qb = this.productRepository.createQueryBuilder('product');
+    const qb = this.productRepository.createQueryBuilder("product");
     FindOptionsUtils.joinEagerRelations(
       qb,
       qb.alias,
-      this.productRepository.metadata,
+      this.productRepository.metadata
     );
-    qb.leftJoin('product.seller', 'seller');
+    qb.leftJoin("product.seller", "seller");
     qb.where(
-      'product.name = :name OR product.price = :price OR product.seller_id = :sellerId OR seller.username = :username',
+      "product.name = :name OR product.price = :price OR product.seller_id = :sellerId OR seller.username = :username",
       {
         name: searchQuery?.name,
         price: searchQuery?.price,
         sellerId: searchQuery?.sellerId,
         username: searchQuery?.username,
-      },
+      }
     );
-    qb.orderBy('product.createdAt', 'DESC');
+    qb.orderBy("product.createdAt", "DESC");
 
     return paginate<Product>(qb, { limit, page, route });
   }
   async handleGetAProduct(id: string) {
     const product = await this.productRepository
-      .createQueryBuilder('product')
-      .leftJoin('product.category', 'category')
-      .leftJoin('product.design', 'design')
-      .leftJoin('product.seller', 'seller')
-      .where('product.id = :id', { id })
+      .createQueryBuilder("product")
+      .leftJoin("product.category", "category")
+      .leftJoin("product.design", "design")
+      .leftJoin("product.seller", "seller")
+      .where("product.id = :id", { id })
       .select([
-        'product',
-        'category',
-        'design',
-        'seller.id',
-        'seller.firstName',
-        'seller.lastName',
-        'seller.username',
-        'seller.email',
+        "product",
+        "category",
+        "design",
+        "seller.id",
+        "seller.firstName",
+        "seller.lastName",
+        "seller.username",
+        "seller.email",
       ])
       .getOne();
 
     if (!product) {
-      throw new NotFoundException('No product with this credential(s) found');
+      throw new NotFoundException("No product with this credential(s) found");
     }
 
     return product;
   }
 
   async handleGetAllProducts(
-    options: IPaginationOptions,
+    options: IPaginationOptions
   ): Promise<Pagination<Product>> {
-    const qb = this.productRepository.createQueryBuilder('p');
+    const qb = this.productRepository.createQueryBuilder("p");
     FindOptionsUtils.joinEagerRelations(
       qb,
       qb.alias,
-      this.productRepository.metadata,
+      this.productRepository.metadata
     );
-    qb.where('p.isPublic = :isPublic', { isPublic: true });
-    qb.orderBy('p.createdAt', 'DESC');
+    qb.where("p.isPublic = :isPublic", { isPublic: true });
+    qb.orderBy("p.createdAt", "DESC");
 
     return paginate<Product>(qb, options);
   }
 
   async updateAvailability(id: string, { inStock }) {
-    try {
-      const product = await this.handleGetAProduct(id);
-      product.inStock = inStock;
-      return await product.save();
-    } catch (err) {
-      throw err;
-    }
+    const product = await this.handleGetAProduct(id);
+    product.inStock = inStock;
+    return await product.save();
+  }
+  async deleteProduct(id: string) {
+    const product = await this.handleGetAProduct(id);
+    if (!product)
+      throw new NotFoundException(`product with id  ${id} does not exist`);
+    await this.productRepository.delete(id);
+
+    return new SuccessResponse(
+      null,
+      `Product with id ${id} deleted successfully deleted`
+    );
   }
 }

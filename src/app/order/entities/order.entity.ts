@@ -28,6 +28,7 @@ export class Order extends Timestamp {
   @ManyToOne(() => User, {
     cascade: true,
     eager: true,
+    onDelete:'RESTRICT'
   })
   @JoinColumn({ name: 'user_id' })
   user: User;

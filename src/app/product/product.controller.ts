@@ -11,53 +11,59 @@ import {
   Query,
   DefaultValuePipe,
   ParseIntPipe,
-} from '@nestjs/common';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { Pagination } from 'nestjs-typeorm-paginate';
-import { EditProductDto } from './dto/product.dto';
-import { Product } from './entities/product.entity';
-import { ProductService } from './product.service';
-import { CategoryService } from '../category/category.service';
-import { Public } from 'src/decorators/public.decorator';
-import { Patch } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+  Delete,
+  UseGuards,
+} from "@nestjs/common";
+import { SuccessResponse } from "src/utils/response";
+import { FileFieldsInterceptor } from "@nestjs/platform-express";
+import { Pagination } from "nestjs-typeorm-paginate";
+import { EditProductDto } from "./dto/product.dto";
+import { Product } from "./entities/product.entity";
+import { ProductService } from "./product.service";
+import { CategoryService } from "../category/category.service";
+import { Public } from "src/decorators/public.decorator";
+import { Patch } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { Roles } from "src/decorators/roles.decorator";
+import { Role } from "src/types/general";
+import { RolesGuard } from "../auth/guards/roles.guard";
 
-@Controller('product')
+@Controller("product")
 export class ProductController {
   constructor(
     @Inject(CategoryService)
     private readonly categoryService: CategoryService,
     @Inject(ProductService)
     private readonly productService: ProductService,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {}
 
-  @Post('upload')
+  @Post("upload")
   @UseInterceptors(
     FileFieldsInterceptor([
-      { name: 'pic_1', maxCount: 1 },
-      { name: 'pic_2', maxCount: 1 },
-    ]),
+      { name: "pic_1", maxCount: 1 },
+      { name: "pic_2", maxCount: 1 },
+    ])
   )
   uploadFile(
     @UploadedFiles()
     files: {
       pic_1?: Express.Multer.File[];
       pic_2?: Express.Multer.File[];
-    },
+    }
   ) {
     console.log(files);
   }
 
-  @Put('set-visibility/:id')
-  public setVisibility(@Param('id') id: string) {
+  @Put("set-visibility/:id")
+  public setVisibility(@Param("id") id: string) {
     return this.productService.handleSetVisibility(id);
   }
 
-  @Put('edit/:id')
+  @Put("edit/:id")
   public async editProduct(
     @Body() body: EditProductDto,
-    @Param('id') id: string,
+    @Param("id") id: string
   ) {
     if (body.categoryId) {
       await this.categoryService.getCategory(body.categoryId);
@@ -67,48 +73,56 @@ export class ProductController {
 
   //seach or filter product by price || name || or any other field that would be added
   @Public()
-  @Get('search')
+  @Get("search")
   public queryProducts(
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
-    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
-    @Query() searchQuery: any,
+    @Query("page", new DefaultValuePipe(1), ParseIntPipe) page = 1,
+    @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit = 10,
+    @Query() searchQuery: any
   ) {
     return this.productService.handleQueryProducts(
       {
         limit,
         page,
-        route: `${this.configService.get<string>('appUrl')}/product/search`,
+        route: `${this.configService.get<string>("appUrl")}/product/search`,
       },
-      searchQuery,
+      searchQuery
     );
   }
 
   @Public()
-  @Get(':id')
-  public getAProduct(@Param('id') id: string): Promise<Product | string> {
+  @Get(":id")
+  public getAProduct(@Param("id") id: string): Promise<Product | string> {
     return this.productService.handleGetAProduct(id);
   }
 
   @Public()
   @Get()
   public getAllProducts(
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
-    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
+    @Query("page", new DefaultValuePipe(1), ParseIntPipe) page = 1,
+    @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit = 10
   ): Promise<Pagination<Product>> {
     limit = limit > 100 ? 100 : limit < 10 ? 10 : limit;
 
     return this.productService.handleGetAllProducts({
       page,
       limit,
-      route: `${this.configService.get<string>('appUrl')}/product`,
+      route: `${this.configService.get<string>("appUrl")}/product`,
     });
   }
 
-  @Patch('availability:id')
-  public updateProductAvailability(
-    @Param('id') id: string,
-    @Body() data: { inStock: boolean },
+  @Roles(Role.SUPER_ADMIN)
+  @UseGuards(RolesGuard)
+  @Patch("availability:id")
+  updateProductAvailability(
+    @Param("id") id: string,
+    @Body() data: { inStock: boolean }
   ): Promise<Product | string> {
     return this.productService.updateAvailability(id, data);
+  }
+  @Roles(Role.SUPER_ADMIN)
+  @UseGuards(RolesGuard)
+  @Delete("/:id")
+  deleteProduct(@Param("id") id: string): Promise<SuccessResponse> {
+    return this.productService.deleteProduct(id);
   }
 }
