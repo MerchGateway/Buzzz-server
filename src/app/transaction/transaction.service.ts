@@ -5,45 +5,45 @@ import {
   Inject,
   forwardRef,
   HttpException,
-} from '@nestjs/common';
-import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
-import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsUtils, Repository } from 'typeorm';
-import { Transaction } from './entities/transaction.entity';
-import { OrderType, Status as orderStatus } from '../../types/order';
-import { User } from '../users/entities/user.entity';
-import { OrderService } from '../order/order.service';
-import moment from 'moment';
-import { AxiosInstance } from 'axios';
+} from "@nestjs/common";
+import { IPaginationOptions, Pagination } from "nestjs-typeorm-paginate";
+import { InjectRepository } from "@nestjs/typeorm";
+import { FindOptionsUtils, Repository } from "typeorm";
+import { Transaction } from "./entities/transaction.entity";
+import { OrderType, Status as orderStatus } from "../../types/order";
+import { User } from "../users/entities/user.entity";
+import { OrderService } from "../order/order.service";
+import moment from "moment";
+import { AxiosInstance } from "axios";
 import {
   DEFAULT_POLY_MAILER_CONTENT,
   PAYSTACK_SUCCESS_STATUS,
-} from '../../constant';
-import { Order } from '../order/entities/order.entity';
-import { PolymailerContent } from '../order/entities/polymailer-content.entity';
+} from "../../constant";
+import { Order } from "../order/entities/order.entity";
+import { PolymailerContent } from "../order/entities/polymailer-content.entity";
 import {
   TransactionChannel,
   TransactionMethod,
   TransactionStatus,
-} from 'src/types/transaction';
-import { CustomersService } from '../customers/customers.service';
-import { ProductService } from '../product/product.service';
-import { paginate } from 'nestjs-typeorm-paginate';
-import { FeeService } from '../fee/fee.service';
-import { Request } from 'express';
-import { SuccessResponse } from '../../utils/response';
-import * as crypto from 'crypto';
-import { ConfigService } from '@nestjs/config';
+} from "src/types/transaction";
+import { CustomersService } from "../customers/customers.service";
+import { ProductService } from "../product/product.service";
+import { paginate } from "nestjs-typeorm-paginate";
+import { FeeService } from "../fee/fee.service";
+import { Request } from "express";
+import { SuccessResponse } from "../../utils/response";
+import * as crypto from "crypto";
+import { ConfigService } from "@nestjs/config";
 import {
   PaystackChargeEventData,
   PaystackEvent,
   TransferEventData,
-} from '../../types/paystack';
-import { MailService } from '../../mail/mail.service';
-import { PaystackBrokerService } from '../payment/paystack/paystack.service';
-import { Gift } from '../gifting/entities/gift.entity';
-import { GiftService } from '../gifting/gift.service';
-import { AdminService } from '../admin/admin.service';
+} from "../../types/paystack";
+import { MailService } from "../../mail/mail.service";
+import { PaystackBrokerService } from "../payment/paystack/paystack.service";
+import { Gift } from "../gifting/entities/gift.entity";
+import { GiftService } from "../gifting/gift.service";
+import { AdminService } from "../admin/admin.service";
 
 @Injectable()
 export class TransactionService {
@@ -63,7 +63,7 @@ export class TransactionService {
     private readonly configService: ConfigService,
     private readonly mailService: MailService,
     @Inject(forwardRef(() => PaystackBrokerService))
-    private readonly paystackBrokerService: PaystackBrokerService,
+    private readonly paystackBrokerService: PaystackBrokerService
   ) {}
 
   public async createGiftTransaction(user: User, orders: Order[], gift: Gift) {
@@ -86,7 +86,7 @@ export class TransactionService {
     reference: string,
     buyer: User,
     message: string,
-    gift?: Gift,
+    gift?: Gift
   ) {
     //create order
     let orders: Order[];
@@ -105,7 +105,7 @@ export class TransactionService {
 
     const ownerOrders = orders.filter((order) => order.sellerId === buyer.id);
     const resellerOrders = orders.filter(
-      (order) => order.sellerId !== buyer.id,
+      (order) => order.sellerId !== buyer.id
     );
 
     const totalOwnerCost = ownerOrders.reduce((acc, order) => {
@@ -195,7 +195,7 @@ export class TransactionService {
       transactions.push(
         resellerCreditTransaction,
         ownerCreditTransaction,
-        ownerDebitTransaction,
+        ownerDebitTransaction
       );
     }
 
@@ -204,21 +204,21 @@ export class TransactionService {
 
   public async getTransactionsForAuthUser(
     user: User,
-    { limit, page, route }: IPaginationOptions,
+    { limit, page, route }: IPaginationOptions
   ): Promise<Pagination<Transaction>> {
-    const qb = this.transactionRepository.createQueryBuilder('transaction');
+    const qb = this.transactionRepository.createQueryBuilder("transaction");
     FindOptionsUtils.joinEagerRelations(
       qb,
       qb.alias,
-      this.transactionRepository.metadata,
+      this.transactionRepository.metadata
     );
     // select nested relations
-    qb.leftJoinAndSelect('transaction.wallet', 'wallet');
-    qb.leftJoinAndSelect('transaction.orders', 'orders');
-    qb.leftJoinAndSelect('orders.product', 'product');
-    qb.orderBy('transaction.created_at', 'DESC');
-    qb.where('transaction.wallet_id = :walletId', { walletId: user.wallet.id });
-    qb.andWhere('transaction.is_hidden = :isHidden', { isHidden: false });
+    qb.leftJoinAndSelect("transaction.wallet", "wallet");
+    qb.leftJoinAndSelect("transaction.orders", "orders");
+    qb.leftJoinAndSelect("orders.product", "product");
+    qb.orderBy("transaction.created_at", "DESC");
+    qb.where("transaction.wallet_id = :walletId", { walletId: user.wallet.id });
+    qb.andWhere("transaction.is_hidden = :isHidden", { isHidden: false });
 
     return paginate<Transaction>(qb, { limit, page, route });
   }
@@ -227,8 +227,8 @@ export class TransactionService {
     page,
     route,
   }: IPaginationOptions): Promise<Pagination<Transaction>> {
-    const qb = this.transactionRepository.createQueryBuilder('transaction');
-    qb.orderBy('transaction.created_at', 'DESC');
+    const qb = this.transactionRepository.createQueryBuilder("transaction");
+    qb.orderBy("transaction.created_at", "DESC");
     return paginate<Transaction>(qb, { limit, page, route });
   }
 
@@ -241,14 +241,14 @@ export class TransactionService {
 
     if (!transaction) {
       throw new NotFoundException(
-        `Transaction with id ${transactionId} not found`,
+        `Transaction with id ${transactionId} not found`
       );
     }
     return transaction;
   }
 
   private async verifyPaymentTransaction(
-    paystackEventData: PaystackChargeEventData,
+    paystackEventData: PaystackChargeEventData
   ) {
     const { reference, status, currency, channel, amount, message } =
       paystackEventData;
@@ -256,12 +256,12 @@ export class TransactionService {
     const transactionsToVerify = await this.transactionRepository.find({
       where: { reference },
       relations: [
-        'orders',
-        'orders.user',
-        'orders.product',
-        'orders.product.seller',
-        'wallet',
-        'wallet.user',
+        "orders",
+        "orders.user",
+        "orders.product",
+        "orders.product.seller",
+        "wallet",
+        "wallet.user",
       ],
     });
 
@@ -275,7 +275,7 @@ export class TransactionService {
         transaction.currency = currency;
         transaction.channel = channel.toUpperCase() as TransactionChannel;
         transaction.amount = parseFloat((amount / 100).toFixed(2));
-        transaction.message = 'Transaction successful';
+        transaction.message = "Transaction successful";
         transaction.status = TransactionStatus.SUCCESS;
       });
 
@@ -283,10 +283,6 @@ export class TransactionService {
       await Promise.all(
         transactionsToVerify[0].orders.map(async (order) => {
           await order.updateStatus(orderStatus.PAID);
-          // await this.adminService.assignOrdersAutoToClosestPartner(
-          //   'Printing',
-          //   order,
-          // );
 
           // fetch polymailerContents
           const polymailerContents: PolymailerContent[] =
@@ -305,22 +301,25 @@ export class TransactionService {
           };
 
           await order.save();
-        }),
+        })
       );
 
       // TODO: map through the orders and do this for all product in the order
       const transactions = await this.transactionRepository.find({
         where: { reference },
         relations: [
-          'orders',
-          'orders.product',
-          'orders.product.seller',
-          'wallet',
-          'wallet.user',
+          "orders",
+          "orders.product",
+          "orders.product.seller",
+          "wallet",
+          "wallet.user",
         ],
       });
 
       const product = transactions[0].orders[0].product;
+      // update purchase state of product  after successful payment verification
+      product.purchased = true;
+      await product.save();
 
       const totalOrderQuantity = transactions[0].orders.reduce((acc, order) => {
         return acc + parseInt(order.quantity.toString());
@@ -329,7 +328,7 @@ export class TransactionService {
       // find a transaction where the buyer is not also the seller:
       // (in the case where a user buys their own merch)
       const nonSellerBuyerTransaction = transactions.find(
-        (transaction) => transaction.wallet.user.id !== product.seller.id,
+        (transaction) => transaction.wallet.user.id !== product.seller.id
       );
 
       let buyer: User;
@@ -369,7 +368,7 @@ export class TransactionService {
           return;
         }
         const giftPreviewLink = `${this.configService.get(
-          'clientUrl',
+          "clientUrl"
         )}/preview/${gift.product.id}`;
         await this.mailService.sendGiftNotificationToBeneficiaries({
           user: transactions[0].orders[0].user.email,
@@ -377,7 +376,7 @@ export class TransactionService {
           giftPreviewLink,
         });
       } else {
-        this.mailService.sendAdminNewOrderNotice({
+        await this.mailService.sendAdminNewOrderNotice({
           ...transactions[0].orders[0],
           quantity: totalOrderQuantity,
         } as Order);
@@ -388,13 +387,13 @@ export class TransactionService {
         transaction.channel = channel.toUpperCase() as TransactionChannel;
         transaction.amount = parseFloat((amount / 100).toFixed(2));
         transaction.status = TransactionStatus.FAILED;
-        transaction.message = message || 'Transaction verification failed';
+        transaction.message = message || "Transaction verification failed";
       });
       await Promise.all(
         transactionsToVerify[0].orders.map(async (order) => {
           await order.updateStatus(orderStatus.CANCELLED);
           await order.save();
-        }),
+        })
       );
     }
 
@@ -402,7 +401,7 @@ export class TransactionService {
   }
 
   private async verifyWithdrawalTransaction(
-    paystackEventData: TransferEventData,
+    paystackEventData: TransferEventData
   ) {
     const { status, reference, amount, currency } = paystackEventData;
 
@@ -419,10 +418,10 @@ export class TransactionService {
       transaction.status = TransactionStatus.SUCCESS;
       transaction.amount = parseFloat((amount / 100).toFixed(2));
       transaction.currency = currency;
-      transaction.message = 'Withdrawal successful';
+      transaction.message = "Withdrawal successful";
     } else {
       transaction.status = TransactionStatus.FAILED;
-      transaction.message = 'Withdrawal failed';
+      transaction.message = "Withdrawal failed";
     }
 
     await this.transactionRepository.save(transaction);
@@ -435,7 +434,7 @@ export class TransactionService {
 
     if (!isTransaction) {
       throw new NotFoundException(
-        `Transaction with reference ${reference} does not exist`,
+        `Transaction with reference ${reference} does not exist`
       );
     }
 
@@ -444,57 +443,57 @@ export class TransactionService {
   }
 
   public async salesAnalytics(
-    query: string,
+    query: string
   ): Promise<Transaction[] | undefined> {
     const Moment = moment();
     let report: Transaction[];
-    if (query === 'current-week') {
-      const start = Moment.startOf('week').format('YYYY-MM-DD');
+    if (query === "current-week") {
+      const start = Moment.startOf("week").format("YYYY-MM-DD");
 
-      const end = Moment.endOf('week').format('YYYY-MM-DD');
+      const end = Moment.endOf("week").format("YYYY-MM-DD");
 
       report = await this.transactionRepository
-        .createQueryBuilder('transaction')
-        .select('SUM(transaction.amount)', 'sum')
-        .addSelect('WEEKDAY(transaction.updated_at)', 'week-day')
-        .where('transaction.status = :status', {
+        .createQueryBuilder("transaction")
+        .select("SUM(transaction.amount)", "sum")
+        .addSelect("WEEKDAY(transaction.updated_at)", "week-day")
+        .where("transaction.status = :status", {
           status: TransactionStatus.SUCCESS,
         })
         .andWhere(`transaction.updated_at BETWEEN '${start}' AND '${end}'`)
-        .groupBy('WEEKDAY(transaction.updated_at)')
-        .orderBy('WEEKDAY(transaction.updated_at)')
+        .groupBy("WEEKDAY(transaction.updated_at)")
+        .orderBy("WEEKDAY(transaction.updated_at)")
         .getRawMany();
-    } else if (query === 'current-month') {
-      const start = Moment.startOf('month').format('YYYY-MM-DD');
+    } else if (query === "current-month") {
+      const start = Moment.startOf("month").format("YYYY-MM-DD");
 
-      const end = Moment.endOf('month').format('YYYY-MM-DD');
+      const end = Moment.endOf("month").format("YYYY-MM-DD");
 
       report = await this.transactionRepository
-        .createQueryBuilder('transaction')
-        .select('SUM(transaction.amount)', 'sum')
-        .addSelect('WEEKDAY(transaction.updated_at)', 'week-day')
-        .where('transaction.status = :status', {
+        .createQueryBuilder("transaction")
+        .select("SUM(transaction.amount)", "sum")
+        .addSelect("WEEKDAY(transaction.updated_at)", "week-day")
+        .where("transaction.status = :status", {
           status: TransactionStatus.SUCCESS,
         })
         .andWhere(`transaction.updated_at BETWEEN '${start}' AND '${end}'`)
-        .groupBy('WEEKDAY(transaction.updated_at)')
-        .orderBy('WEEKDAY(transaction.updated_at)')
+        .groupBy("WEEKDAY(transaction.updated_at)")
+        .orderBy("WEEKDAY(transaction.updated_at)")
         .getRawMany();
     } else {
-      const start = Moment.startOf('year').format('YYYY-MM-DD');
+      const start = Moment.startOf("year").format("YYYY-MM-DD");
 
-      const end = Moment.endOf('year').format('YYYY-MM-DD');
+      const end = Moment.endOf("year").format("YYYY-MM-DD");
 
       report = await this.transactionRepository
-        .createQueryBuilder('transaction')
-        .select('SUM(transaction.amount)', 'sum')
-        .addSelect('EXTRACT (MONTH FROM transaction.updated_at)', 'month')
-        .where('transaction.status = :status', {
+        .createQueryBuilder("transaction")
+        .select("SUM(transaction.amount)", "sum")
+        .addSelect("EXTRACT (MONTH FROM transaction.updated_at)", "month")
+        .where("transaction.status = :status", {
           status: TransactionStatus.SUCCESS,
         })
         .andWhere(`transaction.updated_at BETWEEN '${start}' AND '${end}'`)
-        .groupBy('EXTRACT (MONTH FROM transaction.updated_at)')
-        .orderBy('EXTRACT (MONTH FROM transaction.updated_at)')
+        .groupBy("EXTRACT (MONTH FROM transaction.updated_at)")
+        .orderBy("EXTRACT (MONTH FROM transaction.updated_at)")
         .getRawMany();
     }
     return report;
@@ -502,43 +501,43 @@ export class TransactionService {
 
   async getBalanceForWalletId(walletId: string) {
     const creditsResult = await this.transactionRepository
-      .createQueryBuilder('transaction')
-      .select('SUM(transaction.amount - transaction.feeAmount)', 'sum')
-      .where('transaction.wallet_id = :walletId', { walletId })
-      .andWhere('transaction.method = :method', {
+      .createQueryBuilder("transaction")
+      .select("SUM(transaction.amount - transaction.feeAmount)", "sum")
+      .where("transaction.wallet_id = :walletId", { walletId })
+      .andWhere("transaction.method = :method", {
         method: TransactionMethod.CREDIT,
       })
-      .andWhere('transaction.status = :status', {
+      .andWhere("transaction.status = :status", {
         status: TransactionStatus.SUCCESS,
       })
       .getRawOne();
 
     const paymentDebitsResult = await this.transactionRepository
-      .createQueryBuilder('transaction')
-      .select(`SUM(transaction.amount - transaction.feeAmount)`, 'sum')
-      .where('transaction.wallet_id = :walletId', { walletId })
-      .andWhere('transaction.method = :method', {
+      .createQueryBuilder("transaction")
+      .select(`SUM(transaction.amount - transaction.feeAmount)`, "sum")
+      .where("transaction.wallet_id = :walletId", { walletId })
+      .andWhere("transaction.method = :method", {
         method: TransactionMethod.DEBIT,
       })
-      .andWhere('transaction.channel != :channel', {
+      .andWhere("transaction.channel != :channel", {
         channel: TransactionChannel.BANK_TRANSFER,
       })
-      .andWhere('transaction.status = :status', {
+      .andWhere("transaction.status = :status", {
         status: TransactionStatus.SUCCESS,
       })
       .getRawOne();
 
     const withDrawalDebitsResult = await this.transactionRepository
-      .createQueryBuilder('transaction')
-      .select(`SUM(transaction.amount)`, 'sum')
-      .where('transaction.wallet_id = :walletId', { walletId })
-      .andWhere('transaction.method = :method', {
+      .createQueryBuilder("transaction")
+      .select(`SUM(transaction.amount)`, "sum")
+      .where("transaction.wallet_id = :walletId", { walletId })
+      .andWhere("transaction.method = :method", {
         method: TransactionMethod.DEBIT,
       })
-      .andWhere('transaction.channel = :channel', {
+      .andWhere("transaction.channel = :channel", {
         channel: TransactionChannel.BANK_TRANSFER,
       })
-      .andWhere('transaction.status IN (:...status)', {
+      .andWhere("transaction.status IN (:...status)", {
         status: [TransactionStatus.SUCCESS, TransactionStatus.PENDING],
       })
       .getRawOne();
@@ -552,15 +551,15 @@ export class TransactionService {
   }
 
   handleWebhook(req: Request) {
-    const paystackSecretKey = this.configService.get<string>('paystack.secret');
+    const paystackSecretKey = this.configService.get<string>("paystack.secret");
 
     const hash = crypto
-      .createHmac('sha512', paystackSecretKey)
+      .createHmac("sha512", paystackSecretKey)
       .update(JSON.stringify(req.body))
-      .digest('hex');
+      .digest("hex");
 
-    if (hash !== req.headers['x-paystack-signature']) {
-      throw new BadRequestException('Invalid signature');
+    if (hash !== req.headers["x-paystack-signature"]) {
+      throw new BadRequestException("Invalid signature");
     }
 
     switch (req.body.event) {
@@ -577,23 +576,23 @@ export class TransactionService {
         break;
     }
 
-    return new SuccessResponse({}, 'Webhook received successfully');
+    return new SuccessResponse({}, "Webhook received successfully");
   }
 
   async revalidateTransaction(transactionId: string) {
     let transaction = await this.transactionRepository.findOne({
       where: { id: transactionId },
       relations: [
-        'orders',
-        'orders.user',
-        'orders.product',
-        'orders.product.seller',
+        "orders",
+        "orders.user",
+        "orders.product",
+        "orders.product.seller",
       ],
     });
 
     if (!transaction) {
       throw new NotFoundException(
-        `Transaction with id ${transactionId} does not exist`,
+        `Transaction with id ${transactionId} does not exist`
       );
     }
 
@@ -602,11 +601,11 @@ export class TransactionService {
 
       if (transaction.channel === TransactionChannel.BANK_TRANSFER) {
         data = await this.paystackBrokerService.verifyWithdrawalTransaction(
-          transaction.reference,
+          transaction.reference
         );
       } else {
         data = await this.paystackBrokerService.verifyPaymentTransaction(
-          transaction.reference,
+          transaction.reference
         );
       }
 
@@ -614,7 +613,7 @@ export class TransactionService {
         transaction.status = TransactionStatus.SUCCESS;
         transaction.amount = parseFloat((data.amount / 100).toFixed(2));
         transaction.currency = data.currency;
-        transaction.message = 'Transaction successful';
+        transaction.message = "Transaction successful";
 
         await Promise.all(
           transaction.orders.map(async (order) => {
@@ -629,7 +628,7 @@ export class TransactionService {
 
             // get a random polymailer content
             const random = Math.floor(
-              Math.random() * polymailerContents.length,
+              Math.random() * polymailerContents.length
             );
 
             // set polymailer details
@@ -642,17 +641,17 @@ export class TransactionService {
             };
 
             await order.save();
-          }),
+          })
         );
 
         const transactions = await this.transactionRepository.find({
           where: { reference: transaction.reference },
           relations: [
-            'orders',
-            'orders.product',
-            'orders.product.seller',
-            'wallet',
-            'wallet.user',
+            "orders",
+            "orders.product",
+            "orders.product.seller",
+            "wallet",
+            "wallet.user",
           ],
         });
 
@@ -662,13 +661,13 @@ export class TransactionService {
           (acc, order) => {
             return acc + parseInt(order.quantity.toString());
           },
-          0,
+          0
         );
 
         // find a transaction where the buyer is not also the seller:
         // (in the case where a user buys their own merch)
         const nonSellerBuyerTransaction = transactions.find(
-          (transaction) => transaction.wallet.user.id !== product.seller.id,
+          (transaction) => transaction.wallet.user.id !== product.seller.id
         );
 
         let buyer: User;
@@ -711,7 +710,7 @@ export class TransactionService {
             return;
           }
           const giftPreviewLink = `${this.configService.get(
-            'clientUrl',
+            "clientUrl"
           )}/preview/${gift.product.id}`;
           await this.mailService.sendGiftNotificationToBeneficiaries({
             user: transactions[0].orders[0].user.email,
@@ -726,13 +725,13 @@ export class TransactionService {
         }
       } else {
         transaction.status = TransactionStatus.FAILED;
-        transaction.message = data.message || 'Transaction verification failed';
+        transaction.message = data.message || "Transaction verification failed";
 
         await Promise.all(
           transaction.orders.map(async (order) => {
             await order.updateStatus(orderStatus.CANCELLED);
             await order.save();
-          }),
+          })
         );
       }
 
@@ -740,13 +739,13 @@ export class TransactionService {
     } catch (error) {
       throw new HttpException(
         error.response.data.message || error.message,
-        error.response.status,
+        error.response.status
       );
     }
 
     return new SuccessResponse(
       transaction,
-      'Transaction revalidated successfully',
+      "Transaction revalidated successfully"
     );
   }
 }
