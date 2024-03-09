@@ -38,7 +38,7 @@ async function bootstrap() {
   app.set('trust proxy', 1);
   app.use(
     session({
-      secret: sessionSecret,
+    secret: sessionSecret,
       resave: false,
       saveUninitialized: true,
       proxy: true,

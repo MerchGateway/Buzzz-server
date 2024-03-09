@@ -1,9 +1,11 @@
+ARG  NODE_ENV
 
 # BUILD FOR PRODUCTION
 FROM node:16-alpine AS build
 
 WORKDIR /app
 
+ENV NODE_ENV = ${NODE_ENV}
 COPY package*.json .
 
 COPY tsconfig.build.json .
