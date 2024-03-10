@@ -1,5 +1,5 @@
-import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { InjectRepository } from "@nestjs/typeorm";
+import { In, Repository } from "typeorm";
 import {
   BadRequestException,
   ConflictException,
@@ -7,30 +7,30 @@ import {
   HttpStatus,
   Injectable,
   NotFoundException,
-} from '@nestjs/common';
-import { Design } from './entities/design.entity';
+} from "@nestjs/common";
+import { Design } from "./entities/design.entity";
 import {
   PublishDesignDto,
   PublishDesignAndCheckoutDto,
   PublishAndGiftDto,
-} from './dto/design.dto';
-import { InjectQueue } from '@nestjs/bull';
-import { Queue } from 'bull';
-import { CartService } from '../cart/cart.service';
-import { ProductService } from '../product/product.service';
-import { PaystackBrokerService } from '../payment/paystack/paystack.service';
-import { User } from '../users/entities/user.entity';
-import { SuccessResponse } from 'src/utils/response';
-import { PolymailerContent } from '../order/entities/polymailer-content.entity';
-import { Inject } from '@nestjs/common';
-import { CLOUDINARY, EVENT_QUEUE, DESIGN_MERCH } from 'src/constant';
-import { CloudinaryProvider } from 'src/providers/cloudinary.provider';
-import { TEXT_TYPE, IMAGE_TYPE } from 'src/constant';
-import { WsException } from '@nestjs/websockets/errors';
-import { Role } from 'src/types/general';
-import { FeeService } from '../fee/fee.service';
-import { Product } from '../product/entities/product.entity';
-import { GiftService } from '../gifting/gift.service';
+} from "./dto/design.dto";
+import { InjectQueue } from "@nestjs/bull";
+import { Queue } from "bull";
+import { CartService } from "../cart/cart.service";
+import { ProductService } from "../product/product.service";
+import { PaystackBrokerService } from "../payment/paystack/paystack.service";
+import { User } from "../users/entities/user.entity";
+import { SuccessResponse } from "src/utils/response";
+import { PolymailerContent } from "../order/entities/polymailer-content.entity";
+import { Inject } from "@nestjs/common";
+import { CLOUDINARY, EVENT_QUEUE, DESIGN_MERCH } from "src/constant";
+import { CloudinaryProvider } from "src/providers/cloudinary.provider";
+import { TEXT_TYPE, IMAGE_TYPE } from "src/constant";
+import { WsException } from "@nestjs/websockets/errors";
+import { Role } from "src/types/general";
+import { FeeService } from "../fee/fee.service";
+import { Product } from "../product/entities/product.entity";
+import { GiftService } from "../gifting/gift.service";
 @Injectable()
 export class DesignService {
   constructor(
@@ -46,23 +46,23 @@ export class DesignService {
     private readonly imageStorage: CloudinaryProvider,
     @InjectRepository(PolymailerContent)
     private readonly polyMailerContentRepository: Repository<PolymailerContent>,
-    private readonly feeService: FeeService,
+    private readonly feeService: FeeService
   ) {}
 
   async viewAllDesigns(user: User): Promise<Design[] | undefined> {
     return await this.designRepository.find({
       where: { user: { id: user.id } },
-      order: { updatedAt: 'DESC' },
+      order: { updatedAt: "DESC" },
     });
   }
 
   async fetchLatestDesignForCurrentUser(
-    user: User,
+    user: User
   ): Promise<{ design: Design }> {
     const latestDesign = await this.designRepository.findOne({
       where: { user: { id: user.id } },
-      order: { updatedAt: 'DESC' },
-      relations: ['product'],
+      order: { updatedAt: "DESC" },
+      relations: ["product"],
     });
     return { design: latestDesign };
   }
@@ -72,7 +72,7 @@ export class DesignService {
       const design = await this.designRepository.findOne({ where: { id } });
       if (!design) {
         throw new NotFoundException(
-          `Design with id ${id}  does  not exist or  deleted`,
+          `Design with id ${id}  does  not exist or  deleted`
         );
       }
       return design;
@@ -93,7 +93,7 @@ export class DesignService {
             {
               asset_folder: design.user ? design.user.username : design.id,
               public_id_prefix: design.id,
-            },
+            }
           );
 
           design.images.push({
@@ -103,7 +103,7 @@ export class DesignService {
           // update image scr from design with online link  to be saved
           payload.objects[i].src = image.secure_url;
         } else {
-          console.log('another kind of asset');
+          console.log("another kind of asset");
         }
       }
       design.designData = payload;
@@ -151,7 +151,7 @@ export class DesignService {
     });
     if (!design) {
       throw new NotFoundException(
-        `Design with id ${id}  does  not exist or  deleted`,
+        `Design with id ${id}  does  not exist or  deleted`
       );
     }
     return design;
@@ -159,20 +159,20 @@ export class DesignService {
 
   async addContributorsToDesign(
     payload: { emails: string[]; id: string },
-    user: User,
+    user: User
   ) {
     const isDesign = await this.fetchMyDesign(payload.id, user);
     isDesign.contributors = [...isDesign.contributors, ...payload.emails];
     await this.designRepository.save(isDesign);
     return new SuccessResponse(
       payload.emails,
-      'Contributor(s) added to design',
+      "Contributor(s) added to design"
     );
   }
 
   async removeContributorsToDesign(
     payload: { emails: string[]; id: string },
-    user: User,
+    user: User
   ) {
     const isDesign = await this.fetchMyDesign(payload.id, user);
     isDesign.contributors = isDesign.contributors.filter(
@@ -183,12 +183,12 @@ export class DesignService {
         ) {
           return contributor;
         }
-      },
+      }
     );
     await this.designRepository.save(isDesign);
     return new SuccessResponse(
       payload.emails,
-      'Contributor(s) removed from design',
+      "Contributor(s) removed from design"
     );
   }
 
@@ -206,14 +206,14 @@ export class DesignService {
     }
     if (design.published == true) {
       throw new NotFoundException(
-        `You cannot delete an already published  design`,
+        `You cannot delete an already published  design`
       );
     }
     design.remove();
     return new SuccessResponse(
       design,
-      'Design for current user deleted',
-      HttpStatus.ACCEPTED,
+      "Design for current user deleted",
+      HttpStatus.ACCEPTED
     );
   }
   async deleteSingleDesign(id: string) {
@@ -223,12 +223,12 @@ export class DesignService {
     }
     if (design.published == true) {
       throw new NotFoundException(
-        `Design already published as a product and might be present in pending orders`,
+        `Design already published as a product and might be present in pending orders`
       );
     }
     return new SuccessResponse(
       design,
-      `Design with id ${id} deleted successfully `,
+      `Design with id ${id} deleted successfully `
     );
   }
 
@@ -236,25 +236,25 @@ export class DesignService {
     user: User,
     payload: PublishDesignDto,
     id: string,
-    category_id: string,
+    category_id: string
   ) {
     const design = await this.fetchMyDesign(id, user);
 
     if (!user.emailVerified) {
       throw new BadRequestException(
-        `Please verify your email to publish your designs`,
+        `Please verify your email to publish your designs`
       );
     }
 
     if (design.published == true) {
-      throw new ConflictException('Design already published');
+      throw new ConflictException("Design already published");
     }
 
     const fee = await this.feeService.getLatest();
 
     if (payload.price <= fee.reseller) {
       throw new BadRequestException(
-        `Design price must be greater than the mandatory fee of ₦${fee.reseller}.`,
+        `Design price must be greater than the mandatory fee of ₦${fee.reseller}.`
       );
     }
 
@@ -265,12 +265,12 @@ export class DesignService {
         isPublic: payload.isPublic,
         description: payload.description,
         categoryId: category_id,
+        isPublished: true,
         thumbnail: payload.thumbnail,
       },
-      user,
+      user
     );
 
-    product.isPublished = true;
     design.product = product;
     design.published = true;
 
@@ -282,7 +282,7 @@ export class DesignService {
     user: User,
     payload: PublishAndGiftDto,
     id: string,
-    category_id: string,
+    category_id: string
   ): Promise<{
     authorization_url: string;
     access_code: string;
@@ -305,13 +305,13 @@ export class DesignService {
     user: User,
     payload: PublishDesignAndCheckoutDto,
     id: string,
-    category_id: string,
+    category_id: string
   ): Promise<Product> {
     const fee = await this.feeService.getLatest();
 
     if (payload.price !== fee.owner) {
       throw new BadRequestException(
-        `Design price must be the exact mandatory fee of ₦${fee.owner}.`,
+        `Design price must be the exact mandatory fee of ₦${fee.owner}.`
       );
     }
     const product = await this.publishDesign(user, payload, id, category_id);
@@ -323,14 +323,14 @@ export class DesignService {
         color: payload.color,
         size: payload?.size,
       },
-      user,
+      user
     );
 
     return product;
   }
 
   public async createPolymailerContent(
-    payload: { content: string }[],
+    payload: { content: string }[]
   ): Promise<PolymailerContent[] | undefined> {
     const polyMailers = this.polyMailerContentRepository.create(payload);
     return polyMailers;
@@ -343,7 +343,7 @@ export class DesignService {
   }
 
   async attachDesignToUser(user: User, designId: string) {
-    console.log('this entered');
+    console.log("this entered");
     const design = await this.fetchSingleDesign(designId);
     if (!design.user) {
       design.user = user;

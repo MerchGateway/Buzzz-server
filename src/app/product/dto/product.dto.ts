@@ -7,7 +7,7 @@ import {
   MaxLength,
   IsBoolean,
   MinLength,
-} from 'class-validator';
+} from "class-validator";
 
 export class CreateProductDto {
   @IsString()
@@ -29,6 +29,9 @@ export class CreateProductDto {
   @IsBoolean()
   @IsOptional()
   isPublic?: boolean;
+  @IsBoolean()
+  @IsOptional()
+  isPublished: boolean;
 
   @IsUUID()
   @IsNotEmpty()
