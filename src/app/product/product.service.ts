@@ -164,7 +164,7 @@ export class ProductService {
   async deleteProduct(id: string) {
     const product = await this.handleGetAProduct(id);
 
-    await this.productRepository.delete(id);
+    await this.productRepository.remove(product);
 
     return new SuccessResponse(
       null,
