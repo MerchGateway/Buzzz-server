@@ -9,9 +9,14 @@ export class Blog extends Timestamp {
   @Column({ nullable: true, name: 'image_url' })
   imageUrl: string | null;
 
-  @Column()
+  @Column({
+    collation: 'utf8mb4_unicode_ci',
+  })
   title: string;
 
-  @Column({ type: 'longtext' })
+  @Column({
+    type: 'longtext',
+    collation: 'utf8mb4_unicode_ci',
+  })
   content: string;
 }
