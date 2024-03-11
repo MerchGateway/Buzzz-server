@@ -29,6 +29,7 @@ export class Cart extends Timestamp {
   @ManyToOne(() => Product, {
     cascade: true,
     eager: true,
+    onDelete:'CASCADE'
   })
   @JoinColumn({ name: 'product_id' })
   product: Product;
