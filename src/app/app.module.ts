@@ -31,7 +31,7 @@ import { join } from 'path';
 import { FeeModule } from './fee/fee.module';
 import { GiftModule } from './gifting/gift.module';
 import { OtpModule } from './otp/otp.module';
-import { ColorAndSizesModule } from './colors-and-sizes/colors-and-sizes.module';
+import { ColorAndSizesModule } from './colors-and-sizes/state-colors-sizes-and-price.module';
 import { BlogModule } from './blog/blog.module';
 @Module({
   imports: [
