@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "postinstall": "yarn build | npm run build",
-    "prebuild": "rimraf dist && chmod +x .platform/hooks/prebuild/yarn.sh",
+    "prebuild": "chmod +x .platform/hooks/prebuild/yarn.sh  && rimraf dist ",
     "build": "nest build",
     "docker:start": "docker compose up",
     "docker:stop": "docker compose down",
