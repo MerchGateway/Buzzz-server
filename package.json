@@ -8,6 +8,7 @@
   "scripts": {
     "postinstall": "yarn build | npm run build",
     "prebuild": "rimraf dist ",
+    "postbuild": "yarn migration:run",
     "build": "nest build",
     "docker:start": "docker compose up",
     "docker:stop": "docker compose down",
