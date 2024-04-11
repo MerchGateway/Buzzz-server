@@ -11,90 +11,90 @@ import { Inject } from '@nestjs/common';
 
 @Processor(EVENT_QUEUE)
 export class MessageConsumer {
-  constructor(
-    private readonly designService: DesignService,
-    @InjectRepository(Design)
-    private readonly designRepository: Repository<Design>,
-    @Inject(CLOUDINARY)
-    private readonly imageStorage: CloudinaryProvider,
-  ) {}
+	constructor(
+		private readonly designService: DesignService,
+		@InjectRepository(Design)
+		private readonly designRepository: Repository<Design>,
+		@Inject(CLOUDINARY)
+		private readonly imageStorage: CloudinaryProvider
+	) {}
 
-  @Process(DESIGN_MERCH)
-  async readOperationJob(job: Job<unknown>) {
-    const jobData: any = job.data;
-    let isDesignExist: { design: Design };
+	@Process(DESIGN_MERCH)
+	async readOperationJob(job: Job<unknown>) {
+		const jobData: any = job.data;
+		let isDesignExist: { design: Design };
 
-    try {
-      if (jobData.id) {
-        isDesignExist = {
-          design: await this.designService.fetchSingleDesign(jobData.id),
-        };
+		try {
+			if (jobData.id) {
+				isDesignExist = {
+					design: await this.designService.fetchSingleDesign(jobData.id),
+				};
 
-        console.log(isDesignExist.design);
-        if (
-          jobData.user &&
-          isDesignExist.design &&
-          isDesignExist.design.contributors[0] &&
-          !isDesignExist.design.contributors.includes(jobData.user.email)
-        ) {
-          console.log('unauthorized to design');
-          throw new WsException('You are not an authorized contributor');
-        } else if (
-          jobData.user &&
-          isDesignExist.design &&
-          !isDesignExist.design.contributors[0]
-        ) {
-          const design = await this.designService.attachDesignToUser(
-            jobData.user,
-            isDesignExist.design.id,
-          );
-          isDesignExist.design = design;
-        } else if (
-          !jobData.user &&
-          isDesignExist.design &&
-          isDesignExist.design.user
-        ) {
-          throw new WsException('You are not an authorized contributor');
-        }
-      } else {
-        isDesignExist = { design: null };
-      }
-      if (!isDesignExist.design) {
-        console.log('creating new design');
-        const newDesign = this.designRepository.create({
-          user: jobData.user,
-          texts: [],
-          images: [],
-          contributors: [],
-        });
+				console.log(isDesignExist.design);
+				if (
+					jobData.user &&
+					isDesignExist.design &&
+					isDesignExist.design.contributors[0] &&
+					!isDesignExist.design.contributors.includes(jobData.user.email)
+				) {
+					console.log('unauthorized to design');
+					throw new WsException('You are not an authorized contributor');
+				} else if (
+					jobData.user &&
+					isDesignExist.design &&
+					!isDesignExist.design.contributors[0]
+				) {
+					const design = await this.designService.attachDesignToUser(
+						jobData.user,
+						isDesignExist.design.id
+					);
+					isDesignExist.design = design;
+				} else if (
+					!jobData.user &&
+					isDesignExist.design &&
+					isDesignExist.design.user
+				) {
+					throw new WsException('You are not an authorized contributor');
+				}
+			} else {
+				isDesignExist = { design: null };
+			}
+			if (!isDesignExist.design) {
+				console.log('creating new design');
+				const newDesign = this.designRepository.create({
+					user: jobData.user,
+					texts: [],
+					images: [],
+					contributors: [],
+				});
 
-        const updatedDesign = await this.designService.sortAssets(
-          newDesign,
-          jobData.payload,
-        );
-        console.log('came back here', updatedDesign);
-        return updatedDesign;
-      } else {
-        if (isDesignExist.design.published === true) {
-          throw new WsException('Design already published');
-        }
+				const updatedDesign = await this.designService.sortAssets(
+					newDesign,
+					jobData.payload
+				);
+				console.log('came back here', updatedDesign);
+				return updatedDesign;
+			} else {
+				if (isDesignExist.design.published === true) {
+					throw new WsException('Design already published');
+				}
 
-        console.log('updating old design');
-        isDesignExist.design.images = [];
-        isDesignExist.design.texts = [];
+				console.log('updating old design');
+				isDesignExist.design.images = [];
+				isDesignExist.design.texts = [];
 
-        // delete old images from cloudinary
-        await this.imageStorage.deletePhotosByPrefix(isDesignExist.design.id);
-        const updatedDesign = await this.designService.sortAssets(
-          isDesignExist.design,
-          jobData.payload,
-        );
+				// delete old images from cloudinary
+				await this.imageStorage.deletePhotosByPrefix(isDesignExist.design.id);
+				const updatedDesign = await this.designService.sortAssets(
+					isDesignExist.design,
+					jobData.payload
+				);
 
-        console.log(updatedDesign);
-        return updatedDesign;
-      }
-    } catch (err) {
-      throw new WsException(err.message);
-    }
-  }
+				console.log(updatedDesign);
+				return updatedDesign;
+			}
+		} catch (err) {
+			throw new WsException(err.message);
+		}
+	}
 }

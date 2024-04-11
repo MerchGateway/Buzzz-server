@@ -1,10 +1,10 @@
 import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  JoinColumn,
-  OneToOne,
+	Entity,
+	Column,
+	PrimaryGeneratedColumn,
+	ManyToOne,
+	JoinColumn,
+	OneToOne,
 } from 'typeorm';
 import { Category } from '../../category/entities/category.entity';
 import { PaymentReceipt } from '../../payment/entities/payment.entity';
@@ -14,61 +14,64 @@ import { Design } from '../../design/entities/design.entity';
 import { Timestamp } from '../../../database/timestamp.entity';
 @Entity()
 export class Product extends Timestamp {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+	@PrimaryGeneratedColumn('uuid')
+	id: string;
 
-  @Column()
-  name: string;
+	@Column()
+	name: string;
 
-  @Column({
-    type: 'simple-json',
-    nullable: true,
-  })
-  thumbnail: ImageBody;
+	@Column({
+		type: 'simple-json',
+		nullable: true,
+	})
+	thumbnail: ImageBody;
 
-  @Column({ name: 'in_stock', default: true })
-  inStock: boolean;
+	@Column({ name: 'in_stock', default: true })
+	inStock: boolean;
 
-  @Column({ type: 'numeric' })
-  price: number;
+	@Column({ type: 'numeric' })
+	price: number;
 
-  @Column({ nullable: true })
-  description: string | null;
+	@Column({ nullable: true })
+	description: string | null;
 
-  @Column({ name: 'is_published', default: false })
-  isPublished: boolean;
+	@Column({ name: 'customization_instructions', nullable: true })
+	customizationInstructions: string | null;
 
-  @Column({ name: 'is_public', default: true })
-  isPublic: boolean;
+	@Column({ name: 'is_published', default: false })
+	isPublished: boolean;
 
-  @ManyToOne(() => Category, (category) => category.products, {
-    eager: true,
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'category_id' })
-  category: Category;
+	@Column({ name: 'is_public', default: true })
+	isPublic: boolean;
 
-  @Column({ name: 'receipt_id', nullable: true })
-  receiptId: string | null;
+	@ManyToOne(() => Category, (category) => category.products, {
+		eager: true,
+		onDelete: 'CASCADE',
+	})
+	@JoinColumn({ name: 'category_id' })
+	category: Category;
 
-  @Column({ default: false })
-  purchased: boolean;
+	@Column({ name: 'receipt_id', nullable: true })
+	receiptId: string | null;
 
-  @Column({ nullable: true })
-  bio: string | null;
+	@Column({ default: false })
+	purchased: boolean;
 
-  @ManyToOne(() => PaymentReceipt, (paymentReceipt) => paymentReceipt.product)
-  @JoinColumn({ name: 'receipt_id' })
-  receipt: PaymentReceipt;
+	@Column({ nullable: true })
+	bio: string | null;
 
-  @ManyToOne(() => User, (user) => user.products, { eager: true })
-  @JoinColumn({ name: 'seller_id' })
-  seller: User;
+	@ManyToOne(() => PaymentReceipt, (paymentReceipt) => paymentReceipt.product)
+	@JoinColumn({ name: 'receipt_id' })
+	receipt: PaymentReceipt;
 
-  @OneToOne(() => Design, (design) => design.product, {
-    eager: true,
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'design_id' })
-  design: Design;
+	@ManyToOne(() => User, (user) => user.products, { eager: true })
+	@JoinColumn({ name: 'seller_id' })
+	seller: User;
+
+	@OneToOne(() => Design, (design) => design.product, {
+		eager: true,
+		onDelete: 'CASCADE',
+	})
+	@JoinColumn({ name: 'design_id' })
+	design: Design;
 }
