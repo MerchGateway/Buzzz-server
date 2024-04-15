@@ -24,7 +24,7 @@ export class PublishDesignDto {
 
 	@IsString()
 	@IsOptional()
-	customizationInstruction?: string;
+	customizationInstructions?: string;
 
 	@IsString()
 	@IsOptional()

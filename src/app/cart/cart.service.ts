@@ -8,8 +8,13 @@ import {
 } from '@nestjs/common';
 import { Cart } from './entities/cart.entity';
 import { User } from '../users/entities/user.entity';
-import { CreateCartDto, UpdateCartDto } from '../cart/dto/cart.dto';
+import {
+	CreateCartDto,
+	UpdateCartDto,
+	updateCartDeliveryMethodDto,
+} from '../cart/dto/cart.dto';
 import { ProductService } from '../product/product.service';
+import { SuccessResponse } from 'src/utils/response';
 @Injectable()
 export class CartService {
 	constructor(
@@ -31,12 +36,27 @@ export class CartService {
 			);
 		}
 
+		if (!productItem.customizationInstructions && cartDto.creatorInstructions) {
+			throw new BadRequestException('Product does not support customization');
+		}
+
+		// find an existing cart item so we can use its delivery method if it exists
+		const existingCartItem = await this.cartRepository.findOne({
+			where: {
+				user: { id: user.id },
+			},
+		});
+
+		const existingDeliveryMethod = existingCartItem?.deliveryMethod;
+
 		const cartItem = this.cartRepository.create({
 			user: user,
 			quantity: cartDto.quantity,
 			product: productItem,
 			size: cartDto?.size,
 			color: cartDto.color,
+			creatorInstructions: cartDto.creatorInstructions,
+			deliveryMethod: existingDeliveryMethod,
 		});
 
 		return await this.cartRepository.save(cartItem);
@@ -98,17 +118,27 @@ export class CartService {
 		cartItem.quantity = cartDto.quantity;
 		cartDto.size && (cartItem.size = cartDto.size);
 
-		if (
-			!cartItem.product.customizationInstructions &&
-			cartDto.creatorInstructions
-		) {
-			throw new BadRequestException('Product does not support customization');
-		}
-
-		cartItem.creatorInstructions = cartDto.creatorInstructions;
-
 		return await this.cartRepository.save(cartItem);
 	}
+
+	public async updateCartDeliveryMethod(
+		user: User,
+		updateCartDeliveryMethodDto: updateCartDeliveryMethodDto
+	) {
+		await this.cartRepository.update(
+			{
+				user: {
+					id: user.id,
+				},
+			},
+			{
+				deliveryMethod: updateCartDeliveryMethodDto.deliveryMethod,
+			}
+		);
+
+		return new SuccessResponse({}, 'Delivery method updated successfully');
+	}
+
 	public async getCartItems(user: User): Promise<Cart[] | undefined> {
 		const cartItems = await this.cartRepository.find({
 			where: { user: { id: user.id } },

@@ -14,6 +14,7 @@ import { Product } from '../../product/entities/product.entity';
 import { Size } from '../../../types/size';
 import { Timestamp } from '../../../database/timestamp.entity';
 import { Color } from 'src/types/color';
+import { DeliveryMethod } from 'src/types/delivery';
 
 @Entity()
 export class Cart extends Timestamp {
@@ -45,6 +46,13 @@ export class Cart extends Timestamp {
 
 	@Column({ type: 'text', nullable: true })
 	creatorInstructions?: string;
+
+	@Column({
+		type: 'enum',
+		enum: DeliveryMethod,
+		default: DeliveryMethod.DOORSTEP,
+	})
+	deliveryMethod: DeliveryMethod;
 
 	@Column({ type: 'integer' })
 	total: number;

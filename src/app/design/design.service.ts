@@ -266,7 +266,7 @@ export class DesignService {
 				description: payload.description,
 				categoryId: category_id,
 				thumbnail: payload.thumbnail,
-				customizationInstruction: payload.customizationInstruction,
+				customizationInstructions: payload.customizationInstructions,
 			},
 			user
 		);

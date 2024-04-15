@@ -24,7 +24,7 @@ export class CreateProductDto {
 
 	@IsString()
 	@IsOptional()
-	customizationInstruction?: string;
+	customizationInstructions?: string;
 
 	@IsString()
 	@IsNotEmpty()
@@ -65,4 +65,8 @@ export class EditProductDto {
 	@IsString()
 	@IsOptional()
 	public description: string;
+
+	@IsString()
+	@IsOptional()
+	customizationInstructions: string;
 }
