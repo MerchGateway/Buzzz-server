@@ -1,73 +1,78 @@
 import {
-  IsNumber,
-  IsEnum,
-  IsOptional,
-  IsString,
-  IsNotEmpty,
-  IsArray,
-  IsBoolean,
-  ArrayNotEmpty,
+	IsNumber,
+	IsEnum,
+	IsOptional,
+	IsString,
+	IsNotEmpty,
+	IsArray,
+	IsBoolean,
+	ArrayNotEmpty,
 } from 'class-validator';
 import { Color } from 'src/types/color';
 import { Size } from 'src/types/size';
 export class PublishDesignDto {
-  @IsString()
-  title: string;
+	@IsString()
+	title: string;
 
-  @IsNumber()
-  @IsNotEmpty()
-  price: number;
+	@IsNumber()
+	@IsNotEmpty()
+	price: number;
 
-  @IsBoolean()
-  @IsOptional()
-  public readonly isPublic?: boolean;
+	@IsBoolean()
+	@IsOptional()
+	public readonly isPublic?: boolean;
 
-  @IsString()
-  @IsOptional()
-  description: string;
+	@IsString()
+	@IsOptional()
+	customizationInstructions?: string;
 
-  @IsString()
-  @IsNotEmpty()
-  public thumbnail: string;
+	@IsString()
+	@IsOptional()
+	description: string;
+
+	@IsString()
+	@IsNotEmpty()
+	public thumbnail: string;
 }
 export class PublishDesignAndCheckoutDto {
-  @IsString()
-  title: string;
+	@IsString()
+	title: string;
 
-  @IsNumber()
-  @IsNotEmpty()
-  quantity: number;
+	@IsNumber()
+	@IsNotEmpty()
+	quantity: number;
 
-  @IsNumber()
-  @IsNotEmpty()
-  price: number;
+	@IsNumber()
+	@IsNotEmpty()
+	price: number;
 
-  @IsString()
-  @IsOptional()
-  description: string;
-  @IsEnum(Size)
-  @IsOptional()
-  public readonly size?: Size;
+	@IsString()
+	@IsOptional()
+	description: string;
 
-  @IsEnum(Color)
-  public readonly color: Color;
+	@IsEnum(Size)
+	@IsOptional()
+	public readonly size?: Size;
 
-  @IsBoolean()
-  @IsOptional()
-  public readonly isPublic?: boolean;
+	@IsEnum(Color)
+	public readonly color: Color;
 
-  @IsString()
-  @IsNotEmpty()
-  public thumbnail: string;
+	@IsBoolean()
+	@IsOptional()
+	public readonly isPublic?: boolean;
+
+	@IsString()
+	@IsNotEmpty()
+	public thumbnail: string;
 }
 export class PublishAndGiftDto extends PublishDesignDto {
-  @IsArray()
-  @ArrayNotEmpty()
-  recievers: string[];
-  @IsString()
-  @IsOptional()
-  note?: string;
-  @IsString()
-  @IsOptional()
-  quantity?: string;
+	@IsArray()
+	@ArrayNotEmpty()
+	recievers: string[];
+	@IsString()
+	@IsOptional()
+	note?: string;
+	@IsString()
+	@IsOptional()
+	quantity?: string;
 }

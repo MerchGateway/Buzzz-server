@@ -33,6 +33,7 @@ import { GiftModule } from './gifting/gift.module';
 import { OtpModule } from './otp/otp.module';
 import { ColorAndSizesModule } from './colors-and-sizes/colors-and-sizes.module';
 import { BlogModule } from './blog/blog.module';
+import { DeliveryCostModule } from './delivery-cost/delivery-cost.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -68,6 +69,7 @@ import { BlogModule } from './blog/blog.module';
     GiftModule,
     ColorAndSizesModule,
     BlogModule,
+    DeliveryCostModule,
   ],
   controllers: [AppController, DesignController],
   providers: [
