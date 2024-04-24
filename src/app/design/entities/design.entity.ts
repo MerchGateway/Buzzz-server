@@ -7,11 +7,14 @@ import {
 	JoinColumn,
 	BeforeInsert,
 	BeforeUpdate,
+	OneToMany,
 } from 'typeorm';
 import { Product } from 'src/app/product/entities/product.entity';
 import { User } from 'src/app/users/entities/user.entity';
-import { DesignData, ImageBody } from 'src/types/asset';
+import { ImageBody } from 'src/types/asset';
 import { Timestamp } from '../../../database/timestamp.entity';
+import { DesignVariant } from './design-variant.entity';
+import { DesignData } from '../../../types/websocket';
 
 @Entity()
 export class Design extends Timestamp {
@@ -56,6 +59,9 @@ export class Design extends Timestamp {
 		collation: 'utf8mb4_unicode_ci',
 	})
 	texts: string[] | null;
+
+	@OneToMany(() => DesignVariant, (designVariant) => designVariant.design)
+	variants: DesignVariant[];
 
 	@BeforeInsert()
 	@BeforeUpdate()
