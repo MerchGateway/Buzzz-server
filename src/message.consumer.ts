@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Design } from './app/design/entities/design.entity';
 import { CloudinaryProvider } from './providers/cloudinary.provider';
 import { Inject } from '@nestjs/common';
+import { BullJobPayload } from './types/websocket';
 
 @Processor(EVENT_QUEUE)
 export class MessageConsumer {
@@ -20,8 +21,8 @@ export class MessageConsumer {
 	) {}
 
 	@Process(DESIGN_MERCH)
-	async readOperationJob(job: Job<unknown>) {
-		const jobData: any = job.data;
+	async readOperationJob(job: Job<BullJobPayload>) {
+		const jobData = job.data;
 		let isDesignExist: { design: Design };
 
 		try {
@@ -30,14 +31,12 @@ export class MessageConsumer {
 					design: await this.designService.fetchSingleDesign(jobData.id),
 				};
 
-				console.log(isDesignExist.design);
 				if (
 					jobData.user &&
 					isDesignExist.design &&
 					isDesignExist.design.contributors[0] &&
 					!isDesignExist.design.contributors.includes(jobData.user.email)
 				) {
-					console.log('unauthorized to design');
 					throw new WsException('You are not an authorized contributor');
 				} else if (
 					jobData.user &&
@@ -60,7 +59,6 @@ export class MessageConsumer {
 				isDesignExist = { design: null };
 			}
 			if (!isDesignExist.design) {
-				console.log('creating new design');
 				const newDesign = this.designRepository.create({
 					user: jobData.user,
 					texts: [],
@@ -68,29 +66,32 @@ export class MessageConsumer {
 					contributors: [],
 				});
 
-				const updatedDesign = await this.designService.sortAssets(
+				let updatedDesign = await this.designService.sortAssets(
 					newDesign,
 					jobData.payload
 				);
-				console.log('came back here', updatedDesign);
+
 				return updatedDesign;
 			} else {
 				if (isDesignExist.design.published === true) {
 					throw new WsException('Design already published');
 				}
 
-				console.log('updating old design');
 				isDesignExist.design.images = [];
 				isDesignExist.design.texts = [];
 
 				// delete old images from cloudinary
 				await this.imageStorage.deletePhotosByPrefix(isDesignExist.design.id);
-				const updatedDesign = await this.designService.sortAssets(
+
+				let updatedDesign = await this.designService.sortAssets(
 					isDesignExist.design,
 					jobData.payload
 				);
 
-				console.log(updatedDesign);
+				await this.designService.deleteDesignVariantByDesignId(
+					isDesignExist.design.id
+				);
+
 				return updatedDesign;
 			}
 		} catch (err) {

@@ -31,6 +31,9 @@ import { Role } from 'src/types/general';
 import { FeeService } from '../fee/fee.service';
 import { Product } from '../product/entities/product.entity';
 import { GiftService } from '../gifting/gift.service';
+import { DesignPayload, DesignData } from '../../types/websocket';
+import { DesignVariant } from './entities/design-variant.entity';
+import { UploadApiResponse } from 'cloudinary';
 @Injectable()
 export class DesignService {
 	constructor(
@@ -38,6 +41,8 @@ export class DesignService {
 		private readonly queue: Queue,
 		@InjectRepository(Design)
 		private readonly designRepository: Repository<Design>,
+		@InjectRepository(DesignVariant)
+		private readonly designVariantRepository: Repository<DesignVariant>,
 		private readonly cartService: CartService,
 		private readonly productService: ProductService,
 		private readonly giftService: GiftService,
@@ -69,7 +74,12 @@ export class DesignService {
 
 	async fetchSingleDesign(id: string): Promise<Design> {
 		try {
-			const design = await this.designRepository.findOne({ where: { id } });
+			const design = await this.designRepository.findOne({
+				where: { id },
+				relations: {
+					variants: true,
+				},
+			});
 			if (!design) {
 				throw new NotFoundException(
 					`Design with id ${id}  does  not exist or  deleted`
@@ -81,40 +91,123 @@ export class DesignService {
 		}
 	}
 
-	async sortAssets(design: Design, payload: any) {
+	async sortAssets(design: Design, payload: DesignPayload) {
 		// save updated assets
+		const MAIN_DESIGN_ASSET_TAG = 'main';
+		const VARIANT_DESIGN_ASSET_TAG = 'variant';
+
 		try {
-			for (const i in payload.objects) {
-				if (payload.objects[i].type === TEXT_TYPE) {
-					design.texts = [...design.texts, payload.objects[i].text];
-				} else if (payload.objects[i].type === IMAGE_TYPE) {
-					const image = await this.imageStorage.uploadPhoto(
-						payload.objects[i].src,
+			// upload the images in parallel
+			const imageCreationPromises: Promise<UploadApiResponse>[] = [];
+
+			for (const i in payload.design.objects) {
+				const object = payload.design.objects[i];
+				if (object.type === IMAGE_TYPE) {
+					const designImageCreationPromise = this.imageStorage.uploadPhoto(
+						object.src,
 						{
 							asset_folder: design.user ? design.user.username : design.id,
 							public_id_prefix: design.id,
+							tags: [MAIN_DESIGN_ASSET_TAG],
 						}
 					);
-
-					design.images.push({
-						publicId: image.public_id,
-						url: image.secure_url,
-					});
-					// update image scr from design with online link  to be saved
-					payload.objects[i].src = image.secure_url;
-				} else {
-					console.log('another kind of asset');
+					imageCreationPromises.push(designImageCreationPromise);
 				}
 			}
-			design.designData = payload;
+
+			if (payload.variants.length > 0) {
+				for (const variant of payload.variants) {
+					for (const object of variant.objects) {
+						if (object.type === IMAGE_TYPE) {
+							const variantImageCreationPromise = this.imageStorage.uploadPhoto(
+								object.src,
+								{
+									asset_folder: design.user ? design.user.username : design.id,
+									public_id_prefix: design.id,
+									tags: [variant.background, VARIANT_DESIGN_ASSET_TAG],
+								}
+							);
+							imageCreationPromises.push(variantImageCreationPromise);
+						}
+					}
+				}
+			}
+
+			let imageCreationResponses: UploadApiResponse[] = [];
+
+			if (imageCreationPromises.length > 0) {
+				imageCreationResponses = await Promise.all(imageCreationPromises);
+			}
+
+			for (const designObject of payload.design.objects) {
+				if (designObject.type === IMAGE_TYPE) {
+					const uploadedMainImage = imageCreationResponses.find((image) =>
+						image.tags.includes(MAIN_DESIGN_ASSET_TAG)
+					);
+					if (uploadedMainImage) {
+						design.images.push({
+							publicId: uploadedMainImage.public_id,
+							url: uploadedMainImage.secure_url,
+						});
+						designObject.src = uploadedMainImage.secure_url;
+					}
+				} else if (designObject.type === TEXT_TYPE) {
+					design.texts = [...design.texts, designObject.text];
+				}
+			}
+
+			design.designData = payload.design;
 			design = await this.designRepository.save(design);
-			return design;
+
+			if (payload.variants.length > 0) {
+				const designVariants = [];
+
+				for (const variant of payload.variants) {
+					const designVariant = this.designVariantRepository.create({
+						design,
+						designData: variant,
+						images: [],
+						texts: [],
+					});
+					for (const object of variant.objects) {
+						if (object.type === TEXT_TYPE) {
+							designVariant.texts = [...designVariant.texts, object.text];
+						} else if (object.type === IMAGE_TYPE) {
+							const uploadedVariantImage = imageCreationResponses.find(
+								(image) =>
+									image.tags.includes(variant.background) &&
+									image.tags.includes('variant')
+							);
+							if (uploadedVariantImage) {
+								designVariant.images.push({
+									publicId: uploadedVariantImage.public_id,
+									url: uploadedVariantImage.secure_url,
+								});
+								// update image scr from design with online link  to be saved
+								object.src = uploadedVariantImage.secure_url;
+							}
+						}
+					}
+					designVariant.designData = variant;
+					designVariants.push(designVariant);
+				}
+
+				await this.designVariantRepository.save(designVariants);
+			}
+
+			return await this.fetchSingleDesign(design.id);
 		} catch (error) {
 			throw new WsException(error.message);
 		}
 	}
 
-	async design(payload: any, user?: User, id?: string) {
+	async deleteDesignVariantByDesignId(designId: string) {
+		return await this.designVariantRepository.delete({
+			design: { id: designId },
+		});
+	}
+
+	async design(payload: DesignPayload, user?: User, id?: string) {
 		try {
 			return await this.queue.add(DESIGN_MERCH, { user, payload, id });
 		} catch (error) {

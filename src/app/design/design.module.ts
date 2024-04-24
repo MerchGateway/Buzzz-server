@@ -20,49 +20,50 @@ import { BullModule } from '@nestjs/bull';
 import { getRedisConfiguration } from 'src/config/redis-configuration';
 import { FeeModule } from '../fee/fee.module';
 import { GiftModule } from '../gifting/gift.module';
+import { DesignVariant } from './entities/design-variant.entity';
 
 @Module({
-  imports: [
-    BullModule.forRoot({
-      redis: getRedisConfiguration(configuration()),
-    }),
-    BullModule.registerQueue({
-      name: EVENT_QUEUE,
-    }),
-    UsersModule,
-    TypeOrmModule.forFeature([Design, PolymailerContent]),
-    JwtModule.register({
-      secret: configuration().jwt.secret,
-      signOptions: { expiresIn: configuration().jwt.expiresIn },
-    }),
-    GiftModule,
-    PaystackBrokerModule,
-    ProductModule,
-    CartModule,
-    FeeModule,
-  ],
-  providers: [
-    DesignService,
-    MessageConsumer,
-    {
-      provide: CLOUDINARY,
-      useFactory: (configService: ConfigService) => {
-        return new CloudinaryProvider(configService);
-      },
-      inject: [ConfigService],
-    },
+	imports: [
+		BullModule.forRoot({
+			redis: getRedisConfiguration(configuration()),
+		}),
+		BullModule.registerQueue({
+			name: EVENT_QUEUE,
+		}),
+		UsersModule,
+		TypeOrmModule.forFeature([Design, DesignVariant, PolymailerContent]),
+		JwtModule.register({
+			secret: configuration().jwt.secret,
+			signOptions: { expiresIn: configuration().jwt.expiresIn },
+		}),
+		GiftModule,
+		PaystackBrokerModule,
+		ProductModule,
+		CartModule,
+		FeeModule,
+	],
+	providers: [
+		DesignService,
+		MessageConsumer,
+		{
+			provide: CLOUDINARY,
+			useFactory: (configService: ConfigService) => {
+				return new CloudinaryProvider(configService);
+			},
+			inject: [ConfigService],
+		},
 
-    {
-      provide: APP_GATEWAY,
-      useClass: AppGateway,
-    },
+		{
+			provide: APP_GATEWAY,
+			useClass: AppGateway,
+		},
 
-    {
-      provide: JWT,
-      useClass: Jwt,
-    },
-  ],
-  controllers: [DesignController],
-  exports: [DesignService],
+		{
+			provide: JWT,
+			useClass: Jwt,
+		},
+	],
+	controllers: [DesignController],
+	exports: [DesignService],
 })
 export class DesignModule {}
