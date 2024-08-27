@@ -16,4 +16,11 @@ export enum Color {
   'Pink' = 'Pink',
   'Purple' = 'Purple',
   'Ash' = 'Ash',
+  '#000080' = '#000080',
+  '#a9a9a9' = '#a9a9a9',
+  '#ffc0cb' =  '#ffc0cb',
+  '#00ff00' = '#00ff00' ,
+  '#722F37' = '#722F37',
+  '#f5f5dc'= '#f5f5dc',
+  'transparent' = 'transparent'
 }
